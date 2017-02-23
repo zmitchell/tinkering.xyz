@@ -1,0 +1,14 @@
+languageCode = "en-us"
+title = "Tinkering.xyz"
+baseurl = "http://tinkering.xyz/"
+theme = "hugo-cactus-theme"
+contentDir = "content"
+layoutDir = "layouts"
+publishDir = "public"
+buildDrafts = false
+
+[params]
+    bio = "Physicist - Programmer - Breaker of Working Things"
+    aboutAuthor = "Yeah, I'll fix that eventually"
+    name = "Zach Mitchell"
+    enableRSS = true
