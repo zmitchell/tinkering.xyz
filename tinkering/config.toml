@@ -7,8 +7,16 @@ layoutDir = "layouts"
 publishDir = "public"
 buildDrafts = false
 
+# Code
+PygmentsCodeFences = true
+PygmentesUseClasses = false
+PygmentesStyle = "friendly"
+
+
 [params]
+    # Cactus Theme
     bio = "Physicist - Programmer - Breaker of Working Things"
     aboutAuthor = "Yeah, I'll fix that eventually"
     name = "Zach Mitchell"
     enableRSS = true
+    
