@@ -6,7 +6,7 @@ tags = [
     "optimization",
     "money"
 ]
-draft = false
+draft = true
 description = "The basics of student loans"
 +++
 
@@ -15,7 +15,12 @@ First off, my wife and I live in the United States. I'm not sure how student loa
 
 My wife and I both have student loans (shocker). I'm still in graduate school, so I don't have to start making payments on my student loans yet. On the other hand, my wife has a Grown Up job, so she has to make student loan payments.
 
-The question I wanted to answer was how to best distribute a lump sum between the different loans that we have to reduce the total amount of interest that we'll have paid once all of the loans are paid off.
+What I want to investigate is how much total interest do I pay when we pay off our student loans in different ways. There are formulas that let you calulate interest for single loans, but we have several loans with different principals, different interest rates, different numbers of payments remaining, and different dates at which payments start. It just seemed easier to have a computer do all of these calculations.
+
+Then, let's say we get a big check like a tax return, a returned security deposit, etc. If we want to put that towards student loans, how should we spread out that money to reduce the total interest that we pay?
+
+# Parts of a Loan
+When you're given a loan, you're given some money, and you're told an interest rate.
 
 # Interest
 Before diving into the details, let's talk about how interest is calculated for student loans. We have two different kinds of loans: subsidized and unsubsidized federal student loans.
@@ -24,7 +29,9 @@ Before diving into the details, let's talk about how interest is calculated for 
 This is a pretty nice deal. The loan doesn't accrue interest while you're in school, while you're in your grace period (typically six months after graduating), or while your loans are in deferrment (while I'm in graduate school). 
 
 ### Unsubsidized
-This type of loan is always accruing interest. What's more is that any unpaid interest capitalizes (becomes part of the principal) at the end of your grace period. In other words, any interest that's unpaid becomes part of the loan that you accrue interest on. This sucks because you're effectively penalized for not making interest payments on your student loans while you're in school.
+This type of loan is always accruing interest. What's more is that any unpaid interest capitalizes (becomes part of the principal) at the end of your grace period, and the balance of your interest is set back to zero. In other words, once it comes time to start making payments, any interest that's unpaid becomes part of the loan that you accrue interest on.
+
+This is important in our case because I have loans that are accruing interest now, but I don't have to make payments on them until after I graduate. However, 
 
 # Monthly Payments
 There is a ton of different student loan repayment plans. Some plans adjust your monthly payments based on your income, and others just payoff the loan in a specified number of years. In general, the longer it takes to payoff the loan, the more you pay in interest. 
