@@ -4,6 +4,7 @@ title = "Development Hardware for a Steal"
 tags = [
     "hardware"
 ]
+description = "Fast, quiet, efficient -- pick two"
 +++
 
 Yes, this is posted on Valentine's Day, but my wife is out of town so I have nothing better to do.

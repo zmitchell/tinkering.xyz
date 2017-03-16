@@ -5,6 +5,7 @@ tags = [
     "threading",
     "hardware"
 ]
+description = "In which I pretend to know what I'm talking about"
 +++
 
 **tl;dr** - A hyperthreading-enabled processor reports to the operating system that it is actually two separate processors so that the CPU assumes the responsibility of deciding when it should schedule work to be done on multiple jobs running at the same time. The CPU is much more efficient than the operating system at this decision making process, which allows it to better manage its time and resources. In some cases this results in doubled performance, but in others it doesn’t increase performance at all. The type of work being done by the processor is a large deciding factor in whether hyperthreading increases performance.
