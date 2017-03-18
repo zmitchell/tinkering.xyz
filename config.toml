@@ -1,6 +1,6 @@
 languageCode = "en-us"
 title = "Tinkering.xyz"
-baseurl = "http://tinkering.xyz/"
+baseurl = "https://tinkering.xyz/"
 theme = "hugo-cactus-theme"
 contentDir = "content"
 layoutDir = "layouts"
