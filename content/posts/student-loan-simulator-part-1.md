@@ -76,4 +76,4 @@ If you read some personal finance blogs or student loan websites, you'll general
 Our situation isn't the typical situation in which you have a handfull of loans that all start at the same time, so I was skeptical of any generally prescribed plan. With that in mind, I got to work.
 
 # Looking Ahead
-In the next part of this series, I'll describe the program I wrote to simulate the student loan payoff process. I'll also examine a few different cases, and how they play out.
+In the next part of this series, I'll describe the program I wrote to simulate the student loan payoff process.
