@@ -9,8 +9,8 @@ buildDrafts = false
 
 # Code
 PygmentsCodeFences = true
-PygmentesUseClasses = false
-PygmentesStyle = "friendly"
+PygmentsUseClasses = false
+PygmentsStyle = "monokai"
 
 
 [params]
