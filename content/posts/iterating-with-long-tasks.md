@@ -9,7 +9,7 @@ tags = [
 description = "It turns out I'm a noob"
 +++
 
-# The Problem
+## The Problem
 One of the reasons that I bought a separate development machine was the friction surrounding tasks that take a long time to run on a Raspberry Pi. For a home automation related project I had to compile the `openzwave` library on the Pi, and for another project in the works I had to compile `opencv` on the Pi. Both of those tasks take hours to complete. Both projects were being built inside Docker containers, so modifying the Dockerfile to fix a bug would trigger a complete rebuild of the image. To make matters worse, I wasn't saving the output of the build script to a file. Since I wasn't logging the output of the build process, I had to have a persistent connection to the Pi (via `ssh`) in order to see the error message if the build failed. In order to keep that connection open I had to prevent my Macbook Pro from sleeping, and press a button every now and then. If I had to go somewhere in the middle of a build, I would have to start that process all over again. Here's what this process looks like in a nutshell.  
 
 1. Identify a bug
@@ -23,7 +23,7 @@ One of the reasons that I bought a separate development machine was the friction
   
 Needless to say, this process is rage-inducing. Making incremental improvements takes forever, and is really demoralizing. Thankfully, there are some really basic solutions I've found to make life easier.
 
-# Solutions
+## Solutions
 The one thing that would make my sob story above less painful would have been the ability to view the output of the build script after the build completed, or to at least be able to see the build progress without the need for a persistent connection to the Pi. I've found two easy solutions to this that probably won't be a surprise to anyone who programs for a living.
 
 ### Using `tmux`
@@ -46,5 +46,5 @@ $ bash build.sh 1> build-log.txt 2>&1
 
 In that command `1` is the identifier for `stdout`, `2` is the identifier for `stderr`, and `&1` is the way that you reference a stream when you're redirecting **to** a stream. In short, the command tells `bash` to run my script, redirect `stdout` to a file, and redirect `stderr` to whatever `stdout` is pointed at (the same file as before).
 
-# Conclusion
+## Conclusion
 I think the thing that I took away from this was that I needed to do a better job thinking about looking for standard solutions to my problems. If I run into a problem, there's a very, very good chance that someone else out there has run into the same problem before. On the other hand, I already knew how to use redirects, so I just didn't think hard enough about how to use the tools at my disposal.

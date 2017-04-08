@@ -10,7 +10,7 @@ draft = false
 description = "The basics of student loans"
 +++
 
-# Motivation
+## Motivation
 First off, my wife and I live in the United States. I'm not sure how student loans work in other countries, so keep that in mind as I pretend to know what I'm talking about.
 
 My wife and I both have student loans (shocker). I'm still in graduate school, so I don't have to start making payments on my student loans yet. On the other hand, my wife has a Grown Up job, so she has to make student loan payments.
@@ -19,14 +19,14 @@ What I want to investigate is how much total interest do I pay when we pay off o
 
 Then, let's say we get a big check like a tax return, a returned security deposit, etc. If we want to put that towards student loans, how should we spread out that money to reduce the total interest that we pay?
 
-# Parts of a Loan
+## Parts of a Loan
 For those of you who are fortunate enough to not have to know how a loan works, let's start with a refresher course on the various parts of a loan. When a bank gives you a loan, they let you borrow a chunk of money and tell you a percentage. The chunk of money you're given is called the **principal** and the the percentage is the **interest rate**. 
 
 By letting you borrow some money that you promise to pay back, a bank is providing a service. Any time a bank lets someone borrow money, there is some risk that the bank won't get its money back for one reason or another. So, in order to have a successful business, the bank charges you a fee for the service it's providing you and the risk it's taking on you. The fee the bank charges you is the **interest** you pay on your loan.
 
 The interest you pay depends on how much money you're borrowing and how long it takes for you to pay it back. The interest rate is a percentage which is used to determine how much interest you pay the bank as a fraction of the amount that you borrowed. Rather than pay all of the interest up front, you accumulate or *accrue* interest every second that you still owe the bank money. The interest that you pay on your monthly payment is (typically) the interest that has accrued since the last payment.
 
-# Types of Student Loans
+## Types of Student Loans
 There are a bunch of different types of student loans that you can get from the government or private banks. My wife and I have two different kinds of loans: subsidized and unsubsidized federal student loans.
 
 Before diving in, it's worth mentioning the different time periods involved in the student loan process. The first time period is obviously while you're in school. While you're in the **deferrment** period, you don't have to pay back your student loans. In my case, I'm in deferrment because I'm in graduate school. The **grace** period is the time (typically six months) between leaving the deferrment period and the start of student loan payments. In my case, the grace period would be the six months between leaving graduate school and the start of my student loan payments.
@@ -45,7 +45,7 @@ This type of student loan doesn't accrue interest until after the grace period. 
 
 
 
-# Monthly Payments
+## Monthly Payments
 There is a ton of different student loan repayment plans. Some plans adjust your monthly payments based on your income, and others payoff the loan in a specified number of years. In general, the longer it takes to payoff the loan, the more you pay in interest. 
 
 For the sake of simplicity and minimizing the amount of interest we'll pay over time, I went with the standard repayment plan. The standard repayment plan has a term of 10 years, or 120 monthly payments. Monthly payments always target interest first, and what's left over is applied to the principal. 
@@ -60,7 +60,7 @@ where "M" is the monthly payment, "r" is the monthly interest rate (yearly rate 
 
 The typical use case for this formula is calculating what your payments will be before you have to start paying them, but it also works if you have already made some payments. Just use your current principal for "P", and your payments remaining for "n."
 
-# Loan Details
+## Loan Details
 My wife has been making student loan payments for a little while, but my payments won't start for quite some time. One of my loans is subsidized, but all of the other loans are unsubsidized.
 
 The process I wanted to simulate looks like this:
@@ -75,5 +75,5 @@ If you read some personal finance blogs or student loan websites, you'll general
 
 Our situation isn't the typical situation in which you have a handfull of loans that all start at the same time, so I was skeptical of any generally prescribed plan. With that in mind, I got to work.
 
-# Looking Ahead
+## Looking Ahead
 In the next part of this series, I'll describe the program I wrote to simulate the student loan payoff process.
