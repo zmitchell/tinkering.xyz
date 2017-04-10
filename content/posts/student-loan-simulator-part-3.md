@@ -112,61 +112,61 @@ The first interesting thing to note is that targeting the lowest principal and t
 The second interesting thing is the difference in how the lump sum is distributed in each case. Targeting the highest interest rate puts the entire sum towards the highest interest rate loan. Targeting the lowest principal puts money towards all but the first loans and seems to give progressively more money to loans with higher interest rates. I say "seems" because loan 4 has a lower interest rate than loan 5, but is given $100 more than loan 5. I'm not really sure what's going on there. Targeting the highest principal loan seems to just use my guesses.
 
 ## Case - Our Loans
-Now let's take a look at a more realistic, more complicated scenario. We have 3 loans that are currently being paid and 4 that won't start payments for a few years. Of those 4 that haven't started payments yet, 3 are currently accruing interest. For more information on how student loan interest works, refer back to [part 1][part-1] of the series. Here's what our loans look like:
+Now let's take a look at a more realistic, more complicated scenario. We have 3 loans that are currently being paid and 4 that won't start payments for a few years. Of those 4 that haven't started payments yet, 3 are currently accruing interest. For more information on how student loan interest works, refer back to [part 1][part-1] of the series. For the loan amounts I picked some random numbers and rounded to make things a little nicer to look at. Here's what the loans look like:
 
 ```text
-Loan 1: P $5500.00  | I $2300.00 | 6.80%
-Loan 2: P $4500.00  | I $2400.00 | 6.80%
-Loan 3: P $7500.00  | I $2700.00 | 6.80%
-Loan 4: P $3500.00  | I $0.00    | 3.40%
-Loan 5: P $33000.00 | I $1200.00 | 5.40%
-Loan 6: P $4800.00  | I $400.00  | 6.40%
-Loan 7: P $28000.00 | I $900.00  | 6.20%
+Loan 1: P $7000.00  | I $2700.00 | 6.80%
+Loan 2: P $6900.00  | I $1500.00 | 6.80%
+Loan 3: P $9500.00  | I $3100.00 | 6.80%
+Loan 4: P $5800.00  | I $0.00    | 3.40%
+Loan 5: P $27000.00 | I $3000.00 | 5.40%
+Loan 6: P $8500.00  | I $350.00  | 6.40%
+Loan 7: P $24000.00 | I $8200.00 | 6.20%
 Starting Budget: 15000.0
 Guesses: 2142.86 for each
 Monthly Budget: 1500.00
 ```
 
-Loans 1-3 haven't started payments yet, but are accruing interest. Loan 4 hasn't started payments yet, but isn't accruing interest yet. Loans 1-4 will use the standard 10 year repayment plan (120 payments). Loans 5-7 have already started payments, and have ~90 payments left. Here are the results:
+Although I randomly generated the loan amounts, the loan starting dates, payments remaining, and interest rates are close to our real situation. Loans 1-3 haven't started payments yet, but are accruing interest. Loan 4 hasn't started payments yet, but isn't accruing interest yet. Loans 1-4 will use the standard 10 year repayment plan (120 payments). Loans 5-7 have already started payments, and have ~90 payments left. Here are the results:
 
 ```text
 Highest Interest Rate
-Loan 1: $4365.32
-Loan 2: $0.00
-Loan 3: $0.00
-Loan 4: $0.06
-Loan 5: $939.61
-Loan 6: $5200.00
-Loan 7: $4495.01
-Months: 63
-Interest Paid: $21828.33
-```
-```text
-Highest Principal
-Loan 1: $7800.27
-Loan 2: $6900.00
+Loan 1: $3005.06
+Loan 2: $3223.74
 Loan 3: $0.00
 Loan 4: $0.00
 Loan 5: $0.00
-Loan 6: $299.73
+Loan 6: $8771.20
 Loan 7: $0.00
-Months: 63
-Interest Paid: $22182.85
+Months: 72
+Interest Paid: $33823.60
+```
+```text
+Highest Principal
+Loan 1: $6628.04
+Loan 2: $8371.96
+Loan 3: $0.00
+Loan 4: $0.00
+Loan 5: $0.00
+Loan 6: $0.00
+Loan 7: $0.00
+Months: 73
+Interest Paid: $34740.63
 ```
 ```text
 Lowest Principal
-Loan 1: $4294.11
-Loan 2: $0.00
+Loan 1: $0.00
+Loan 2: $8393.03
 Loan 3: $0.00
 Loan 4: $0.00
-Loan 5: $0.02
-Loan 6: $396.29
-Loan 7: $10309.58
-Months: 63
-Interest Paid: $21955.49
+Loan 5: $0.00
+Loan 6: $6606.97
+Loan 7: $0.00
+Months: 73
+Interest Paid: $34396.28
 ```
 
-Surprisingly, there's only ~$350 difference between the most interest paid and the least interest paid. Considering that this $350 difference is on top of $22k and is spread out over about 5 years, I'm inclined to say that there's not a significant difference between these payoff methods *in our case*. Oh well, it was an interesting exercise anyway.
+It looks like targeting payments towards the highest interest rate saves you ~$1k over targeting the highest principal and ~$400 over targeting the lowest principal. This would lead me to believe that there's not a significant difference between the highest interest and lowest principal targeting methods. Sure, there's a $400 difference between the two cases with these randomly generated loan amounts, but that's over 6 years and on top of ~$34k in interest. You could save $400 by buying groceries differently, cutting back on Starbucks, or something else very minor *for a single year*. I guess the point I'm trying to make here is that if you are struggling with the emotional toll of your seemingly never ending student loan debt, maybe target your payments towards the loan with the lowest principal so you can get a sense of accomplishment before paying off the next loan.
 
 [part-1]: /posts/student-loan-simulator-part-1/
 [part-2]: /posts/student-loan-simulator-part-2/
