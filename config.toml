@@ -1,7 +1,8 @@
 languageCode = "en-us"
-title = "Tinkering.xyz"
+title = "Tinkering"
 baseurl = "https://tinkering.xyz/"
-theme = "hugo-cactus-theme"
+# theme = "hugo-cactus-theme"
+theme = "hugo-kiera"
 contentDir = "content"
 layoutDir = "layouts"
 publishDir = "public"
@@ -12,6 +13,10 @@ PygmentsCodeFences = true
 PygmentsUseClasses = false
 PygmentsStyle = "monokai"
 
+[author]
+    name = "Zach Mitchell"
+    github = "zmitchell"
+    linkedin = "zmitchell22"
 
 [params]
     # Cactus Theme
@@ -19,4 +24,5 @@ PygmentsStyle = "monokai"
     aboutAuthor = "Yeah, I'll fix that eventually"
     name = "Zach Mitchell"
     enableRSS = true
-    
+    # Kiera Theme
+    tagline = "It was working a second ago, I promise"
