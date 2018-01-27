@@ -6,18 +6,19 @@
     <description>Recent content on Tinkering</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 22 Jan 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 27 Jan 2018 14:46:04 -0500</lastBuildDate>
     
 	<atom:link href="https://tinkering.xyz/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Stay Tuned!</title>
-      <link>https://tinkering.xyz/posts/stay-tuned/</link>
-      <pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate>
+      <title>relm Developer Diary #1</title>
+      <link>https://tinkering.xyz/posts/relm-diary-1/</link>
+      <pubDate>Sat, 27 Jan 2018 14:46:04 -0500</pubDate>
       
-      <guid>https://tinkering.xyz/posts/stay-tuned/</guid>
-      <description>There are several posts in the works that should be released shortly</description>
+      <guid>https://tinkering.xyz/posts/relm-diary-1/</guid>
+      <description>&lt;p&gt;This is going to be the first of many articles discussing my contributions to &lt;code&gt;relm&lt;/code&gt;. The first order of business is starting my work updating &lt;code&gt;relm&lt;/code&gt;&amp;rsquo;s dependency on &lt;code&gt;syn&lt;/code&gt; from 0.11.x to 0.12.x.
+&lt;/p&gt;</description>
     </item>
     
   </channel>

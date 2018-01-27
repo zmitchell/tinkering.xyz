@@ -104,6 +104,10 @@ time {
   list-style: none;
 }
 
+#container main section#home ul h1 a {
+  color: #333333;
+}
+
 #container main section#home ul li {
   margin: 0.5em 0;
   padding-bottom: 0.5em;
@@ -160,8 +164,15 @@ time {
 
 #container main article p code {
   padding: 0.2em;
-  background-color: #ffcccc;
+  background-color: #e0e0e0;
   font-size: 0.9em;
+  border-radius: 3px;
+}
+
+#container main section code {
+  padding: 0.2em;
+  background-color: #e0e0e0;
+  border-radius: 3px;
 }
 
 #container main article p kbd {
