@@ -2,6 +2,7 @@
 title = "About"
 hidden = true
 menu = "main"
+meta = false
 +++
 
 {{< figure src="/images/me-reduced.jpg" class="float-right" >}}
