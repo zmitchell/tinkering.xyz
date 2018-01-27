@@ -20,10 +20,3 @@ What's even better is the newest version of `syn` has support for tracking span 
 This is all great, and I was excited to get started, but there's a big problem I haven't mentioned. The current version of `syn` as of writing this is `0.12.x`, and `relm` currently uses `0.11.x`. There was a major rewrite between those two versions, which breaks basically everything in `relm` that could possibly be broken.
 
 So, the first order of business is updating `relm` to use the latest version of `syn`, and then I'll get to rewriting the parser. I also know that documentation is a pain point for `relm`, so I'll be documenting things as I go.
-
-```rust
-fn main() -> gtk::Button {
-    let foo: i32 = 4;
-    let bar = gtk::Window::new();
-}
-```
