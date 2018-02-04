@@ -19,3 +19,4 @@ PygmentsStyle = "monokai"
 [params]
     # Kiera Theme
     tagline = "I just couldn't leave well enough alone"
+    ga = "UA-113476578-1"
