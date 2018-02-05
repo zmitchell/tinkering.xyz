@@ -439,13 +439,12 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>bees_msg<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>[<span style="color:#c30">&#34;&#34;</span>,<span style="color:#bbb"> </span>bees.as_str(),<span style="color:#bbb"> </span>msg,<span style="color:#bbb"> </span>bees.as_str(),<span style="color:#bbb"> </span><span style="color:#c30">&#34;&#34;</span>].join(<span style="color:#c30">&#34;</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>);<span style="color:#bbb">
 </span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// Find the field named &#34;bees&#34;.
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span><span style="color:#069;font-weight:bold">for</span><span style="color:#bbb"> </span>field<span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">in</span><span style="color:#bbb"> </span><span style="color:#555">&amp;</span>fields.named<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">            </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#366">Some</span>(ident)<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>field.ident<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>ident.as_ref()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                    </span><span style="color:#09f;font-style:italic">// Deliver the error message.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                    </span>ident.span().unstable()<span style="color:#bbb">
-</span><span style="color:#bbb">                        </span>.error(bees_msg.clone())<span style="color:#bbb">
-</span><span style="color:#bbb">                        </span>.emit();<span style="color:#bbb">
-</span><span style="color:#bbb">                </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>ident<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>field.ident.unwrap();<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>ident<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#09f;font-style:italic">// Deliver the error message.
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                </span>ident.span().unstable()<span style="color:#bbb">
+</span><span style="color:#bbb">                    </span>.error(bees_msg.clone())<span style="color:#bbb">
+</span><span style="color:#bbb">                    </span>.emit();<span style="color:#bbb">
 </span><span style="color:#bbb">            </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">        </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>}<span style="color:#bbb">
@@ -546,11 +545,9 @@ proc-macro = true</code></pre></div>
 <p>BEAUTIFUL! I&rsquo;m pretty happy with how this looks. To satisfy the purists, I added some feature flags to the <code>wickerman</code> crate. The default feature is <code>just-the-bees-please</code>, which will only show the &ldquo;not the bees!&rdquo; message. The other feature is <code>go-nuts</code>, which will show the randomly selected error messages on the other fields and types. I did this using the <code>cfg!</code> macro:</p>
 <div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>ident.as_ref()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Take the pedestrian way out.
-</span><span style="color:#09f;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>cfg<span style="color:#555">!</span>(feature<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;go-nuts&#34;</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// Let&#39;s get weird.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>}<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
+</span><span style="color:#09f;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">else</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>cfg<span style="color:#555">!</span>(feature<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;go-nuts&#34;</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Let&#39;s get weird.
+</span><span style="color:#09f;font-style:italic"></span>}</code></pre></div>
 <p>This is the first time I&rsquo;ve used feature flags in one of my own crates. Do they make &ldquo;Baby&rsquo;s First Conditional Compilation&rdquo; refrigerator magnets? Someone look into it and let me know.</p>
 
 <h2 id="summary-1">Summary</h2>

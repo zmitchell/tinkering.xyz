@@ -355,13 +355,12 @@ fn light_it_up(struct_: &syn::ItemStruct) {
         let bees_msg = ["", bees.as_str(), msg, bees.as_str(), ""].join("\n");
         // Find the field named "bees".
         for field in &fields.named {
-            if let Some(ident) = field.ident {
-                if ident.as_ref() == "bees" {
-                    // Deliver the error message.
-                    ident.span().unstable()
-                        .error(bees_msg.clone())
-                        .emit();
-                }
+            let ident = field.ident.unwrap();
+            if ident == "bees" {
+                // Deliver the error message.
+                ident.span().unstable()
+                    .error(bees_msg.clone())
+                    .emit();
             }
         }
     }
@@ -457,10 +456,8 @@ BEAUTIFUL! I'm pretty happy with how this looks. To satisfy the purists, I added
 ```rust
 if ident.as_ref() == "bees" {
     // Take the pedestrian way out.
-} else {
-    if cfg!(feature = "go-nuts") {
-        // Let's get weird.
-    }
+} else if cfg!(feature = "go-nuts") {
+    // Let's get weird.
 }
 ```
 This is the first time I've used feature flags in one of my own crates. Do they make "Baby's First Conditional Compilation" refrigerator magnets? Someone look into it and let me know.
