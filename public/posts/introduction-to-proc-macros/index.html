@@ -190,7 +190,7 @@
 </span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">fn</span> <span style="color:#c0f">my_custom_attribute</span>(metadata: <span style="color:#0a8;font-weight:bold">TokenStream</span>,<span style="color:#bbb"> </span>input: <span style="color:#0a8;font-weight:bold">TokenStream</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#0a8;font-weight:bold">TokenStream</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// do something
 </span><span style="color:#09f;font-style:italic"></span>}</code></pre></div>
-<p>The first argument is the metadata contained in the attribute such as the arguments. There are a few different ways to use a custom attribute, so refer back to the Unstable Book for more details. The second argument is the syntax tree of the item that the attribute was applied to (the struct <code>Foo</code> in the example above).</p>
+<p>The first argument is the metadata contained in the attribute i.e. the arguments or values. There are a few different ways to use a custom attribute, so refer back to the Unstable Book for more details. The second argument is the syntax tree of the item that the attribute was applied to (the struct <code>Foo</code> in the example above).</p>
 
 <p>A great example for how to use a custom attribute can be found in the <a href="https://serde.rs/attributes.html"><code>serde</code></a> crate, where they&rsquo;re used to customize how a struct/enum will be (de)serialized.</p>
 

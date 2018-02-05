@@ -89,7 +89,7 @@ fn my_custom_attribute(metadata: TokenStream, input: TokenStream) -> TokenStream
 }
 ```
 
-The first argument is the metadata contained in the attribute such as the arguments. There are a few different ways to use a custom attribute, so refer back to the Unstable Book for more details. The second argument is the syntax tree of the item that the attribute was applied to (the struct `Foo` in the example above).
+The first argument is the metadata contained in the attribute i.e. the arguments or values. There are a few different ways to use a custom attribute, so refer back to the Unstable Book for more details. The second argument is the syntax tree of the item that the attribute was applied to (the struct `Foo` in the example above).
 
 A great example for how to use a custom attribute can be found in the [`serde`][serde-attributes] crate, where they're used to customize how a struct/enum will be (de)serialized.
 
