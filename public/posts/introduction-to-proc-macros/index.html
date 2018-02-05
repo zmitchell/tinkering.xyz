@@ -438,17 +438,16 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// newline characters at the beginning and end of the error message.
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>bees_msg<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>[<span style="color:#c30">&#34;&#34;</span>,<span style="color:#bbb"> </span>bees.as_str(),<span style="color:#bbb"> </span>msg,<span style="color:#bbb"> </span>bees.as_str(),<span style="color:#bbb"> </span><span style="color:#c30">&#34;&#34;</span>].join(<span style="color:#c30">&#34;</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>);<span style="color:#bbb">
 </span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// Find the field named &#34;bees&#34;.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span>fields.named.iter()<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.for_each(<span style="color:#555">|</span>field<span style="color:#555">|</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#366">Some</span>(ident)<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>field.ident<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                    </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>ident.as_ref()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                        </span><span style="color:#09f;font-style:italic">// Deliver the error message.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                        </span>ident.span().unstable()<span style="color:#bbb">
-</span><span style="color:#bbb">                            </span>.error(bees_msg.clone())<span style="color:#bbb">
-</span><span style="color:#bbb">                            </span>.emit()<span style="color:#bbb">
-</span><span style="color:#bbb">                    </span>}<span style="color:#bbb">
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span><span style="color:#069;font-weight:bold">for</span><span style="color:#bbb"> </span>field<span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">in</span><span style="color:#bbb"> </span><span style="color:#555">&amp;</span>fields.named<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#366">Some</span>(ident)<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>field.ident<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>ident.as_ref()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                    </span><span style="color:#09f;font-style:italic">// Deliver the error message.
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                    </span>ident.span().unstable()<span style="color:#bbb">
+</span><span style="color:#bbb">                        </span>.error(bees_msg.clone())<span style="color:#bbb">
+</span><span style="color:#bbb">                        </span>.emit();<span style="color:#bbb">
 </span><span style="color:#bbb">                </span>}<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>});<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>}<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}</code></pre></div>
 <p>Now we&rsquo;ll make a simple example to show that it works:</p>

@@ -354,17 +354,16 @@ fn light_it_up(struct_: &syn::ItemStruct) {
         // newline characters at the beginning and end of the error message.
         let bees_msg = ["", bees.as_str(), msg, bees.as_str(), ""].join("\n");
         // Find the field named "bees".
-        fields.named.iter()
-            .for_each(|field| {
-                if let Some(ident) = field.ident {
-                    if ident.as_ref() == "bees" {
-                        // Deliver the error message.
-                        ident.span().unstable()
-                            .error(bees_msg.clone())
-                            .emit()
-                    }
+        for field in &fields.named {
+            if let Some(ident) = field.ident {
+                if ident.as_ref() == "bees" {
+                    // Deliver the error message.
+                    ident.span().unstable()
+                        .error(bees_msg.clone())
+                        .emit();
                 }
-            });
+            }
+        }
     }
 }
 ```
