@@ -162,7 +162,7 @@ time {
   font-size: 0.9em;
 }
 
-#container main article p code {
+#container main article p code, #container main article li code {
   padding: 0.2em;
   background-color: #e0e0e0;
   font-size: 0.9em;
@@ -226,6 +226,10 @@ a {
   text-decoration: none;
 }
 
+#container p a, li a {
+  text-decoration: underline;
+}
+
 .image, figure img, img {
   width: 100%;
   box-shadow: 0 3px 3px #bbbbbb;
@@ -254,12 +258,13 @@ a {
 
 @supports (width: 100vw) {
   .mid-image, figure.mid img, img[src*="mid"] {
-    width: 800px;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -400px;
-    margin-right: -400px;
+    /*width: 800px;*/
+    /*width: 700px;*/
+    /*position: relative;*/
+    /*left: 50%;*/
+    /*right: 50%;*/
+    /*margin-left: -400px;*/
+    /*margin-right: -400px;*/
   }
   @media only screen and (max-width: 800px) {
     .mid-image, figure.mid img, img[src*="mid"] {
@@ -278,7 +283,7 @@ a {
   box-shadow: 0 3px 3px #bbbbbb;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 599px) {
   .float-image, figure.float img, img[src*="float"] {
     float: none;
     margin: 0;
@@ -293,7 +298,7 @@ a {
   box-shadow: 0 3px 3px #bbbbbb;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 599px) {
   .float-image-right, figure.float-right img, img[src*="float-right"] {
     float: none;
     margin: 0;

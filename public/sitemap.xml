@@ -4,7 +4,12 @@
   
   <url>
     <loc>https://tinkering.xyz/posts/</loc>
-    <lastmod>2018-01-27T14:46:04-05:00</lastmod>
+    <lastmod>2018-02-03T19:36:37-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://tinkering.xyz/posts/introduction-to-proc-macros/</loc>
+    <lastmod>2018-02-03T19:36:37-05:00</lastmod>
   </url>
   
   <url>
@@ -22,6 +27,12 @@
   </url>
   
   <url>
+    <loc>https://tinkering.xyz/tags/macros/</loc>
+    <lastmod>2018-02-03T19:36:37-05:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://tinkering.xyz/tags/relm/</loc>
     <lastmod>2018-01-27T14:46:04-05:00</lastmod>
     <priority>0</priority>
@@ -29,19 +40,19 @@
   
   <url>
     <loc>https://tinkering.xyz/tags/rust/</loc>
-    <lastmod>2018-01-27T14:46:04-05:00</lastmod>
+    <lastmod>2018-02-03T19:36:37-05:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://tinkering.xyz/tags/</loc>
-    <lastmod>2018-01-27T14:46:04-05:00</lastmod>
+    <lastmod>2018-02-03T19:36:37-05:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://tinkering.xyz/</loc>
-    <lastmod>2018-01-27T14:46:04-05:00</lastmod>
+    <lastmod>2018-02-03T19:36:37-05:00</lastmod>
     <priority>0</priority>
   </url>
   

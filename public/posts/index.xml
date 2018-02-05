@@ -6,13 +6,22 @@
     <description>Recent content in Posts on Tinkering</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 27 Jan 2018 14:46:04 -0500</lastBuildDate>
+    <lastBuildDate>Sat, 03 Feb 2018 19:36:37 -0500</lastBuildDate>
     
 	<atom:link href="https://tinkering.xyz/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>relm Development Diary #1</title>
+      <title>Introduction to Procedural Macros</title>
+      <link>https://tinkering.xyz/posts/introduction-to-proc-macros/</link>
+      <pubDate>Sat, 03 Feb 2018 19:36:37 -0500</pubDate>
+      
+      <guid>https://tinkering.xyz/posts/introduction-to-proc-macros/</guid>
+      <description>As a newcomer to Rust, I heard the phrase &amp;ldquo;procedural macro&amp;rdquo; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I&amp;rsquo;m working on the guts of relm, and a large chunk of it is procedural macros. I&amp;rsquo;ve learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.</description>
+    </item>
+    
+    <item>
+      <title>relm Contribution Diary #1</title>
       <link>https://tinkering.xyz/posts/relm-diary-1/</link>
       <pubDate>Sat, 27 Jan 2018 14:46:04 -0500</pubDate>
       

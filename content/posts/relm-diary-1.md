@@ -1,5 +1,5 @@
 +++
-title = "relm Development Diary #1"
+title = "relm Contribution Diary #1"
 date = 2018-01-27T14:46:04-05:00
 draft = false
 tags = ["rust", "relm"]

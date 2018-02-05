@@ -9,7 +9,11 @@ buildDrafts = false
 
 # Code
 PygmentsCodeFences = true
-PygmentsStyle = "monokai"
+PygmentsStyle = "manni"
+# PygmentsStyle = "monokai"
+# PygmentsStyle = "friendly"
+# PygmentsStyle = "native"
+# PygmentsStyle = "paraiso-dark"
 
 [author]
     name = "Zach Mitchell"
