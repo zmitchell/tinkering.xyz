@@ -299,7 +299,6 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>syn;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>proc_macro;<span style="color:#bbb">
-</span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>proc_macro2;<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">use</span><span style="color:#bbb"> </span>proc_macro::TokenStream;<span style="color:#bbb">
 </span><span style="color:#bbb">
@@ -309,24 +308,11 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#bbb"></span>}</code></pre></div>
 <p>This obviously doesn&rsquo;t do any of the devious things that we want, but it does compile. That&rsquo;s a start.</p>
 
-<p>The next thing we&rsquo;re going to do is convert our <code>proc_macro::TokenStream</code> into a <code>proc_macro2::TokenStream</code> so that when we can work with the span information as mentioned before. At the end we still need to return a <code>proc_macro::TokenStream</code>, so we do that as well.</p>
-<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#099">#[proc_macro_attribute]</span><span style="color:#bbb">
-</span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">pub</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">fn</span> <span style="color:#c0f">not_the_bees</span>(_metadata: <span style="color:#0a8;font-weight:bold">TokenStream</span>,<span style="color:#bbb"> </span>input: <span style="color:#0a8;font-weight:bold">TokenStream</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#0a8;font-weight:bold">TokenStream</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Convert the `proc_macro::TokenStream` into a `proc_macro2::TokenStream` to get the
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// span information from the compiler.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>input: <span style="color:#0a8;font-weight:bold">proc_macro2</span>::TokenStream<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>input.into();<span style="color:#bbb">
-</span><span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Convert the `proc_macro2::TokenStream` back into a `proc_macro::TokenStream`.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>output: <span style="color:#0a8;font-weight:bold">TokenStream</span><span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>input.into();<span style="color:#bbb">
-</span><span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Return the `TokenStream`.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>output<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
-<p>Next we try to parse the input into a <code>syn::Item</code> using the <code>syn::parse2</code> function. In <code>syn</code> parlance, an <code>Item</code> is a syntax tree that can appear at the module level, which includes things like function, struct, and enum definitions. If parsing fails (maybe we&rsquo;re trying to parse something that isn&rsquo;t an <code>Item</code>), we&rsquo;ll panic with the given error message.</p>
+<p>Next we try to parse the input into a <code>syn::Item</code> using the <code>syn::parse</code> function. In <code>syn</code> parlance, an <code>Item</code> is a syntax tree that can appear at the module level, which includes things like function, struct, and enum definitions. If parsing fails (maybe we&rsquo;re trying to parse something that isn&rsquo;t an <code>Item</code>), we&rsquo;ll panic with the given error message.</p>
 <div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#09f;font-style:italic">// Parse the `TokenStream` into a syntax tree, specifically an `Item`. An `Item` is a
 </span><span style="color:#09f;font-style:italic">// syntax item that can appear at the module level i.e. a function definition, a struct
 </span><span style="color:#09f;font-style:italic">// or enum definition, etc.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>item: <span style="color:#0a8;font-weight:bold">syn</span>::Item<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>syn::parse2(input).expect(<span style="color:#c30">&#34;failed to parse input&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>item: <span style="color:#0a8;font-weight:bold">syn</span>::Item<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>syn::parse(input).expect(<span style="color:#c30">&#34;failed to parse input&#34;</span>);<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#09f;font-style:italic">// Use `quote` to convert the syntax tree back into tokens so we can return them. Note
 </span><span style="color:#09f;font-style:italic">// that the tokens we&#39;re returning at this point are still just the input, we&#39;ve simply

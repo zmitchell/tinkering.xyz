@@ -200,7 +200,6 @@ Here's the most barebones version of our macro crate:
 
 extern crate syn;
 extern crate proc_macro;
-extern crate proc_macro2;
 
 use proc_macro::TokenStream;
 
@@ -212,29 +211,13 @@ pub fn not_the_bees(_metadata: TokenStream, input: TokenStream) -> TokenStream {
 
 This obviously doesn't do any of the devious things that we want, but it does compile. That's a start.
 
-The next thing we're going to do is convert our `proc_macro::TokenStream` into a `proc_macro2::TokenStream` so that when we can work with the span information as mentioned before. At the end we still need to return a `proc_macro::TokenStream`, so we do that as well.
-```rust
-#[proc_macro_attribute]
-pub fn not_the_bees(_metadata: TokenStream, input: TokenStream) -> TokenStream {
-    // Convert the `proc_macro::TokenStream` into a `proc_macro2::TokenStream` to get the
-    // span information from the compiler.
-    let input: proc_macro2::TokenStream = input.into();
-
-    // Convert the `proc_macro2::TokenStream` back into a `proc_macro::TokenStream`.
-    let output: TokenStream = input.into();
-
-    // Return the `TokenStream`.
-    output
-}
-```
-
-Next we try to parse the input into a `syn::Item` using the `syn::parse2` function. In `syn` parlance, an `Item` is a syntax tree that can appear at the module level, which includes things like function, struct, and enum definitions. If parsing fails (maybe we're trying to parse something that isn't an `Item`), we'll panic with the given error message.
+Next we try to parse the input into a `syn::Item` using the `syn::parse` function. In `syn` parlance, an `Item` is a syntax tree that can appear at the module level, which includes things like function, struct, and enum definitions. If parsing fails (maybe we're trying to parse something that isn't an `Item`), we'll panic with the given error message.
 
 ```rust
 // Parse the `TokenStream` into a syntax tree, specifically an `Item`. An `Item` is a
 // syntax item that can appear at the module level i.e. a function definition, a struct
 // or enum definition, etc.
-let item: syn::Item = syn::parse2(input).expect("failed to parse input");
+let item: syn::Item = syn::parse(input).expect("failed to parse input");
 
 // Use `quote` to convert the syntax tree back into tokens so we can return them. Note
 // that the tokens we're returning at this point are still just the input, we've simply
