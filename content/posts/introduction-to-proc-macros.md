@@ -167,7 +167,6 @@ Procedural macros are still an unstable feature, so you must also put the follow
 The [`proc-macro`][proc-macro-docs] crate is part of the standard library, but you'll need a few other crates to make your macros.
 ```rust
 extern crate proc_macro;
-extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
@@ -178,30 +177,12 @@ We'll go through these one by one.
 This crate defines the `TokenStream` type. There's not much else to see here as the `proc_macro` crate is intentionally barebones.
 
 #### `syn`
-When you're writing your procedural macro you're going to have about 40 tabs open that start with `syn::` because this crate defines all of the syntax items that your code will get parsed into. For example, [this][syn-expr] is the page for `syn::Expr`, which is the enum describing all the various types of expressions. Take a look, I'll wait. Yeah, there's a lot going on there. You'll just have to keep the documentation open while you work.
+When you're writing your procedural macro you're going to have about 40 tabs open that start with `syn::` because this crate defines all of the syntax items that your code will get parsed into. For example, [this][syn-expr] is the page for `syn::Expr`, which is the enum describing all the various types of expressions. Take a look, I'll wait. Yeah, there's a lot going on there. You'll just have to keep the documentation open while you work. That's not a bad thing though, because there's all kinds of useful stuff in there.
+
+The most recent versions of `syn` (`0.12.x`) provide you some really nice tools for creating error messages. Let's say your macro allows the user to write code in a custom syntax. The compiler doesn't know your custom syntax (you can actually make custom parsers with `syn`, but that's another topic), so you're responsible for parsing your custom syntax and generating valid Rust code from it. If you determine that the user has made a syntax error, you can generate a compiler error pointing to the exact location of the error. I'll show you how to do this in a minute.
 
 #### `quote`
 The [`quote`][quote-docs] crate is basically the opposite of `syn` in that it generates tokens rather than parsing them. The basic idea is that you use `syn` to parse strings or tokens into syntax trees, then use `quote` to turn syntax trees back into tokens or strings.
-
-#### `proc-macro2`
-This is a compatibility crate that lets you use the API of the "macros 2.0" update before it's stabilized. This isn't strictly necessary as a dependency, but I'll explain why you want to use it anyway.
-
-Let's consider a function-like macro that a user might write a ton of code inside (this isn't too far fetched, something similar is used in `relm`). That would look something like this:
-```rust
-foo!(
-    // hundreds of lines of code
-)
-```
-Now let's say that the user makes a syntax error somewhere in the middle. The error will show up where the macro is invoked (called), not where the error occurs. Good luck finding that error. Having been in this situation, I can tell you it is ~~infuriating~~ not ideal.
-```rust
-// error message shows up right here!
-foo!(
-    // hundreds of lines of code
-    let x: i32 = "definitely not an i32";
-    // hundreds of lines of code
-)
-```
-With the current procedural macro API, there's no span (line/column) information from the user's code available to your macro, so any error messages are resolved to the location of the macro invocation. I'm not exactly sure what's going on behind the scenes, but `proc-macro2` and its `nightly` feature retains span information provided by the compiler. A nice benefit of this is that you can use this span information to generate your own errors targeting specific syntax items. Let's take advantage of that.
 
 ## Let's Write a "The Wicker Man" Macro
 First, some context:
@@ -352,8 +333,7 @@ Yikes, that's quite the rabbit hole. Unfortunately, this is the price you pay fo
 * match on `fields`
 * destructure the `Named` variant to bind its contents to a variable
 * use the iterator methods provided by `Punctuated` to iterate over the fields
-* destructure each `field`'s `ident`
-* compare the `ident`'s string representation with "bees"
+* compare the `ident` (name) of each field with "bees"
 
 ```rust
 /// Determine if the struct has a field named "bees"
@@ -362,20 +342,8 @@ fn has_bees(struct_: &syn::ItemStruct) -> bool {
         // A field can only be named "bees" if it has a name, so we'll
         // match those fields and ignore the rest.
         Fields::Named(ref fields) => {
-            fields.named.iter()
-                .map(|field| {
-                    // Check that the field has a name. I'm not sure
-                    // how it could end up in `Fields::Named` if it
-                    // didn't have a name, but what do I know?
-                    if let Some(ident) = field.ident {
-                        // You can get the string representation of a
-                        // `syn::Ident` by using its `as_ref` or
-                        // `to_string` methods.
-                        ident.as_ref() == "bees"
-                    } else {
-                        false
-                    }
-                }).any(|x| x)
+            // Unwrap the field names because we know these are named fields.
+            fields.named.iter().any(|field| field.ident.unwrap() == "bees")
         }
         // Ignore unit structs or anonymous fields.
         _ => {
@@ -384,6 +352,10 @@ fn has_bees(struct_: &syn::ItemStruct) -> bool {
     }
 }
 ```
+
+Note that I'm able to directly compare the `ident` with a value of type `&str` even though `ident` is of type `syn::Ident`. This is because `Ident` implements `PartialEq<T: AsRef<str>>`, or, in other words, `Ident` can be compared with types that can be converted to `&str`. Nice! Although you don't need to explicity convert the `Ident` to a `&str` or `String` for the sake of comparison (remember, the `PartialEq` implementation does it for you), you can still get the textual representation of `ident` using its `as_ref` or `to_string` methods.
+
+Another thing to point out is that I'm unwrapping `ident`, which is of type `Option<Ident>`. This seems odd at first glance. We know that the fields are named because they come from the `Fields::Named` variant, but the type of each field is `Option<Ident>`, which suggests that there is some uncertainty as to whether the field actually has a name. According to David Tolnay, one of the authors of `syn`, this is a trade off. On one hand, it would make more sense to use just `Ident` in this situation, rather than `Option<Ident>`. On the other hand, using `Option<Ident>` for the type of `Field.ident` allows you to treat named and unnamed fields mostly the same, which makes sense from an API and maintenance point of view. Interesting!
 
 #### Generating the compiler errors
 Now that we've seen how to locate the fields of a struct and generate a compiler error, let's go ahead and do this in our `light_it_up` function (it will look very similar to `has_bees`).
@@ -457,16 +429,17 @@ Now let's get to work. The first order of business is creating a function to ret
 fn random_error_message(name: &str) -> String {
     // Create the error messages...
 
-    // Store the error messages in a `Vec<String>` so one can be chosen at random.
-    let messages = vec![
+    // Store the error messages in an array so one can be chosen at random. We use an array
+    // rather than a `Vec<String>` because we know exactly how many error messages we have,
+    // and we know the number will never change.
+    let messages = [
         // List the error messages here.
     ];
 
-    // Use the `rand` crate to generate a random index.
-    let index = rand::thread_rng().gen_range(0, messages.len());
-
-    // Return the selected error message.
-    messages[index].clone()
+    // Use the `rand` crate to choose a random message to return. Note that `choose` returns
+    // `Option<&T>`, which will only be `None` if `messages` is empty, so it's safe to unwrap
+    // here. Unwrapping gives us `&String`, so we call `to_owned` to return `String`.
+    rand::thread_rng().choose(&messages).unwrap().to_owned()
 }
 ```
 
@@ -487,64 +460,11 @@ if ident.as_ref() == "bees" {
     ident.span().unstable()
         .error(random_error_message(ident.as_ref()))
         .emit();
-    // Attach an error message to the type of the field.
-    ...
+    // Show a random error message referencing the type of the field.
+    field.ty.span().unstable()
+        .error(random_error_message(""))
+        .emit();
 }
-```
-Attaching the error message to the type is much more verbose because the type of the field is an enum that looks like this:
-```rust
-pub enum Type {
-    Slice(TypeSlice),
-    Array(TypeArray),
-    Ptr(TypePtr),
-    Reference(TypeReference),
-    BareFn(TypeBareFn),
-    Never(TypeNever),
-    Tuple(TypeTuple),
-    Path(TypePath),
-    TraitObject(TypeTraitObject),
-    ImplTrait(TypeImplTrait),
-    Paren(TypeParen),
-    Group(TypeGroup),
-    Infer(TypeInfer),
-    Macro(TypeMacro),
-    Verbatim(TypeVerbatim),
-}
-```
-All of these enum variants look like `Variant(item)`, and each `item` implements the trait that I need (`Spanned`) for generating error messages, so it would be great if I could match like this:
-```rust
-match field.ty {
-    _(ref item) => { ... }
-}
-```
-Alas, that doesn't work, so you have to explicitly match the items that you care about. For that reason I've only matched a few of the variants. This is what it looks like:
-```rust
-// Show a random error message referencing the type of the field.
-// Note that I'm only doing this for certain types out of pure,
-// unbridled laziness.
-match field.ty {
-    Type::Path(ref typ) => {
-        typ.span().unstable()
-            .error(random_error_message(""))
-            .emit();
-    },
-    Type::Slice(ref typ) => {
-        typ.span().unstable()
-            .error(random_error_message(""))
-            .emit();
-    },
-    Type::Reference(ref typ) => {
-        typ.span().unstable()
-            .error(random_error_message(""))
-            .emit();
-    },
-    Type::Tuple(ref typ) => {
-        typ.span().unstable()
-            .error(random_error_message(""))
-            .emit();
-    }
-    _ => {}
-};
 ```
 
 Alright, all the pieces are in place! Let's see what it looks like!

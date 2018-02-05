@@ -259,7 +259,6 @@ proc-macro = true</code></pre></div>
 
 <p>The <a href="https://doc.rust-lang.org/proc_macro/index.html"><code>proc-macro</code></a> crate is part of the standard library, but you&rsquo;ll need a few other crates to make your macros.</p>
 <div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>proc_macro;<span style="color:#bbb">
-</span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>proc_macro2;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>syn;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#099">#[macro_use]</span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#069;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">crate</span><span style="color:#bbb"> </span>quote;</code></pre></div>
@@ -271,28 +270,13 @@ proc-macro = true</code></pre></div>
 
 <h4 id="syn"><code>syn</code></h4>
 
-<p>When you&rsquo;re writing your procedural macro you&rsquo;re going to have about 40 tabs open that start with <code>syn::</code> because this crate defines all of the syntax items that your code will get parsed into. For example, <a href="https://docs.rs/syn/0.12.12/syn/enum.Expr.html">this</a> is the page for <code>syn::Expr</code>, which is the enum describing all the various types of expressions. Take a look, I&rsquo;ll wait. Yeah, there&rsquo;s a lot going on there. You&rsquo;ll just have to keep the documentation open while you work.</p>
+<p>When you&rsquo;re writing your procedural macro you&rsquo;re going to have about 40 tabs open that start with <code>syn::</code> because this crate defines all of the syntax items that your code will get parsed into. For example, <a href="https://docs.rs/syn/0.12.12/syn/enum.Expr.html">this</a> is the page for <code>syn::Expr</code>, which is the enum describing all the various types of expressions. Take a look, I&rsquo;ll wait. Yeah, there&rsquo;s a lot going on there. You&rsquo;ll just have to keep the documentation open while you work. That&rsquo;s not a bad thing though, because there&rsquo;s all kinds of useful stuff in there.</p>
+
+<p>The most recent versions of <code>syn</code> (<code>0.12.x</code>) provide you some really nice tools for creating error messages. Let&rsquo;s say your macro allows the user to write code in a custom syntax. The compiler doesn&rsquo;t know your custom syntax (you can actually make custom parsers with <code>syn</code>, but that&rsquo;s another topic), so you&rsquo;re responsible for parsing your custom syntax and generating valid Rust code from it. If you determine that the user has made a syntax error, you can generate a compiler error pointing to the exact location of the error. I&rsquo;ll show you how to do this in a minute.</p>
 
 <h4 id="quote"><code>quote</code></h4>
 
 <p>The <a href="https://docs.rs/quote/0.4.2/quote/"><code>quote</code></a> crate is basically the opposite of <code>syn</code> in that it generates tokens rather than parsing them. The basic idea is that you use <code>syn</code> to parse strings or tokens into syntax trees, then use <code>quote</code> to turn syntax trees back into tokens or strings.</p>
-
-<h4 id="proc-macro2"><code>proc-macro2</code></h4>
-
-<p>This is a compatibility crate that lets you use the API of the &ldquo;macros 2.0&rdquo; update before it&rsquo;s stabilized. This isn&rsquo;t strictly necessary as a dependency, but I&rsquo;ll explain why you want to use it anyway.</p>
-
-<p>Let&rsquo;s consider a function-like macro that a user might write a ton of code inside (this isn&rsquo;t too far fetched, something similar is used in <code>relm</code>). That would look something like this:</p>
-<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">foo<span style="color:#555">!</span>(<span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// hundreds of lines of code
-</span><span style="color:#09f;font-style:italic"></span>)</code></pre></div>
-<p>Now let&rsquo;s say that the user makes a syntax error somewhere in the middle. The error will show up where the macro is invoked (called), not where the error occurs. Good luck finding that error. Having been in this situation, I can tell you it is <del>infuriating</del> not ideal.</p>
-<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#09f;font-style:italic">// error message shows up right here!
-</span><span style="color:#09f;font-style:italic"></span>foo<span style="color:#555">!</span>(<span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// hundreds of lines of code
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>x: <span style="color:#078;font-weight:bold">i32</span> <span style="color:#555">=</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;definitely not an i32&#34;</span>;<span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// hundreds of lines of code
-</span><span style="color:#09f;font-style:italic"></span>)</code></pre></div>
-<p>With the current procedural macro API, there&rsquo;s no span (line/column) information from the user&rsquo;s code available to your macro, so any error messages are resolved to the location of the macro invocation. I&rsquo;m not exactly sure what&rsquo;s going on behind the scenes, but <code>proc-macro2</code> and its <code>nightly</code> feature retains span information provided by the compiler. A nice benefit of this is that you can use this span information to generate your own errors targeting specific syntax items. Let&rsquo;s take advantage of that.</p>
 
 <h2 id="let-s-write-a-the-wicker-man-macro">Let&rsquo;s Write a &ldquo;The Wicker Man&rdquo; Macro</h2>
 
@@ -433,8 +417,7 @@ proc-macro = true</code></pre></div>
 <li>match on <code>fields</code></li>
 <li>destructure the <code>Named</code> variant to bind its contents to a variable</li>
 <li>use the iterator methods provided by <code>Punctuated</code> to iterate over the fields</li>
-<li>destructure each <code>field</code>&rsquo;s <code>ident</code></li>
-<li>compare the <code>ident</code>&rsquo;s string representation with &ldquo;bees&rdquo;</li>
+<li>compare the <code>ident</code> (name) of each field with &ldquo;bees&rdquo;</li>
 </ul>
 <div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#c30;font-style:italic">/// Determine if the struct has a field named &#34;bees&#34;
 </span><span style="color:#c30;font-style:italic"></span><span style="color:#069;font-weight:bold">fn</span> <span style="color:#c0f">has_bees</span>(struct_: <span style="color:#069">&amp;</span><span style="color:#0a8;font-weight:bold">syn</span>::ItemStruct)<span style="color:#bbb"> </span>-&gt; <span style="color:#078;font-weight:bold">bool</span> {<span style="color:#bbb">
@@ -442,20 +425,8 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// A field can only be named &#34;bees&#34; if it has a name, so we&#39;ll
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// match those fields and ignore the rest.
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span>Fields::Named(<span style="color:#069;font-weight:bold">ref</span><span style="color:#bbb"> </span>fields)<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>fields.named.iter()<span style="color:#bbb">
-</span><span style="color:#bbb">                </span>.map(<span style="color:#555">|</span>field<span style="color:#555">|</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                    </span><span style="color:#09f;font-style:italic">// Check that the field has a name. I&#39;m not sure
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#09f;font-style:italic">// how it could end up in `Fields::Named` if it
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#09f;font-style:italic">// didn&#39;t have a name, but what do I know?
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#366">Some</span>(ident)<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>field.ident<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                        </span><span style="color:#09f;font-style:italic">// You can get the string representation of a
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                        </span><span style="color:#09f;font-style:italic">// `syn::Ident` by using its `as_ref` or
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                        </span><span style="color:#09f;font-style:italic">// `to_string` methods.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">                        </span>ident.as_ref()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb">
-</span><span style="color:#bbb">                    </span>}<span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">                        </span><span style="color:#069;font-weight:bold">false</span><span style="color:#bbb">
-</span><span style="color:#bbb">                    </span>}<span style="color:#bbb">
-</span><span style="color:#bbb">                </span>}).any(<span style="color:#555">|</span>x<span style="color:#555">|</span><span style="color:#bbb"> </span>x)<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#09f;font-style:italic">// Unwrap the field names because we know these are named fields.
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">            </span>fields.named.iter().any(<span style="color:#555">|</span>field<span style="color:#555">|</span><span style="color:#bbb"> </span>field.ident.unwrap()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span>)<span style="color:#bbb">
 </span><span style="color:#bbb">        </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// Ignore unit structs or anonymous fields.
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">        </span>_<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
@@ -463,6 +434,10 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#bbb">        </span>},<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>}<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}</code></pre></div>
+<p>Note that I&rsquo;m able to directly compare the <code>ident</code> with a value of type <code>&amp;str</code> even though <code>ident</code> is of type <code>syn::Ident</code>. This is because <code>Ident</code> implements <code>PartialEq&lt;T: AsRef&lt;str&gt;&gt;</code>, or, in other words, <code>Ident</code> can be compared with types that can be converted to <code>&amp;str</code>. Nice! Although you don&rsquo;t need to explicity convert the <code>Ident</code> to a <code>&amp;str</code> or <code>String</code> for the sake of comparison (remember, the <code>PartialEq</code> implementation does it for you), you can still get the textual representation of <code>ident</code> using its <code>as_ref</code> or <code>to_string</code> methods.</p>
+
+<p>Another thing to point out is that I&rsquo;m unwrapping <code>ident</code>, which is of type <code>Option&lt;Ident&gt;</code>. This seems odd at first glance. We know that the fields are named because they come from the <code>Fields::Named</code> variant, but the type of each field is <code>Option&lt;Ident&gt;</code>, which suggests that there is some uncertainty as to whether the field actually has a name. According to David Tolnay, one of the authors of <code>syn</code>, this is a trade off. On one hand, it would make more sense to use just <code>Ident</code> in this situation, rather than <code>Option&lt;Ident&gt;</code>. On the other hand, using <code>Option&lt;Ident&gt;</code> for the type of <code>Field.ident</code> allows you to treat named and unnamed fields mostly the same, which makes sense from an API and maintenance point of view. Interesting!</p>
+
 <h4 id="generating-the-compiler-errors">Generating the compiler errors</h4>
 
 <p>Now that we&rsquo;ve seen how to locate the fields of a struct and generate a compiler error, let&rsquo;s go ahead and do this in our <code>light_it_up</code> function (it will look very similar to <code>has_bees</code>).</p>
@@ -541,16 +516,17 @@ proc-macro = true</code></pre></div>
 <div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#069;font-weight:bold">fn</span> <span style="color:#c0f">random_error_message</span>(name: <span style="color:#069">&amp;</span><span style="color:#078;font-weight:bold">str</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#366">String</span> {<span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Create the error messages...
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Store the error messages in a `Vec&lt;String&gt;` so one can be chosen at random.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>messages<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>vec<span style="color:#555">!</span>[<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Store the error messages in an array so one can be chosen at random. We use an array
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// rather than a `Vec&lt;String&gt;` because we know exactly how many error messages we have,
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// and we know the number will never change.
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>messages<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>[<span style="color:#bbb">
 </span><span style="color:#bbb">        </span><span style="color:#09f;font-style:italic">// List the error messages here.
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>];<span style="color:#bbb">
 </span><span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Use the `rand` crate to generate a random index.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#069;font-weight:bold">let</span><span style="color:#bbb"> </span>index<span style="color:#bbb"> </span><span style="color:#555">=</span><span style="color:#bbb"> </span>rand::thread_rng().gen_range(<span style="color:#f60">0</span>,<span style="color:#bbb"> </span>messages.len());<span style="color:#bbb">
-</span><span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Return the selected error message.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>messages[index].clone()<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Use the `rand` crate to choose a random message to return. Note that `choose` returns
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// `Option&lt;&amp;T&gt;`, which will only be `None` if `messages` is empty, so it&#39;s safe to unwrap
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// here. Unwrapping gives us `&amp;String`, so we call `to_owned` to return `String`.
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>rand::thread_rng().choose(<span style="color:#555">&amp;</span>messages).unwrap().to_owned()<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}</code></pre></div>
 <p>The next step is to apply the error messages to the other syntax items. I&rsquo;ll do this by adding an <code>else</code> branch to the <code>if ident.as_ref() = &quot;bees&quot;</code> conditional statement in <code>light_it_up</code>:</p>
 <div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#069;font-weight:bold">if</span><span style="color:#bbb"> </span>ident.as_ref()<span style="color:#bbb"> </span><span style="color:#555">==</span><span style="color:#bbb"> </span><span style="color:#c30">&#34;bees&#34;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
@@ -566,58 +542,11 @@ proc-macro = true</code></pre></div>
 </span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>ident.span().unstable()<span style="color:#bbb">
 </span><span style="color:#bbb">        </span>.error(random_error_message(ident.as_ref()))<span style="color:#bbb">
 </span><span style="color:#bbb">        </span>.emit();<span style="color:#bbb">
-</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Attach an error message to the type of the field.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>...<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#09f;font-style:italic">// Show a random error message referencing the type of the field.
+</span><span style="color:#09f;font-style:italic"></span><span style="color:#bbb">    </span>field.ty.span().unstable()<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>.error(random_error_message(<span style="color:#c30">&#34;&#34;</span>))<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>.emit();<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}</code></pre></div>
-<p>Attaching the error message to the type is much more verbose because the type of the field is an enum that looks like this:</p>
-<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#069;font-weight:bold">pub</span><span style="color:#bbb"> </span><span style="color:#069;font-weight:bold">enum</span> <span style="color:#0a8;font-weight:bold">Type</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Slice(TypeSlice),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Array(TypeArray),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Ptr(TypePtr),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Reference(TypeReference),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>BareFn(TypeBareFn),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Never(TypeNever),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Tuple(TypeTuple),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Path(TypePath),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>TraitObject(TypeTraitObject),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>ImplTrait(TypeImplTrait),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Paren(TypeParen),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Group(TypeGroup),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Infer(TypeInfer),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Macro(TypeMacro),<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Verbatim(TypeVerbatim),<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
-<p>All of these enum variants look like <code>Variant(item)</code>, and each <code>item</code> implements the trait that I need (<code>Spanned</code>) for generating error messages, so it would be great if I could match like this:</p>
-<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#069;font-weight:bold">match</span><span style="color:#bbb"> </span>field.ty<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>_(<span style="color:#069;font-weight:bold">ref</span><span style="color:#bbb"> </span>item)<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb"> </span>...<span style="color:#bbb"> </span>}<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
-<p>Alas, that doesn&rsquo;t work, so you have to explicitly match the items that you care about. For that reason I&rsquo;ve only matched a few of the variants. This is what it looks like:</p>
-<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#09f;font-style:italic">// Show a random error message referencing the type of the field.
-</span><span style="color:#09f;font-style:italic">// Note that I&#39;m only doing this for certain types out of pure,
-</span><span style="color:#09f;font-style:italic">// unbridled laziness.
-</span><span style="color:#09f;font-style:italic"></span><span style="color:#069;font-weight:bold">match</span><span style="color:#bbb"> </span>field.ty<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Type::Path(<span style="color:#069;font-weight:bold">ref</span><span style="color:#bbb"> </span>typ)<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">        </span>typ.span().unstable()<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.error(random_error_message(<span style="color:#c30">&#34;&#34;</span>))<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.emit();<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>},<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Type::Slice(<span style="color:#069;font-weight:bold">ref</span><span style="color:#bbb"> </span>typ)<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">        </span>typ.span().unstable()<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.error(random_error_message(<span style="color:#c30">&#34;&#34;</span>))<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.emit();<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>},<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Type::Reference(<span style="color:#069;font-weight:bold">ref</span><span style="color:#bbb"> </span>typ)<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">        </span>typ.span().unstable()<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.error(random_error_message(<span style="color:#c30">&#34;&#34;</span>))<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.emit();<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>},<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>Type::Tuple(<span style="color:#069;font-weight:bold">ref</span><span style="color:#bbb"> </span>typ)<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="color:#bbb">        </span>typ.span().unstable()<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.error(random_error_message(<span style="color:#c30">&#34;&#34;</span>))<span style="color:#bbb">
-</span><span style="color:#bbb">            </span>.emit();<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>_<span style="color:#bbb"> </span><span style="color:#555">=&gt;</span><span style="color:#bbb"> </span>{}<span style="color:#bbb">
-</span><span style="color:#bbb"></span>};</code></pre></div>
 <p>Alright, all the pieces are in place! Let&rsquo;s see what it looks like!</p>
 
 
