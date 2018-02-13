@@ -1,5 +1,5 @@
 +++
-title = "Introduction to Procedural Macros"
+title = "Introduction to Procedural Macros in Rust"
 date = 2018-02-03T19:36:37-05:00
 draft = false
 tags = ["rust", "macros"]
