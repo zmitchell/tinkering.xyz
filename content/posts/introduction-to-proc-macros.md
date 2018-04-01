@@ -4,7 +4,7 @@ date = 2018-02-03T19:36:37-05:00
 draft = false
 tags = ["rust", "macros"]
 categories = []
-description = "...in which I teach you how to fill your editor with bees ![](images/not-the-bees.jpg)"
+description = "...in which I teach you how to fill your editor with bees"
 +++
 
 As a newcomer to Rust, I heard the phrase "procedural macro" thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I'm working on the guts of [`relm`][relm], and a large chunk of it is procedural macros. I've learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.

@@ -20,15 +20,5 @@
       <description>As a newcomer to Rust, I heard the phrase &amp;ldquo;procedural macro&amp;rdquo; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I&amp;rsquo;m working on the guts of relm, and a large chunk of it is procedural macros. I&amp;rsquo;ve learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.</description>
     </item>
     
-    <item>
-      <title>relm Contribution Diary #1</title>
-      <link>https://tinkering.xyz/posts/relm-diary-1/</link>
-      <pubDate>Sat, 27 Jan 2018 14:46:04 -0500</pubDate>
-      
-      <guid>https://tinkering.xyz/posts/relm-diary-1/</guid>
-      <description>&lt;p&gt;This is going to be the first of many articles discussing my contributions to &lt;code&gt;relm&lt;/code&gt;. The first order of business is starting my work updating &lt;code&gt;relm&lt;/code&gt;&amp;rsquo;s dependency on &lt;code&gt;syn&lt;/code&gt; from 0.11.x to 0.12.x.
-&lt;/p&gt;</description>
-    </item>
-    
   </channel>
 </rss>
