@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Tinkering</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 03 Feb 2018 19:36:37 -0500</lastBuildDate>
+    <lastBuildDate>Thu, 15 Mar 2018 13:59:36 -0500</lastBuildDate>
     
 	<atom:link href="https://tinkering.xyz/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Bringing async to serial devices</title>
+      <link>https://tinkering.xyz/posts/async-serial/</link>
+      <pubDate>Thu, 15 Mar 2018 13:59:36 -0500</pubDate>
+      
+      <guid>https://tinkering.xyz/posts/async-serial/</guid>
+      <description>I&amp;rsquo;m an experimental physicist, so part of my job entails writing software that orchestrates equipment in my experiment. Most of the code that runs my experiment is written in a proprietary scripting language that I guarantee none of you have ever heard of. The old code is brittle, difficult to debug, and generally makes it too much of a pain to add features unless absolutely necessary. Lately I&amp;rsquo;ve been thinking about how I would do a modernized rewrite in Python.</description>
+    </item>
     
     <item>
       <title>Introduction to Procedural Macros in Rust</title>
