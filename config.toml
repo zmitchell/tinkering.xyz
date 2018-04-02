@@ -1,27 +1,28 @@
-languageCode = "en-us"
+# The URL the site will be built for
+base_url = "https://tinkering.xyz"
+
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
+highlight_code = true
+
+# Basic info
 title = "Tinkering"
-baseurl = "https://tinkering.xyz/"
-theme = "hugo-kiera"
-contentDir = "content"
-layoutDir = "layouts"
-publishDir = "public"
-buildDrafts = false
+default_language = "en"
+generate_rss = true
+description = "Come for the X, stay for the Y"
 
-# Code
-PygmentsCodeFences = true
-PygmentsStyle = "manni"
-# PygmentsStyle = "monokai"
-# PygmentsStyle = "friendly"
-# PygmentsStyle = "native"
-# PygmentsStyle = "paraiso-dark"
+# Theming
+theme = "hyde"
 
-[author]
-    name = "Zach Mitchell"
-    github = "zmitchell"
-    linkedin = "zmitchell22"
-    twitter = "gluons"
-
-[params]
-    # Kiera Theme
-    tagline = "I just couldn't leave well enough alone"
-    ga = "UA-113476578-1"
+[extra]
+# Put all your custom variables here
+hyde_theme = "theme-base-0d"
+hyde_links = [
+    {url = "/", name = "Home"},
+    {url = "https://github.com/zmitchell", name = "GitHub"},
+    {url = "/about/", name = "About"}
+]
+hyde_sticky = false

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Tinkering</title>
+
+      <!-- CSS -->
+      <link rel="stylesheet" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;hyde.css">
+
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;rss.xml">
+      
+
+      
+      
+    </head>
+
+    <body class="theme-base-0d ">
+        
+            <div class="sidebar">
+                <div class="container ">
+                    <div class="sidebar-about">
+                        
+                            <a href="http:&#x2F;&#x2F;127.0.0.1:1111"><h1>Tinkering</h1></a>
+                            
+                            <p class="lead">Come for the X, stay for the Y</p>
+                            
+                        
+                    </div>
+
+                    <ul class="sidebar-nav">
+                        
+                        
+                        <li><a href="&#x2F;">Home</a></li>
+                        
+                        <li><a href="https:&#x2F;&#x2F;github.com&#x2F;zmitchell">GitHub</a></li>
+                        
+                        <li><a href="&#x2F;about&#x2F;">About</a></li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <main class="content container">
+            
+<article class="post">
+  <h1 class="post-title">Introduction to Procedural Macros in Rust</h1>
+  
+  <p>As a newcomer to Rust, I heard the phrase &quot;procedural macro&quot; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I'm working on the guts of <a href="https://github.com/antoyo/relm"><code>relm</code></a>, and a large chunk of it is procedural macros. I've learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.</p>
+<p>The purpose of this post is to give you an overview of the ins and outs of procedural macros so that you feel confident enough to incorporate them into your own Rust arsenal. I'll start off by discussing what makes a declarative macro (<code>macro_rules!</code>) different from a procedural macro, then I'll discuss the different types of procedural macros, how to define them, where to define them, and the basics of packaging them. At the end I'll walk you through making your very first procedural macro. Here's a taste of where we're going to end up:</p>
+<p><img src="/images/not-the-bees-editor.jpg" alt="" /></p>
+<p>I've included below a list of other resources you might find helpful. Sometimes you need to hear the same information explained multiple ways before it really sinks in.</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/book/first-edition/macros.html">Macros - The Rust Programming Language - First Edition</a></li>
+<li><a href="https://doc.rust-lang.org/book/first-edition/procedural-macros.html">Procedural Macros (and custom derive) - The Rust Programming Language - First Edition</a></li>
+<li><a href="https://doc.rust-lang.org/unstable-book/language-features/proc-macro.html">proc_macro - The Unstable Book</a></li>
+<li><a href="https://doc.rust-lang.org/reference/macros-by-example.html">Macros By Example - The Rust Reference</a></li>
+<li><a href="https://rustbyexample.com/macros.html">Macros - Rust By Example</a></li>
+<li><a href="https://rreverser.com/writing-complex-macros-in-rust/">Writing complex macros in Rust</a></li>
+<li>Macros in Rust <a href="https://www.ncameron.org/blog/macros-in-rust-pt1/">part 1</a>, <a href="https://www.ncameron.org/blog/macros-in-rust-pt2/">part 2</a>, <a href="https://www.ncameron.org/blog/macros-in-rust-pt3/">part 3</a>, <a href="https://www.ncameron.org/blog/macros-in-rust-pt4/">part 4</a></li>
+<li><a href="http://words.steveklabnik.com/an-overview-of-macros-in-rust">An Overview of Macros in Rust - Steve Klabnik</a></li>
+</ul>
+<h2 id="declarative-macros">Declarative Macros</h2>
+<p>Your first contact with macros is probably <code>macro_rules!</code>. The <code>macro_rules!</code> macro defines a declarative macro. These are great when you want to define a shorthand for something tedious or verbose. For example, I'm working on a revamped parser for the <code>view!</code> macro in <a href="https://github.com/antoyo/relm"><code>relm</code></a>, and I want to be able to test that it can parse several different examples, so I wrote a macro to make my tests much more concise.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#96b5b4;">macro_rules! </span><span style="background-color:#2b303b;color:#c0c5ce;">failed {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">$x</span><span style="background-color:#2b303b;color:#c0c5ce;">:</span><span style="background-color:#2b303b;color:#b48ead;">ident</span><span style="background-color:#2b303b;color:#c0c5ce;">) =&gt; (format!(&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">failed to parse `</span><span style="background-color:#2b303b;color:#d08770;">{}</span><span style="background-color:#2b303b;color:#a3be8c;">`</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, </span><span style="background-color:#2b303b;color:#bf616a;">$x</span><span style="background-color:#2b303b;color:#c0c5ce;">).</span><span style="background-color:#2b303b;color:#96b5b4;">as_str</span><span style="background-color:#2b303b;color:#c0c5ce;">())
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#96b5b4;">macro_rules! </span><span style="background-color:#2b303b;color:#c0c5ce;">check_example {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">$x</span><span style="background-color:#2b303b;color:#c0c5ce;">:</span><span style="background-color:#2b303b;color:#b48ead;">ident</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">$y</span><span style="background-color:#2b303b;color:#c0c5ce;">:</span><span style="background-color:#2b303b;color:#b48ead;">path</span><span style="background-color:#2b303b;color:#c0c5ce;">) =&gt; ({
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> _parse_result: </span><span style="background-color:#2b303b;color:#bf616a;">$y </span><span style="background-color:#2b303b;color:#c0c5ce;">= syn::parse_str(</span><span style="background-color:#2b303b;color:#bf616a;">$x</span><span style="background-color:#2b303b;color:#c0c5ce;">).</span><span style="background-color:#2b303b;color:#96b5b4;">expect</span><span style="background-color:#2b303b;color:#c0c5ce;">(failed!(</span><span style="background-color:#2b303b;color:#bf616a;">$x</span><span style="background-color:#2b303b;color:#c0c5ce;">));
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">})
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#96b5b4;">macro_rules! </span><span style="background-color:#2b303b;color:#c0c5ce;">check_examples {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">$x</span><span style="background-color:#2b303b;color:#c0c5ce;">:</span><span style="background-color:#2b303b;color:#b48ead;">ident</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">$y</span><span style="background-color:#2b303b;color:#c0c5ce;">:</span><span style="background-color:#2b303b;color:#b48ead;">path</span><span style="background-color:#2b303b;color:#c0c5ce;">) =&gt; ({
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">for</span><span style="background-color:#2b303b;color:#c0c5ce;"> ex in </span><span style="background-color:#2b303b;color:#bf616a;">$x </span><span style="background-color:#2b303b;color:#c0c5ce;">{
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#c0c5ce;">check_example!(ex, </span><span style="background-color:#2b303b;color:#bf616a;">$y</span><span style="background-color:#2b303b;color:#c0c5ce;">);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">})
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">test</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">parse_message</span><span style="background-color:#2b303b;color:#c0c5ce;">() {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> examples = vec![
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">Message</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">Message(x)</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">Message(x, y, z)</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">];
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">check_examples!(examples, Message);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>This post isn't about declarative macros, so I'll keep this explanation brief. The <code>failed!</code> macro just generates a formatted string saying <code>failed to parse &lt;whatever the example was&gt;</code>. The <code>check_example!</code> macro lets me test that a given example can be parsed into the given type (<code>Message</code> in this case). The <code>check_examples!</code> macro lets me test several examples at once. I'm not doing anything crazy here, and I'm not doing anything that couldn't be done by hand. I'm just lazy, and I'd like my tests to be short and to the point.</p>
+<p>It's entirely possible to write complex, intricate, incredibly useful declarative macros using this syntax, but (to me, at least) these macro definitions become nearly illegible as they get larger. Procedural macros, in my opinoin, are much better suited to writing something non-trivial.</p>
+<h2 id="procedural-macros-introduction">Procedural Macros - Introduction</h2>
+<p>When you define a macro with <code>macro_rules!</code>, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully ~~armed and operational battle station~~ parsed syntax tree, at which point the compiler says &quot;go nuts, just give me back another syntax tree when you're done.&quot;</p>
+<h3 id="syntax-trees">Syntax Trees</h3>
+<p>Before we get too deep into procedural macros, you'll want to have at least a vague understanding of what a syntax tree is. If you're someone like me that doesn't come from a computer science background, maybe you don't have any idea what a syntax tree is. Well, buckle up, you're going to need to get pretty cozy with this concept.</p>
+<p>Let's say we want to parse the definition of a function. How would we represent the pieces of a function definition as a Rust struct? Well, there's obviously the characters <code>fn</code> somewhere, so we'll store that in our struct. There might also be a <code>pub</code> at the front of the definition, so we'll store that as an <code>Option&lt;T&gt;</code> of some kind. Then there are parentheses, so we'll store those too. What about the contents of the parentheses (the arguments)? There might be nothing there, and there might be a bunch of stuff there. The arguments have names, types, and potentially trait or lifetime bounds, so we'll store that as well. This goes on and on until you've built a collection of structs and enums that represent the various bits and pieces of Rust code. This is what the <a href="https://docs.rs/syn/0.12.12/syn/"><code>syn</code></a> crate does for you. We'll come back to <code>syn</code> in a minute.</p>
+<h3 id="types-of-procedural-macros">Types of Procedural Macros</h3>
+<p>There are three basic kinds of procedural macros: function-like, attribute-like, and custom derive. The procedural macros page in the <a href="https://doc.rust-lang.org/unstable-book/language-features/proc-macro.html">Unstable Book</a> contains really useful information about how these are different from one another, and how to define them.</p>
+<h4 id="attribute-like">Attribute-like</h4>
+<p>An attribute-like procedural macro can be used to create a custom attribute like this:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">my_custom_attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">(arg1, arg2)]
+</span><span style="background-color:#2b303b;color:#b48ead;">struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Foo {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// struct fields
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>The definition of an attribute-like procedural macro looks like this:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro_attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">my_custom_attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">metadata</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream, </span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// do something
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>The first argument is the metadata contained in the attribute i.e. the arguments or values. There are a few different ways to use a custom attribute, so refer back to the Unstable Book for more details. The second argument is the syntax tree of the item that the attribute was applied to (the struct <code>Foo</code> in the example above).</p>
+<p>A great example for how to use a custom attribute can be found in the <a href="https://serde.rs/attributes.html"><code>serde</code></a> crate, where they're used to customize how a struct/enum will be (de)serialized.</p>
+<h4 id="custom-derive">Custom Derive</h4>
+<p>A custom derive is great when you want to make life easier for a consumer of your library. The way a custom derive works is very similar to how a custom attribute works, with some restrictions. A procedural macro for a custom derive only takes one <code>TokenStream</code> as an argument, and can only be applied where the <code>derive</code> attribute is valid i.e. on structs and enums. Here's how it looks:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">// in the library consumer&#39;s code
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">derive</span><span style="background-color:#2b303b;color:#c0c5ce;">(Foo)]
+</span><span style="background-color:#2b303b;color:#b48ead;">struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Bar(</span><span style="background-color:#2b303b;color:#b48ead;">i32</span><span style="background-color:#2b303b;color:#c0c5ce;">);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">// in your proc-macro crate
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro_derive</span><span style="background-color:#2b303b;color:#c0c5ce;">(Foo)]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">derive_foo</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// do something
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Note that the name of the function doesn't have to be <code>derive_&lt;trait name&gt;</code>, that's just what I called it.</p>
+<h4 id="function-like">Function-Like</h4>
+<p>A function-like procedural macro is the Wild West of procedural macros. These are valid anywhere as long as their output is valid at the location the macro is invoked. The definition of a function-like macro only takes one <code>TokenStream</code> as input. Here is what one looks like:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">// in the library user&#39;s code
+</span><span style="background-color:#2b303b;color:#c0c5ce;">my_macro!(all kinds of stuff)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">// in your proc-macro crate
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">my_macro</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// do something
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Note that in the case of a function-like macro, the macro has the same name as the function you apply the <code>#[proc_macro]</code> attribute to.</p>
+<h4 id="summary">Summary</h4>
+<p>Here are the basics all in one place. Take note of the different attributes applied to each function, and the number of arguments that each function takes.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">// custom attribute
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro_attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">my_attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">metadata</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream, </span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// do something
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">// custom derive
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro_derive</span><span style="background-color:#2b303b;color:#c0c5ce;">(TraitName)]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">my_custom_derive</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// do something
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">// function-like macro
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">my_macro</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// do something
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre><h2 id="defining-and-packaging-procedural-macros">Defining and Packaging Procedural Macros</h2>
+<p>Let's talk about how and where you define procedural macros.</p>
+<h3 id="packaging">Packaging</h3>
+<p>Procedural macros must be defined in their own crates. It's customary to name a crate containing a custom derive macro with the <code>&lt;crate&gt;-derive</code> pattern, where <code>&lt;crate&gt;</code> is the name of the main crate i.e. <code>serde</code> and <code>serde-derive</code>.</p>
+<p>The <code>Cargo.toml</code> of your procedural macro crate must be defined as a crate of type <code>proc-macro</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;"># in Cargo.toml
+</span><span style="background-color:#2b303b;color:#c0c5ce;">[lib]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">proc-macro = true
+</span></pre>
+<p>Procedural macros are still an unstable feature, so you must also put the following line at the root of your procedural macro crate and the crate using the procedural macro:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">#![feature(proc_macro)]
+</span></pre><h3 id="dependencies">Dependencies</h3>
+<p>The <a href="https://doc.rust-lang.org/proc_macro/index.html"><code>proc-macro</code></a> crate is part of the standard library, but you'll need a few other crates to make your macros.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">extern crate</span><span style="background-color:#2b303b;color:#c0c5ce;"> proc_macro;
+</span><span style="background-color:#2b303b;color:#b48ead;">extern crate</span><span style="background-color:#2b303b;color:#c0c5ce;"> syn;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">macro_use</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">extern crate</span><span style="background-color:#2b303b;color:#c0c5ce;"> quote;
+</span></pre>
+<p>We'll go through these one by one.</p>
+<h4 id="proc-macro"><code>proc-macro</code></h4>
+<p>This crate defines the <code>TokenStream</code> type. There's not much else to see here as the <code>proc_macro</code> crate is intentionally barebones.</p>
+<h4 id="syn"><code>syn</code></h4>
+<p>When you're writing your procedural macro you're going to have about 40 tabs open that start with <code>syn::</code> because this crate defines all of the syntax items that your code will get parsed into. For example, <a href="https://docs.rs/syn/0.12.12/syn/enum.Expr.html">this</a> is the page for <code>syn::Expr</code>, which is the enum describing all the various types of expressions. Take a look, I'll wait. Yeah, there's a lot going on there. You'll just have to keep the documentation open while you work. That's not a bad thing though, because there's all kinds of useful stuff in there.</p>
+<p>The most recent versions of <code>syn</code> (<code>0.12.x</code>) provide you some really nice tools for creating error messages. Let's say your macro allows the user to write code in a custom syntax. The compiler doesn't know your custom syntax (you can actually make custom parsers with <code>syn</code>, but that's another topic), so you're responsible for parsing your custom syntax and generating valid Rust code from it. If you determine that the user has made a syntax error, you can generate a compiler error pointing to the exact location of the error. I'll show you how to do this in a minute.</p>
+<h4 id="quote"><code>quote</code></h4>
+<p>The <a href="https://docs.rs/quote/0.4.2/quote/"><code>quote</code></a> crate is basically the opposite of <code>syn</code> in that it generates tokens rather than parsing them. The basic idea is that you use <code>syn</code> to parse strings or tokens into syntax trees, then use <code>quote</code> to turn syntax trees back into tokens or strings.</p>
+<h2 id="let-s-write-a-the-wicker-man-macro">Let's Write a "The Wicker Man" Macro</h2>
+<p>First, some context:</p>
+<div >
+    <iframe src="https://www.youtube.com/embed/EVCrmXW6-Pk" webkitallowfullscreen mozallowfullscreen allowfullscreen>
+    </iframe>
+</div>
+<p>
+<p>Let's lay out the requirements for our macro. We want to create a custom attribute that a user can only apply to a struct definition. If the user applies the attribute to an enum, function, etc, we should generate a compiler error. If the struct has a field named &quot;bees,&quot; we want the compiler to lose its mind.</p>
+<p>I've posted the code for this macro on <a href="https://github.com/zmitchell/wickerman">GitHub</a> so you can do all kinds of crazy things with it. If you're reading this post to learn procedural macros for the first time, take a look at the commit history of the repo to see how I put the macro together piece by piece. I've largely followed the same process in the sections that follow.</p>
+<h3 id="getting-started">Getting Started</h3>
+<p>Here's the most barebones version of our macro crate:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">#![</span><span style="background-color:#2b303b;color:#bf616a;">feature</span><span style="background-color:#2b303b;color:#c0c5ce;">(proc_macro)]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">extern crate</span><span style="background-color:#2b303b;color:#c0c5ce;"> syn;
+</span><span style="background-color:#2b303b;color:#b48ead;">extern crate</span><span style="background-color:#2b303b;color:#c0c5ce;"> proc_macro;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">use </span><span style="background-color:#2b303b;color:#c0c5ce;">proc_macro::TokenStream;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">proc_macro_attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">pub fn </span><span style="background-color:#2b303b;color:#8fa1b3;">not_the_bees</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">_metadata</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream, </span><span style="background-color:#2b303b;color:#bf616a;">input</span><span style="background-color:#2b303b;color:#c0c5ce;">: TokenStream) -&gt; TokenStream {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">input
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>This obviously doesn't do any of the devious things that we want, but it does compile. That's a start.</p>
+<p>Next we try to parse the input into a <code>syn::Item</code> using the <code>syn::parse</code> function. In <code>syn</code> parlance, an <code>Item</code> is a syntax tree that can appear at the module level, which includes things like function, struct, and enum definitions. If parsing fails (maybe we're trying to parse something that isn't an <code>Item</code>), we'll panic with the given error message.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">// Parse the `TokenStream` into a syntax tree, specifically an `Item`. An `Item` is a
+</span><span style="background-color:#2b303b;color:#65737e;">// syntax item that can appear at the module level i.e. a function definition, a struct
+</span><span style="background-color:#2b303b;color:#65737e;">// or enum definition, etc.
+</span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> item: syn::Item = syn::parse(input).</span><span style="background-color:#2b303b;color:#96b5b4;">expect</span><span style="background-color:#2b303b;color:#c0c5ce;">(&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">failed to parse input</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">// Use `quote` to convert the syntax tree back into tokens so we can return them. Note
+</span><span style="background-color:#2b303b;color:#65737e;">// that the tokens we&#39;re returning at this point are still just the input, we&#39;ve simply
+</span><span style="background-color:#2b303b;color:#65737e;">// converted it between a few different forms.
+</span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> output = quote!{ #item };
+</span><span style="background-color:#2b303b;color:#c0c5ce;">output.</span><span style="background-color:#2b303b;color:#96b5b4;">into</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span></pre>
+<p>Parsing moves the syntax tree, so we can't get away with just converting <code>input</code> back into <code>proc_macro::TokenStream</code>. We could just clone <code>input</code> to return a copy of it, but instead we'll introduce the <code>quote!</code> macro. The <code>quote!</code> macro lets you write normal Rust code, insert syntax trees into it, and get tokens back. In this case I'm just turning the parsed <code>Item</code> back into tokens. This is the extent to which we'll be using <code>quote</code> in this post, but you can see how to generate more complicated code in the <a href="https://github.com/dtolnay/syn/tree/master/examples/lazy-static"><code>lazy_static!</code></a> example from <code>syn</code>.</p>
+<h3 id="examining-the-syntax-tree">Examining the Syntax Tree</h3>
+<p>A quick perusal of the docs for <code>syn::Item</code> reveals that there are quite a few things that could be considered items. We're only looking for <code>syn::Item::Struct</code>, so we'll use a <code>match</code> statement:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">// Match on the parsed item and respond accordingly.
+</span><span style="background-color:#2b303b;color:#b48ead;">match</span><span style="background-color:#2b303b;color:#c0c5ce;"> item {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// If the attribute was applied to a struct, we&#39;re going to do
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// some more work to figure out if there&#39;s a field named &quot;bees&quot;.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// It&#39;s important to take a reference to `struct_item`, otherwise
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// you partially move `item`.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">Item::Struct(</span><span style="background-color:#2b303b;color:#b48ead;">ref</span><span style="background-color:#2b303b;color:#c0c5ce;"> struct_item) =&gt; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#96b5b4;">has_bees</span><span style="background-color:#2b303b;color:#c0c5ce;">(struct_item) {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#96b5b4;">light_it_up</span><span style="background-color:#2b303b;color:#c0c5ce;">(struct_item);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">},
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// If the attribute was applied to any other kind of item, we want
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// to generate a compiler error.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">_ =&gt; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// This is how you generate a compiler error. You can also
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// generate a &quot;note,&quot; or a &quot;warning.&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">item.</span><span style="background-color:#2b303b;color:#96b5b4;">span</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">unstable</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">error</span><span style="background-color:#2b303b;color:#c0c5ce;">(&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">This is not a struct</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">emit</span><span style="background-color:#2b303b;color:#c0c5ce;">();
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">},
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">/// Determine if the struct has a field named &quot;bees&quot;
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">has_bees</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">struct_</span><span style="background-color:#2b303b;color:#c0c5ce;">: &amp;syn::ItemStruct) -&gt; </span><span style="background-color:#2b303b;color:#b48ead;">bool </span><span style="background-color:#2b303b;color:#c0c5ce;">{
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">unimplemented!()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">/// Generate fun compiler errors
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">light_it_up</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">struct_</span><span style="background-color:#2b303b;color:#c0c5ce;">: &amp;syn::ItemStruct) {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">unimplemented!()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>I like to keep things nice and tidy, so I've introduced two new functions, <code>has_bees</code> and <code>light_it_up</code>, to move some of the code out of the match statement. Notice that each function takes a reference to a <code>syn::ItemStruct</code>, and that I'm passing <code>struct_item</code> rather than <code>&amp;struct_item</code> to each function. I just want to look at the contents, not take them, so I destructure with <code>ref</code> here.</p>
+<p>The other thing to take not of is how I generate the compiler error:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">item.</span><span style="background-color:#2b303b;color:#96b5b4;">span</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">unstable</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">error</span><span style="background-color:#2b303b;color:#c0c5ce;">(&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">This is not a struct</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">emit</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span></pre>
+<p>The trait <code>syn::spanned::Spanned</code> allows you to retrieve the span of any syntax tree defined by <code>syn</code>, so you'll want to bring that into scope. Why is the <code>unstable()</code> there? I have no idea, but you need it. Rather than <code>error</code> you could also use <code>warning</code>, <code>note</code>, or <code>help</code>. See <a href="https://doc.rust-lang.org/proc_macro/struct.Span.html">this page</a> for details.</p>
+<h4 id="finding-a-named-field">Finding a named field</h4>
+<p>Let's dig into the <code>has_bees</code> function. We want <code>has_bees</code> to examine the syntax tree and return <code>true</code> or <code>false</code> depending on whether there is a field in the struct named &quot;bees.&quot; To do that we're going to need to dig into the definition of <code>syn::ItemStruct</code>. I'll just show you what this looks like.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">// from the `syn` docs
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">pub struct </span><span style="background-color:#2b303b;color:#c0c5ce;">ItemStruct {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">attrs</span><span style="background-color:#2b303b;color:#c0c5ce;">: Vec&lt;Attribute&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">vis</span><span style="background-color:#2b303b;color:#c0c5ce;">: Visibility,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">struct_token</span><span style="background-color:#2b303b;color:#c0c5ce;">: Struct,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">ident</span><span style="background-color:#2b303b;color:#c0c5ce;">: Ident,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">generics</span><span style="background-color:#2b303b;color:#c0c5ce;">: Generics,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">fields</span><span style="background-color:#2b303b;color:#c0c5ce;">: Fields,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">semi_token</span><span style="background-color:#2b303b;color:#c0c5ce;">: Option&lt;Semi&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">pub enum </span><span style="background-color:#2b303b;color:#c0c5ce;">Fields {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">Named(FieldsNamed),
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">Unnamed(FieldsUnnamed),
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">Unit,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">pub struct </span><span style="background-color:#2b303b;color:#c0c5ce;">FieldsNamed {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">brace_token</span><span style="background-color:#2b303b;color:#c0c5ce;">: Brace,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">named</span><span style="background-color:#2b303b;color:#c0c5ce;">: Punctuated&lt;Field, Comma&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">pub struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Field {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">attrs</span><span style="background-color:#2b303b;color:#c0c5ce;">: Vec&lt;Attribute&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">vis</span><span style="background-color:#2b303b;color:#c0c5ce;">: Visibility,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">ident</span><span style="background-color:#2b303b;color:#c0c5ce;">: Option&lt;Ident&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">colon_token</span><span style="background-color:#2b303b;color:#c0c5ce;">: Option&lt;Colon&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">pub </span><span style="background-color:#2b303b;color:#bf616a;">ty</span><span style="background-color:#2b303b;color:#c0c5ce;">: Type,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Yikes, that's quite the rabbit hole. Unfortunately, this is the price you pay for all of the goodies that <code>syn</code> gives you for free. Alright, here's what we're going to do:</p>
+<ul>
+<li>match on <code>fields</code></li>
+<li>destructure the <code>Named</code> variant to bind its contents to a variable</li>
+<li>use the iterator methods provided by <code>Punctuated</code> to iterate over the fields</li>
+<li>compare the <code>ident</code> (name) of each field with &quot;bees&quot;</li>
+</ul>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">/// Determine if the struct has a field named &quot;bees&quot;
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">has_bees</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">struct_</span><span style="background-color:#2b303b;color:#c0c5ce;">: &amp;syn::ItemStruct) -&gt; </span><span style="background-color:#2b303b;color:#b48ead;">bool </span><span style="background-color:#2b303b;color:#c0c5ce;">{
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">match</span><span style="background-color:#2b303b;color:#c0c5ce;"> struct_.fields {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// A field can only be named &quot;bees&quot; if it has a name, so we&#39;ll
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// match those fields and ignore the rest.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">Fields::Named(</span><span style="background-color:#2b303b;color:#b48ead;">ref</span><span style="background-color:#2b303b;color:#c0c5ce;"> fields) =&gt; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#65737e;">// Unwrap the field names because we know these are named fields.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#c0c5ce;">fields.named.</span><span style="background-color:#2b303b;color:#96b5b4;">iter</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">any</span><span style="background-color:#2b303b;color:#c0c5ce;">(|</span><span style="background-color:#2b303b;color:#bf616a;">field</span><span style="background-color:#2b303b;color:#c0c5ce;">| field.ident.</span><span style="background-color:#2b303b;color:#96b5b4;">unwrap</span><span style="background-color:#2b303b;color:#c0c5ce;">() == &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">bees</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// Ignore unit structs or anonymous fields.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">_ =&gt; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#d08770;">false
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">},
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Note that I'm able to directly compare the <code>ident</code> with a value of type <code>&amp;str</code> even though <code>ident</code> is of type <code>syn::Ident</code>. This is because <code>Ident</code> implements <code>PartialEq&lt;T: AsRef&lt;str&gt;&gt;</code>, or, in other words, <code>Ident</code> can be compared with types that can be converted to <code>&amp;str</code>. Nice! Although you don't need to explicity convert the <code>Ident</code> to a <code>&amp;str</code> or <code>String</code> for the sake of comparison (remember, the <code>PartialEq</code> implementation does it for you), you can still get the textual representation of <code>ident</code> using its <code>as_ref</code> or <code>to_string</code> methods.</p>
+<p>Another thing to point out is that I'm unwrapping <code>ident</code>, which is of type <code>Option&lt;Ident&gt;</code>. This seems odd at first glance. We know that the fields are named because they come from the <code>Fields::Named</code> variant, but the type of each field is <code>Option&lt;Ident&gt;</code>, which suggests that there is some uncertainty as to whether the field actually has a name. According to David Tolnay, one of the authors of <code>syn</code>, this is a trade off. On one hand, it would make more sense to use just <code>Ident</code> in this situation, rather than <code>Option&lt;Ident&gt;</code>. On the other hand, using <code>Option&lt;Ident&gt;</code> for the type of <code>Field.ident</code> allows you to treat named and unnamed fields mostly the same, which makes sense from an API and maintenance point of view. Interesting!</p>
+<h4 id="generating-the-compiler-errors">Generating the compiler errors</h4>
+<p>Now that we've seen how to locate the fields of a struct and generate a compiler error, let's go ahead and do this in our <code>light_it_up</code> function (it will look very similar to <code>has_bees</code>).</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;">/// Generate fun compiler errors
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">light_it_up</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">struct_</span><span style="background-color:#2b303b;color:#c0c5ce;">: &amp;syn::ItemStruct) {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">if let </span><span style="background-color:#2b303b;color:#c0c5ce;">Fields::Named(</span><span style="background-color:#2b303b;color:#b48ead;">ref</span><span style="background-color:#2b303b;color:#c0c5ce;"> fields) = struct_.fields {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// Piece together our exquisite error message.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> bees = &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">🐝 </span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;.</span><span style="background-color:#2b303b;color:#96b5b4;">repeat</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#d08770;">17</span><span style="background-color:#2b303b;color:#c0c5ce;">);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> msg = &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">🐝   not the bees!!! NOT THE BEEEEEES!!! 🐝</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// The `join` method places the provided string between the joined items,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// so putting empty strings at the beginning and end will put extra
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// newline characters at the beginning and end of the error message.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> bees_msg = [&quot;&quot;, bees.</span><span style="background-color:#2b303b;color:#96b5b4;">as_str</span><span style="background-color:#2b303b;color:#c0c5ce;">(), msg, bees.</span><span style="background-color:#2b303b;color:#96b5b4;">as_str</span><span style="background-color:#2b303b;color:#c0c5ce;">(), &quot;&quot;].</span><span style="background-color:#2b303b;color:#96b5b4;">join</span><span style="background-color:#2b303b;color:#c0c5ce;">(&quot;</span><span style="background-color:#2b303b;color:#96b5b4;">\n</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// Find the field named &quot;bees&quot;.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">for</span><span style="background-color:#2b303b;color:#c0c5ce;"> field in &amp;fields.named {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> ident = field.ident.</span><span style="background-color:#2b303b;color:#96b5b4;">unwrap</span><span style="background-color:#2b303b;color:#c0c5ce;">();
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#b48ead;">if</span><span style="background-color:#2b303b;color:#c0c5ce;"> ident == &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">bees</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">                </span><span style="background-color:#2b303b;color:#65737e;">// Deliver the error message.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">                </span><span style="background-color:#2b303b;color:#c0c5ce;">ident.</span><span style="background-color:#2b303b;color:#96b5b4;">span</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">unstable</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">                    </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">error</span><span style="background-color:#2b303b;color:#c0c5ce;">(bees_msg.</span><span style="background-color:#2b303b;color:#96b5b4;">clone</span><span style="background-color:#2b303b;color:#c0c5ce;">())
+</span><span style="background-color:#2b303b;color:#c0c5ce;">                    </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">emit</span><span style="background-color:#2b303b;color:#c0c5ce;">();
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Now we'll make a simple example to show that it works:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">#![</span><span style="background-color:#2b303b;color:#bf616a;">feature</span><span style="background-color:#2b303b;color:#c0c5ce;">(proc_macro)]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">extern crate</span><span style="background-color:#2b303b;color:#c0c5ce;"> wickerman;
+</span><span style="background-color:#2b303b;color:#b48ead;">use </span><span style="background-color:#2b303b;color:#c0c5ce;">wickerman::wickerman;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">/// This one shouldn&#39;t raise any errors because it doesn&#39;t have a field
+</span><span style="background-color:#2b303b;color:#65737e;">/// named &quot;bees&quot;, or any named fields at all for that matter.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">wickerman</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Foo(</span><span style="background-color:#2b303b;color:#b48ead;">i32</span><span style="background-color:#2b303b;color:#c0c5ce;">);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">/// This is where the action will happen.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">wickerman</span><span style="background-color:#2b303b;color:#c0c5ce;">]
+</span><span style="background-color:#2b303b;color:#b48ead;">struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Bar {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">baz</span><span style="background-color:#2b303b;color:#c0c5ce;">: </span><span style="background-color:#2b303b;color:#b48ead;">i32</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">bees</span><span style="background-color:#2b303b;color:#c0c5ce;">: String,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#65737e;">/// This is only here so that the crate will run as a binary crate
+</span><span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">main</span><span style="background-color:#2b303b;color:#c0c5ce;">() {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">println!(&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">Hello, world!</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;);
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>*crosses fingers*</p>
+<p><img src="/images/not-the-bees-editor.jpg" alt="" /></p>
+<p>BINGO! At 1:30am this was basically the funniest thing I had ever seen. I laughed myself to sleep.</p>
+<p>Now, there is some weirdness involved. At first the errors only showed up when I tried to build the example in my terminal. I'm guessing I had to build both the <code>wickerman</code> crate and the example before the error messages would show up in my editor (Sublime Text). I would also like to point out that things may look different in your editor or your terminal because Unicode Is Hard (TM). I know that the error message doesn't look like this (different spacing) in either iTerm2 or the built in terminal on macOS, and each terminal renders it differently. I think the issue lies in the width of the bee emoji. I'm not all that concerned about it.</p>
+<h4 id="blowing-up-the-editor">Blowing up the editor</h4>
+<p>We're generating an error message for the field named &quot;bees,&quot; but I said I wanted the compiler to lose its mind. So, here's what I want to do: if I find the &quot;bees&quot; field, I'll show the bees error message, but for every other field and its type I'll show a random error message inspired by The Wicker Man. First, some inspiration (WARNING: GRATUITOUS AMOUNTS OF 240p):</p>
+<div >
+    <iframe src="https://www.youtube.com/embed/Qjme5hh" webkitallowfullscreen mozallowfullscreen allowfullscreen>
+    </iframe>
+</div>
+<p>
+<p>Now let's get to work. The first order of business is creating a function to return a random error message. Here's the outline:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">random_error_message</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">name</span><span style="background-color:#2b303b;color:#c0c5ce;">: &amp;</span><span style="background-color:#2b303b;color:#b48ead;">str</span><span style="background-color:#2b303b;color:#c0c5ce;">) -&gt; String {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Create the error messages...
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Store the error messages in an array so one can be chosen at random. We use an array
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// rather than a `Vec&lt;String&gt;` because we know exactly how many error messages we have,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// and we know the number will never change.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">let</span><span style="background-color:#2b303b;color:#c0c5ce;"> messages = [
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;">// List the error messages here.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">];
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Use the `rand` crate to choose a random message to return. Note that `choose` returns
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// `Option&lt;&amp;T&gt;`, which will only be `None` if `messages` is empty, so it&#39;s safe to unwrap
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// here. Unwrapping gives us `&amp;String`, so we call `to_owned` to return `String`.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">rand::thread_rng().</span><span style="background-color:#2b303b;color:#96b5b4;">choose</span><span style="background-color:#2b303b;color:#c0c5ce;">(&amp;messages).</span><span style="background-color:#2b303b;color:#96b5b4;">unwrap</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">to_owned</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>The next step is to apply the error messages to the other syntax items. I'll do this by adding an <code>else</code> branch to the <code>if ident.as_ref() = &quot;bees&quot;</code> conditional statement in <code>light_it_up</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">if</span><span style="background-color:#2b303b;color:#c0c5ce;"> ident.</span><span style="background-color:#2b303b;color:#96b5b4;">as_ref</span><span style="background-color:#2b303b;color:#c0c5ce;">() == &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">bees</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// You&#39;ve already seen this part.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">} </span><span style="background-color:#2b303b;color:#b48ead;">else </span><span style="background-color:#2b303b;color:#c0c5ce;">{
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Here&#39;s where the new stuff will go.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>First I'll attach an error message to the identifier (the name of the field), and then I'll attach an error message to the type of the field.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">if</span><span style="background-color:#2b303b;color:#c0c5ce;"> ident.</span><span style="background-color:#2b303b;color:#96b5b4;">as_ref</span><span style="background-color:#2b303b;color:#c0c5ce;">() == &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">bees</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// You&#39;ve already seen this part.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">} </span><span style="background-color:#2b303b;color:#b48ead;">else </span><span style="background-color:#2b303b;color:#c0c5ce;">{
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Show a random error message referencing the name of the field.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">ident.</span><span style="background-color:#2b303b;color:#96b5b4;">span</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">unstable</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">error</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#96b5b4;">random_error_message</span><span style="background-color:#2b303b;color:#c0c5ce;">(ident.</span><span style="background-color:#2b303b;color:#96b5b4;">as_ref</span><span style="background-color:#2b303b;color:#c0c5ce;">()))
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">emit</span><span style="background-color:#2b303b;color:#c0c5ce;">();
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Show a random error message referencing the type of the field.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">field.ty.</span><span style="background-color:#2b303b;color:#96b5b4;">span</span><span style="background-color:#2b303b;color:#c0c5ce;">().</span><span style="background-color:#2b303b;color:#96b5b4;">unstable</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">error</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#96b5b4;">random_error_message</span><span style="background-color:#2b303b;color:#c0c5ce;">(&quot;&quot;))
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">.</span><span style="background-color:#2b303b;color:#96b5b4;">emit</span><span style="background-color:#2b303b;color:#c0c5ce;">();
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Alright, all the pieces are in place! Let's see what it looks like!</p>
+<p><img src="/images/insanity.jpg" alt="" /></p>
+<p>BEAUTIFUL! I'm pretty happy with how this looks. To satisfy the purists, I added some feature flags to the <code>wickerman</code> crate. The default feature is <code>just-the-bees-please</code>, which will only show the &quot;not the bees!&quot; message. The other feature is <code>go-nuts</code>, which will show the randomly selected error messages on the other fields and types. I did this using the <code>cfg!</code> macro:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">if</span><span style="background-color:#2b303b;color:#c0c5ce;"> ident.</span><span style="background-color:#2b303b;color:#96b5b4;">as_ref</span><span style="background-color:#2b303b;color:#c0c5ce;">() == &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">bees</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Take the pedestrian way out.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">} </span><span style="background-color:#2b303b;color:#b48ead;">else if </span><span style="background-color:#2b303b;color:#c0c5ce;">cfg!(feature = &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">go-nuts</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;) {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Let&#39;s get weird.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>This is the first time I've used feature flags in one of my own crates. Do they make &quot;Baby's First Conditional Compilation&quot; refrigerator magnets? Someone look into it and let me know.</p>
+<h2 id="summary-1">Summary</h2>
+<p>If you've read this far, you're a saint. Hopefully you got something out of it. Like some other nightly features of Rust, procedural macros are a bit of a moving target. I've done my best to make sure everything was up to date, but if you find something that's out of date be sure to let me know!</p>
+
+</article>
+
+        </main>
+
+    <script src="/livereload.js?port=1112&mindelay=10"></script></body>
+
+</html>
