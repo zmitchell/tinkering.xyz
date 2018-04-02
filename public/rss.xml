@@ -427,14 +427,14 @@
                 <link>https:&#x2F;&#x2F;tinkering.xyz&#x2F;about&#x2F;</link>
                 <guid>https:&#x2F;&#x2F;tinkering.xyz&#x2F;about&#x2F;</guid>
                 <description>&lt;p&gt;I &lt;em&gt;&lt;strong&gt;love&lt;&#x2F;strong&gt;&lt;&#x2F;em&gt; the details. I&#x27;m the kind of person that watches YouTube videos about Unix syscalls in his free time 🤓.&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;m a physics graduate student at Purdue University finishing up the last year of my PhD. I study the details of photosynthesis using ⚡️ultrafast spectroscopy⚡️. Have you burned holes in your business cards with 20fs laser pulses? I have! I also write the software that glues together the equipment used in my experiments.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m finishing up the last year of my physics PhD at Purdue University, where I study the details of photosynthesis using ⚡️ultrafast spectroscopy⚡️. Have you burned holes in your business cards with 20fs laser pulses? I have! I also write the software that glues together the equipment used in my experiments.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve been writing Python for a little over 5 years. I decided to try Rust for a side project and it was love at first sight ❤️. I&#x27;ve been tinkering away at things in Rust ever since. From there I developed an interest in systems programming and the details of how operating systems work.&lt;&#x2F;p&gt;
-&lt;p&gt;This blog is made using &lt;a href=&quot;https:&#x2F;&#x2F;gohugo.io&quot;&gt;Hugo&lt;&#x2F;a&gt;, a static site generator written in Go. The site is hosted on &lt;a href=&quot;https:&#x2F;&#x2F;www.netlify.com&quot;&gt;Netlify&lt;&#x2F;a&gt;, a service I can&#x27;t believe is free.&lt;&#x2F;p&gt;
+&lt;p&gt;This blog is made using &lt;a href=&quot;getgutenberg.io&quot;&gt;Gutenberg&lt;&#x2F;a&gt;, a static site generator written in Rust (Rewrite It In Rust can apply to blogs too). The site is hosted on &lt;a href=&quot;https:&#x2F;&#x2F;www.netlify.com&quot;&gt;Netlify&lt;&#x2F;a&gt;, a service I can&#x27;t believe is free.&lt;&#x2F;p&gt;
 &lt;p&gt;If you need to reach me, you can find me in the following places:&lt;&#x2F;p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&quot;&gt;GitHub&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;zmitchell22&quot;&gt;LinkedIn&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;Email: zmitchell@fastmail.com&lt;&#x2F;li&gt;
+&lt;li&gt;Email: &lt;a href=&quot;mailto:zmitchell@fastmail.com&quot;&gt;zmitchell@fastmail.com&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 </description>
             </item>
