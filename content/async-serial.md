@@ -3,7 +3,7 @@ title = "Bringing async to serial devices"
 date = 2018-03-15T13:59:36-05:00
 draft = true
 tags = ["python", "serial", "async"]
-description = "Learn to use non-blocking I/O in code that interacts with serial devices"
+description = "Learn to use non-blocking I/O in Python code that interacts with serial devices"
 
 [extra]
 show_date = false
