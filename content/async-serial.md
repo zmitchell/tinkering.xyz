@@ -1,9 +1,9 @@
 +++
-title = "Bringing async to serial devices"
+title = "Using Python's asyncio with serial devices"
 date = 2018-03-15T13:59:36-05:00
 draft = true
 tags = ["python", "serial", "async"]
-description = "Learn to use non-blocking I/O in Python code that interacts with serial devices"
+description = "Serial I/O is a prime candidate for the non-blocking I/O treatment. Learn to use pyserial-asyncio with serial devices in your industrial, IoT, or scientific programs."
 
 [extra]
 show_date = false
