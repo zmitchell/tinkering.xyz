@@ -51,16 +51,16 @@
         <main class="content container">
             
 <article class="post">
-  <h1 class="post-title">Abusing Python&#x27;s type annotations</h1>
+  <h1 class="post-title">Bringing macros to Python by abusing type annotations</h1>
   
   <h1 id="introduction">Introduction</h1>
-<p>I know this is supposed to be about Python, but let's talk about Rust for a second since it's the inspiration for how this all got started. Rust is becoming more and more popular by the day for reasons that you've probably heard about:</p>
+<p>The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. Rust is becoming more and more popular by the day for reasons that you've probably heard about:</p>
 <ul>
 <li>It's really fast.</li>
 <li>It has a nice, modern type system.</li>
 <li>It prevents lots of memory errors.</li>
 </ul>
-<p>However, my favorite feature of Rust isn't its speed, compiler, etc, but rather its macro system.</p>
+<p>However, my favorite feature of Rust isn't its speed, helpful error messages, etc, but rather its macro system.</p>
 <p>There are two types of macros in Rust: declarative and procedural. The real heavy hitters are the procedural macros. The compiler takes your program, parses it into a data structure called an abstract syntax tree (AST), then hands it to a procedural macro. The macro can then do whatever it wants to the AST as long as it hands a valid AST back to the compiler in the end. These are great for code generation. Let's see an example.</p>
 <p>Let's say I want to parse some command line arguments into this struct:</p>
 <pre style="background-color:#2b303b">
@@ -70,7 +70,7 @@
 </span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">output</span><span style="background-color:#2b303b;color:#c0c5ce;">: PathBuf,
 </span><span style="background-color:#2b303b;color:#c0c5ce;">}
 </span></pre>
-<p>There's an <s>app</s> crate for that: <code>structopt</code>. All we have to do is sprinkle some <code>#[...]</code> things (attributes) into our struct definition. I'm not teaching you Rust right now, so don't worry about the details.</p>
+<p>There's <s>an app</s> a crate for that: <code>structopt</code>. All we have to do is sprinkle some <code>#[...]</code> things (attributes) into our struct definition. I'm not teaching you Rust right now, so don't worry about the details.</p>
 <pre style="background-color:#2b303b">
 <span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">derive</span><span style="background-color:#2b303b;color:#c0c5ce;">(StructOpt, Debug)]
 </span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">structopt</span><span style="background-color:#2b303b;color:#c0c5ce;">(name = &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">basic</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;)]
@@ -91,7 +91,7 @@
 <p>This will generate all of the code needed to parse command line arguments into the struct <code>Opt</code>. That's pretty handy, right? All you had to do was define which arguments you were expecting, and the macro took care of the rest!</p>
 <p>You can also do less useful things, like blow up your editor with error messages from The Wickerman.</p>
 <p><img src="/images/not-the-bees-editor.jpg" alt="" /></p>
-<p>If you'd like to read about that, I'll point you here: <a href="https://tinkering.xyz/introduction-to-proc-macros">link to shameless plug</a></p>
+<p>If you'd like to read about that, you can do so here: <a href="https://tinkering.xyz/introduction-to-proc-macros">link to shameless plug</a></p>
 <p>So, here's the million dollar question: Can you make Rust-like macros in Python?</p>
 <h1 id="what-am-i-trying-to-build">What am I trying to build?</h1>
 <p>Let's unpack what it means to have Rust-like macros in Python. I'll examine this with three questions:</p>
@@ -105,7 +105,7 @@
 <h2 id="what-s-special-about-rust-macros">What's special about Rust macros?</h2>
 <p>A primitive macro system operates by simply replacing one bit of text with another i.e. replacing <code>PY_VERSION</code> with <code>3.6.5</code>. Rust's (procedural) macros operate by performing operations on the logical structure of your code after it's been parsed (this is the abstract syntax tree). Rust's macros can be applied to struct, enum, function, and module declarations. Furthermore, macros can be applied to the members of structs/enums, like in the example above.</p>
 <h2 id="what-do-my-macros-need-to-do">What do my macros need to do?</h2>
-<p>Since this is a proof of concept, I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though. The macros should also do some sort of code generation.</p>
+<p>Since this is only a proof of concept, I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though. The macros should also do some sort of code generation.</p>
 <h1 id="research">Research</h1>
 <p>I set out to determine if it was even possible to do what I wanted to do. I knew that I could apply a decorator to a class, so that part was covered. The part that would be trickier is attaching information to individual class or instance attributes. Eventually something jumped out at me. Take a look:</p>
 <pre style="background-color:#2b303b">
@@ -117,12 +117,12 @@
 <span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
 </span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">MyClass</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
 </span></pre>
-<p>This allows you to use types that haven't been defined yet, like when you're defining a recursive data structure. Interesting, so the type annotation doesn't have to be an actual class, it can also be a string. What can go in this string? Anything, apparently!</p>
-<p>If you read <a href="https://www.python.org/dev/peps/pep-0484/#acceptable-type-hints">PEP 484</a> you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.</p>
-<p>At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this would not play well with type checkers or really any sane use case for type annotations, but no one <em>really</em> uses type annotations, right? No one will get hurt. All the cool kids are doing it. I eventually gave in to my own pressure.</p>
+<p>This allows you to use types that haven't been defined yet, like when you're defining a recursive data structure. So the type annotation doesn't have to be an actual class, it can also be a string. What can go in this string? Anything, apparently!</p>
+<p>If you read <s>the sacred texts</s> <a href="https://www.python.org/dev/peps/pep-0484/#acceptable-type-hints">PEP 484</a> you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.</p>
+<p>At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this would not play well with type checkers or really any sane use case for type annotations, but no one <em>really</em> uses type annotations, right? All the cool kids are doing it, no one will get hurt. Don't be such a square! Fine, I talked me into it.</p>
 <p>Ok, so I can store information in the annotations, but how do I read it at some later time? To the <a href="https://docs.python.org/3/reference/datamodel.html">Python data model</a>! I dove into the data model to learn about the guts of Python. I actually got my first CPython contribution from this endeavor.</p>
 <p><img src="/images/cpython-pr.png" alt="" /></p>
-<p>I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the <code>__annotations__</code> attribute. The <code>__annotations__</code> attribute is a dictionary where the keys are the attribute names, and the values are the raw annotations. Consider the following class:</p>
+<p>I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the <code>__annotations__</code> attribute. The <code>__annotations__</code> attribute is a dictionary where the keys are the attribute names, and the values are the annotations. Consider the following class:</p>
 <pre style="background-color:#2b303b">
 <span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
 </span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo: int
@@ -157,7 +157,7 @@
 <p>Hopefully you get the idea. You represent the structure of your code by building up instances of classes like <code>ast.Assign</code>, <code>ast.FunctionDef</code>, etc.</p>
 <p>Now that I have all of the pieces in place (decorators, type annotations, and ASTs), I can show you an example of what can be done with this.</p>
 <h1 id="example-1">Example 1 - <code>@inrange</code></h1>
-<p>For my first trick, I've created a decorator, <code>@inrange</code>, that will generate properties that can only be set to values in a range specified in the type annotation, like so:</p>
+<p>For my first trick, I've created a decorator, <code>@inrange</code>. If you place the annotation <code>&quot;0 &lt; foo &lt; 3&quot;</code> on a class variable named <code>foo</code>, the decorator will generate a class with a property named <code>foo</code> that only accepts values in the range <code>0 &lt; value &lt; 3</code>. Consider the following class definition:</p>
 <pre style="background-color:#2b303b">
 <span style="background-color:#2b303b;color:#c0c5ce;">@</span><span style="background-color:#2b303b;color:#bf616a;">inrange
 </span><span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
@@ -187,13 +187,11 @@
 <span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; @inrange
 </span><span style="background-color:#2b303b;color:#c0c5ce;">... class MyClass:
 </span><span style="background-color:#2b303b;color:#c0c5ce;">...     foo: &quot;0 &lt; foo &lt; 5&quot;
-</span><span style="background-color:#2b303b;color:#c0c5ce;">...     bar: &quot;0 &lt; bar &lt; 1&quot;
 </span><span style="background-color:#2b303b;color:#c0c5ce;">...
 </span><span style="background-color:#2b303b;color:#c0c5ce;">
-</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz = MyClass()
-</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz.foo = 1  # no problems here!
-</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz.bar = 0.5  # none here either!
-</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz.foo = 6  # oh no!
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; bar = MyClass()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; bar.foo = 1  # no problems here!
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; bar.foo = 6  # oh no!
 </span><span style="background-color:#2b303b;color:#c0c5ce;">Traceback (most recent call last):
 </span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">File &quot;&lt;input&gt;&quot;, line 1, in &lt;module&gt;
 </span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">bar.foo = 6
@@ -201,7 +199,7 @@
 </span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">import ast
 </span><span style="background-color:#2b303b;color:#c0c5ce;">ValueError: value outside of range 0 &lt; foo &lt; 5
 </span></pre>
-<p>There are some weird things here. Note that the line above the <code>ValueError</code> says <code>import ast</code>, even though you don't <code>import ast</code>. I don't really know what that's about. The error message also says that the error occurs in <code>foo_setter</code>, even though you don't have a function called <code>foo_setter</code>. This is a result of the way that I make the properties. For a variable named <code>foo</code> I create the functions <code>foo_getter</code> and <code>foo_setter</code>, create a property with <code>property(foo_getter, foo_setter)</code>, then bind that to the attribute <code>foo</code>.</p>
+<p>There are some weird things here. Note that the line above the <code>ValueError</code> says <code>import ast</code>, even though I didn't import the <code>ast</code> module in the shell. I use the <code>ast</code> module to generate code, but I don't really know what that's about. The error message also says that the error occurs in <code>foo_setter</code>, even though you don't have a function called <code>foo_setter</code>. This is a result of the way that I make the properties. For a variable named <code>foo</code> I create the functions <code>foo_getter</code> and <code>foo_setter</code>, create a property with <code>property(foo_getter, foo_setter)</code>, then bind that to the attribute <code>foo</code>.</p>
 <p>Here are the broad strokes of how this works, assuming you have a class named <code>MyClass</code> and you've annotated a class variable named <code>var</code>:</p>
 <ul>
 <li>Grab the annotation from <code>MyClass.__annotations__[&quot;var&quot;]</code>.</li>

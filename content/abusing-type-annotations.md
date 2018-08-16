@@ -1,20 +1,20 @@
 +++
-title = "Abusing Python's type annotations"
+title = "Bringing macros to Python by abusing type annotations"
 date = 2018-08-04
 draft = true
-description = "This post documents a journey that starts with the following question: Is it possible to bring macros to Python? Along the way I have some realizations about Python's type annotations, then I descend into madness. Enjoy."
+description = "This post documents a journey that starts with the following question: Is it possible to bring Rust-like macros to Python? I have some realizations about Python's type annotations, then I descend into madness."
 
 [extra]
 show_date = false
 +++
 
 # Introduction
-I know this is supposed to be about Python, but let's talk about Rust for a second since it's the inspiration for how this all got started. Rust is becoming more and more popular by the day for reasons that you've probably heard about:
+The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. Rust is becoming more and more popular by the day for reasons that you've probably heard about:
 - It's really fast.
 - It has a nice, modern type system.
 - It prevents lots of memory errors.
 
-However, my favorite feature of Rust isn't its speed, compiler, etc, but rather its macro system.
+However, my favorite feature of Rust isn't its speed, helpful error messages, etc, but rather its macro system.
 
 There are two types of macros in Rust: declarative and procedural. The real heavy hitters are the procedural macros. The compiler takes your program, parses it into a data structure called an abstract syntax tree (AST), then hands it to a procedural macro. The macro can then do whatever it wants to the AST as long as it hands a valid AST back to the compiler in the end. These are great for code generation. Let's see an example.
 
@@ -26,7 +26,7 @@ struct Opt {
     output: PathBuf,
 }
 ```
-There's an <s>app</s> crate for that: `structopt`. All we have to do is sprinkle some `#[...]` things (attributes) into our struct definition. I'm not teaching you Rust right now, so don't worry about the details.
+There's <s>an app</s> a crate for that: `structopt`. All we have to do is sprinkle some `#[...]` things (attributes) into our struct definition. I'm not teaching you Rust right now, so don't worry about the details.
 
 ```rust
 #[derive(StructOpt, Debug)]
@@ -51,7 +51,7 @@ You can also do less useful things, like blow up your editor with error messages
 
 ![](/images/not-the-bees-editor.jpg)
 
-If you'd like to read about that, I'll point you here: [link to shameless plug](https://tinkering.xyz/introduction-to-proc-macros)
+If you'd like to read about that, you can do so here: [link to shameless plug](https://tinkering.xyz/introduction-to-proc-macros)
 
 So, here's the million dollar question: Can you make Rust-like macros in Python?
 
@@ -68,7 +68,7 @@ Usually a macro provides a shorthand for something. In this case, a macro would 
 A primitive macro system operates by simply replacing one bit of text with another i.e. replacing `PY_VERSION` with `3.6.5`. Rust's (procedural) macros operate by performing operations on the logical structure of your code after it's been parsed (this is the abstract syntax tree). Rust's macros can be applied to struct, enum, function, and module declarations. Furthermore, macros can be applied to the members of structs/enums, like in the example above.
 
 ## What do my macros need to do?
-Since this is a proof of concept, I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though. The macros should also do some sort of code generation.
+Since this is only a proof of concept, I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though. The macros should also do some sort of code generation.
 
 # Research
 I set out to determine if it was even possible to do what I wanted to do. I knew that I could apply a decorator to a class, so that part was covered. The part that would be trickier is attaching information to individual class or instance attributes. Eventually something jumped out at me. Take a look:
@@ -85,17 +85,17 @@ class MyClass:
     foo: "MyClass"
 ```
 
-This allows you to use types that haven't been defined yet, like when you're defining a recursive data structure. Interesting, so the type annotation doesn't have to be an actual class, it can also be a string. What can go in this string? Anything, apparently!
+This allows you to use types that haven't been defined yet, like when you're defining a recursive data structure. So the type annotation doesn't have to be an actual class, it can also be a string. What can go in this string? Anything, apparently!
 
-If you read [PEP 484][pep_484] you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.
+If you read <s>the sacred texts</s> [PEP 484][pep_484] you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.
 
-At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this would not play well with type checkers or really any sane use case for type annotations, but no one *really* uses type annotations, right? No one will get hurt. All the cool kids are doing it. I eventually gave in to my own pressure.
+At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this would not play well with type checkers or really any sane use case for type annotations, but no one *really* uses type annotations, right? All the cool kids are doing it, no one will get hurt. Don't be such a square! Fine, I talked me into it.
 
 Ok, so I can store information in the annotations, but how do I read it at some later time? To the [Python data model][data_model]! I dove into the data model to learn about the guts of Python. I actually got my first CPython contribution from this endeavor.
 
 ![](/images/cpython-pr.png)
 
-I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the `__annotations__` attribute. The `__annotations__` attribute is a dictionary where the keys are the attribute names, and the values are the raw annotations. Consider the following class:
+I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the `__annotations__` attribute. The `__annotations__` attribute is a dictionary where the keys are the attribute names, and the values are the annotations. Consider the following class:
 
 ```python
 class MyClass:
@@ -139,13 +139,16 @@ Hopefully you get the idea. You represent the structure of your code by building
 Now that I have all of the pieces in place (decorators, type annotations, and ASTs), I can show you an example of what can be done with this.
 
 # Example 1 - `@inrange`
-For my first trick, I've created a decorator, `@inrange`, that will generate properties that can only be set to values in a range specified in the type annotation, like so:
+For my first trick, I've created a decorator, `@inrange`. If you place the annotation `"0 < foo < 3"` on a class variable named `foo`, the decorator will generate a class with a property named `foo` that only accepts values in the range `0 < value < 3`. Consider the following class definition:
+
 ```python
 @inrange
 class MyClass:
     var: "0 < var < 10"
 ```
+
 The decorator will generate a class equivalent to this:
+
 ```python
 class MyClass:
     var: "0 < var < 10"
@@ -169,13 +172,11 @@ Note that each instance of `MyClass` gets its own `var` since we're generating p
 >>> @inrange
 ... class MyClass:
 ...     foo: "0 < foo < 5"
-...     bar: "0 < bar < 1"
 ...
 
->>> baz = MyClass()
->>> baz.foo = 1  # no problems here!
->>> baz.bar = 0.5  # none here either!
->>> baz.foo = 6  # oh no!
+>>> bar = MyClass()
+>>> bar.foo = 1  # no problems here!
+>>> bar.foo = 6  # oh no!
 Traceback (most recent call last):
   File "<input>", line 1, in <module>
     bar.foo = 6
@@ -183,7 +184,7 @@ Traceback (most recent call last):
     import ast
 ValueError: value outside of range 0 < foo < 5
 ```
-There are some weird things here. Note that the line above the `ValueError` says `import ast`, even though you don't `import ast`. I don't really know what that's about. The error message also says that the error occurs in `foo_setter`, even though you don't have a function called `foo_setter`. This is a result of the way that I make the properties. For a variable named `foo` I create the functions `foo_getter` and `foo_setter`, create a property with `property(foo_getter, foo_setter)`, then bind that to the attribute `foo`.
+There are some weird things here. Note that the line above the `ValueError` says `import ast`, even though I didn't import the `ast` module in the shell. I use the `ast` module to generate code, but I don't really know what that's about. The error message also says that the error occurs in `foo_setter`, even though you don't have a function called `foo_setter`. This is a result of the way that I make the properties. For a variable named `foo` I create the functions `foo_getter` and `foo_setter`, create a property with `property(foo_getter, foo_setter)`, then bind that to the attribute `foo`.
 
 Here are the broad strokes of how this works, assuming you have a class named `MyClass` and you've annotated a class variable named `var`:
 - Grab the annotation from `MyClass.__annotations__["var"]`.
