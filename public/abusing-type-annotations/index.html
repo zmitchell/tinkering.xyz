@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Tinkering</title>
+
+      <!-- CSS -->
+      <link rel="stylesheet" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;hyde.css">
+
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;rss.xml">
+      
+
+      
+      
+    </head>
+
+    <body class="theme-base-0d ">
+        
+            <div class="sidebar">
+                <div class="container ">
+                    <div class="sidebar-about">
+                        
+                            <a href="http:&#x2F;&#x2F;127.0.0.1:1111"><h1>Tinkering</h1></a>
+                            
+                            <p class="lead">Come for the Foo, stay for the Bar</p>
+                            
+                        
+                    </div>
+
+                    <ul class="sidebar-nav">
+                        
+                        
+                        <li><a href="&#x2F;">Home</a></li>
+                        
+                        <li><a href="https:&#x2F;&#x2F;github.com&#x2F;zmitchell">GitHub</a></li>
+                        
+                        <li><a href="&#x2F;about&#x2F;">About</a></li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <main class="content container">
+            
+<article class="post">
+  <h1 class="post-title">Abusing Python&#x27;s type annotations</h1>
+  
+  <h1 id="introduction">Introduction</h1>
+<p>I know this is supposed to be about Python, but let's talk about Rust for a second since it's the inspiration for how this all got started. Rust is becoming more and more popular by the day for reasons that you've probably heard about:</p>
+<ul>
+<li>It's really fast.</li>
+<li>It has a nice, modern type system.</li>
+<li>It prevents lots of memory errors.</li>
+</ul>
+<p>However, my favorite feature of Rust isn't its speed, compiler, etc, but rather its macro system.</p>
+<p>There are two types of macros in Rust: declarative and procedural. The real heavy hitters are the procedural macros. The compiler takes your program, parses it into a data structure called an abstract syntax tree (AST), then hands it to a procedural macro. The macro can then do whatever it wants to the AST as long as it hands a valid AST back to the compiler in the end. These are great for code generation. Let's see an example.</p>
+<p>Let's say I want to parse some command line arguments into this struct:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Opt {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">debug</span><span style="background-color:#2b303b;color:#c0c5ce;">: </span><span style="background-color:#2b303b;color:#b48ead;">bool</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">verbose</span><span style="background-color:#2b303b;color:#c0c5ce;">: </span><span style="background-color:#2b303b;color:#b48ead;">u8</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">output</span><span style="background-color:#2b303b;color:#c0c5ce;">: PathBuf,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>There's an <s>app</s> crate for that: <code>structopt</code>. All we have to do is sprinkle some <code>#[...]</code> things (attributes) into our struct definition. I'm not teaching you Rust right now, so don't worry about the details.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">derive</span><span style="background-color:#2b303b;color:#c0c5ce;">(StructOpt, Debug)]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">#[</span><span style="background-color:#2b303b;color:#bf616a;">structopt</span><span style="background-color:#2b303b;color:#c0c5ce;">(name = &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">basic</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;)]
+</span><span style="background-color:#2b303b;color:#b48ead;">struct </span><span style="background-color:#2b303b;color:#c0c5ce;">Opt {
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Enable debug mode
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">#[structopt(short = &quot;d&quot;, long = &quot;debug&quot;)]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">debug</span><span style="background-color:#2b303b;color:#c0c5ce;">: </span><span style="background-color:#2b303b;color:#b48ead;">bool</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Set verbosity
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">#[structopt(short = &quot;v&quot;, long = &quot;verbose&quot;, parse(from_occurrences))]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">verbose</span><span style="background-color:#2b303b;color:#c0c5ce;">: </span><span style="background-color:#2b303b;color:#b48ead;">u8</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">// Output file
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">#[structopt(short = &quot;o&quot;, long = &quot;output&quot;, parse(from_os_str))]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">output</span><span style="background-color:#2b303b;color:#c0c5ce;">: PathBuf,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>This will generate all of the code needed to parse command line arguments into the struct <code>Opt</code>. That's pretty handy, right? All you had to do was define which arguments you were expecting, and the macro took care of the rest!</p>
+<p>You can also do less useful things, like blow up your editor with error messages from The Wickerman.</p>
+<p><img src="/images/not-the-bees-editor.jpg" alt="" /></p>
+<p>If you'd like to read about that, I'll point you here: <a href="https://tinkering.xyz/introduction-to-proc-macros">link to shameless plug</a></p>
+<p>So, here's the million dollar question: Can you make Rust-like macros in Python?</p>
+<h1 id="what-am-i-trying-to-build">What am I trying to build?</h1>
+<p>Let's unpack what it means to have Rust-like macros in Python. I'll examine this with three questions:</p>
+<ul>
+<li>What is a macro?</li>
+<li>What's special about Rust macros?</li>
+<li>What do my Python macros need to do?</li>
+</ul>
+<h2 id="what-is-a-macro">What is a macro?</h2>
+<p>Usually a macro provides a shorthand for something. In this case, a macro would be a function that takes your class definition as input, reads it, generates some code for you, and returns a new class with the generated code.</p>
+<h2 id="what-s-special-about-rust-macros">What's special about Rust macros?</h2>
+<p>A primitive macro system operates by simply replacing one bit of text with another i.e. replacing <code>PY_VERSION</code> with <code>3.6.5</code>. Rust's (procedural) macros operate by performing operations on the logical structure of your code after it's been parsed (this is the abstract syntax tree). Rust's macros can be applied to struct, enum, function, and module declarations. Furthermore, macros can be applied to the members of structs/enums, like in the example above.</p>
+<h2 id="what-do-my-macros-need-to-do">What do my macros need to do?</h2>
+<p>Since this is a proof of concept, I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though. The macros should also do some sort of code generation.</p>
+<h1 id="research">Research</h1>
+<p>I set out to determine if it was even possible to do what I wanted to do. I knew that I could apply a decorator to a class, so that part was covered. The part that would be trickier is attaching information to individual class or instance attributes. Eventually something jumped out at me. Take a look:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo: int  </span><span style="background-color:#2b303b;color:#65737e;"># &lt;-- information attached to &quot;foo&quot;!
+</span></pre>
+<p>A type annotation looks like what I want to do, but what if I want to put something other than <code>int</code>, <code>str</code>, <code>List[int]</code>, etc in the annotation? I looked around and remembered that in some cases you put a string where you would normally put the annotation, like so:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">MyClass</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
+</span></pre>
+<p>This allows you to use types that haven't been defined yet, like when you're defining a recursive data structure. Interesting, so the type annotation doesn't have to be an actual class, it can also be a string. What can go in this string? Anything, apparently!</p>
+<p>If you read <a href="https://www.python.org/dev/peps/pep-0484/#acceptable-type-hints">PEP 484</a> you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.</p>
+<p>At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this would not play well with type checkers or really any sane use case for type annotations, but no one <em>really</em> uses type annotations, right? No one will get hurt. All the cool kids are doing it. I eventually gave in to my own pressure.</p>
+<p>Ok, so I can store information in the annotations, but how do I read it at some later time? To the <a href="https://docs.python.org/3/reference/datamodel.html">Python data model</a>! I dove into the data model to learn about the guts of Python. I actually got my first CPython contribution from this endeavor.</p>
+<p><img src="/images/cpython-pr.png" alt="" /></p>
+<p>I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the <code>__annotations__</code> attribute. The <code>__annotations__</code> attribute is a dictionary where the keys are the attribute names, and the values are the raw annotations. Consider the following class:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo: int
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">bar: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">anything</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
+</span></pre>
+<p>The contents of <code>__annotations__</code> would look like this:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; MyClass.__annotations__
+</span><span style="background-color:#2b303b;color:#c0c5ce;">{
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">&#39;foo&#39;: &lt;class &#39;int&#39;&gt;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">&#39;bar&#39;: &#39;anything&#39;,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">}
+</span></pre>
+<p>Now I know I can store information in type annotations, and I know how to retrieve that information. All that's left is messing with abstract syntax trees.</p>
+<h1 id="abstract-syntax-trees">Abstract syntax trees</h1>
+<p>Parsing code into an abstract syntax tree is something that Python does when it compiles your source code into bytecode. In fact, the <code>ast</code> module contains all of the data structures, or &quot;nodes&quot;, that your Python code can be parsed into. The <a href="https://docs.python.org/3/library/ast.html">module documentation</a> doesn't do a great job of making it clear which nodes exist or what their attributes are. Instead, I recommend <a href="https://greentreesnakes.readthedocs.io/en/latest/">this page</a> if you want to see what's at your disposal. For those of you that have never seen or heard of an abstract syntax tree, I'll show you the basics by building up the AST of a small code snippet.</p>
+<p>Let's start with a really basic code snippet: <code>10</code>. This is just the number 10. Exciting. To represent this you create an instance of <code>ast.Num</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">num = ast.</span><span style="background-color:#2b303b;color:#bf616a;">Num</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">n</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">10</span><span style="background-color:#2b303b;color:#c0c5ce;">)
+</span></pre>
+<p>What about <code>-10</code>? That's more complicated because <code>-</code> is an operator, so <code>-10</code> is <strong>not</strong> just <code>ast.Num(n=-10)</code>. Instead, it's this:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">num = ast.</span><span style="background-color:#2b303b;color:#bf616a;">UnaryOp</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">op</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">USub</span><span style="background-color:#2b303b;color:#c0c5ce;">(), </span><span style="background-color:#2b303b;color:#bf616a;">operand</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">Num</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">n</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">10</span><span style="background-color:#2b303b;color:#c0c5ce;">))
+</span></pre>
+<p>What if I want to assign <code>-10</code> to a variable <code>x</code>? That's an assignment, so we'll need an <code>ast.Assign</code> node, but how do you handle <code>x</code>? Any time you reference a variable, you need an <code>ast.Name</code> node. Each <code>Name</code> has an <code>id</code>, which is the name of the variable, and a context, <code>ctx</code>, which indicates whether you're getting (<code>ast.Load()</code>) or setting (<code>ast.Store()</code>) the value of the variable. Putting all of that together, the assignment looks like this:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#65737e;"># x = -10
+</span><span style="background-color:#2b303b;color:#c0c5ce;">num_node = ast.</span><span style="background-color:#2b303b;color:#bf616a;">UnaryOp</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">op</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">USub</span><span style="background-color:#2b303b;color:#c0c5ce;">(), </span><span style="background-color:#2b303b;color:#bf616a;">operand</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">Num</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">n</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">10</span><span style="background-color:#2b303b;color:#c0c5ce;">))
+</span><span style="background-color:#2b303b;color:#c0c5ce;">x_node = ast.</span><span style="background-color:#2b303b;color:#bf616a;">Name</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">id</span><span style="background-color:#2b303b;color:#c0c5ce;">=&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">x</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, </span><span style="background-color:#2b303b;color:#bf616a;">ctx</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">Store</span><span style="background-color:#2b303b;color:#c0c5ce;">())
+</span><span style="background-color:#2b303b;color:#c0c5ce;">assign_node = ast.</span><span style="background-color:#2b303b;color:#bf616a;">Assign</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">targets</span><span style="background-color:#2b303b;color:#c0c5ce;">=[x_node], </span><span style="background-color:#2b303b;color:#bf616a;">value</span><span style="background-color:#2b303b;color:#c0c5ce;">=num_node)
+</span></pre>
+<p>Hopefully you get the idea. You represent the structure of your code by building up instances of classes like <code>ast.Assign</code>, <code>ast.FunctionDef</code>, etc.</p>
+<p>Now that I have all of the pieces in place (decorators, type annotations, and ASTs), I can show you an example of what can be done with this.</p>
+<h1 id="example-1">Example 1 - <code>@inrange</code></h1>
+<p>For my first trick, I've created a decorator, <code>@inrange</code>, that will generate properties that can only be set to values in a range specified in the type annotation, like so:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">@</span><span style="background-color:#2b303b;color:#bf616a;">inrange
+</span><span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">var: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">0 &lt; var &lt; 10</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
+</span></pre>
+<p>The decorator will generate a class equivalent to this:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">var: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">0 &lt; var &lt; 10</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#96b5b4;">__init__</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">._var = </span><span style="background-color:#2b303b;color:#d08770;">None
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">@</span><span style="background-color:#2b303b;color:#96b5b4;">property
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">var</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">._var
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">@var.</span><span style="background-color:#2b303b;color:#bf616a;">setter
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">var</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">new_value</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#d08770;">0 </span><span style="background-color:#2b303b;color:#c0c5ce;">&lt; new_value &lt; </span><span style="background-color:#2b303b;color:#d08770;">10</span><span style="background-color:#2b303b;color:#c0c5ce;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">._var = new_value
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">else</span><span style="background-color:#2b303b;color:#c0c5ce;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#b48ead;">raise </span><span style="background-color:#2b303b;color:#c0c5ce;">ValueError
+</span></pre>
+<p>Note that each instance of <code>MyClass</code> gets its own <code>var</code> since we're generating properties, even though <code>var</code> is a class variable in the original definition of <code>MyClass</code>. Also note that there's much less code in the macro version! Here's what it looks like in action:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; @inrange
+</span><span style="background-color:#2b303b;color:#c0c5ce;">... class MyClass:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">...     foo: &quot;0 &lt; foo &lt; 5&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">...     bar: &quot;0 &lt; bar &lt; 1&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">...
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz = MyClass()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz.foo = 1  # no problems here!
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz.bar = 0.5  # none here either!
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; baz.foo = 6  # oh no!
+</span><span style="background-color:#2b303b;color:#c0c5ce;">Traceback (most recent call last):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">File &quot;&lt;input&gt;&quot;, line 1, in &lt;module&gt;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">bar.foo = 6
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">File &quot;/Users/zmitchell/Projects/annotation-abuse/annotation_abuse/asts.py&quot;, line 1, in foo_setter
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">import ast
+</span><span style="background-color:#2b303b;color:#c0c5ce;">ValueError: value outside of range 0 &lt; foo &lt; 5
+</span></pre>
+<p>There are some weird things here. Note that the line above the <code>ValueError</code> says <code>import ast</code>, even though you don't <code>import ast</code>. I don't really know what that's about. The error message also says that the error occurs in <code>foo_setter</code>, even though you don't have a function called <code>foo_setter</code>. This is a result of the way that I make the properties. For a variable named <code>foo</code> I create the functions <code>foo_getter</code> and <code>foo_setter</code>, create a property with <code>property(foo_getter, foo_setter)</code>, then bind that to the attribute <code>foo</code>.</p>
+<p>Here are the broad strokes of how this works, assuming you have a class named <code>MyClass</code> and you've annotated a class variable named <code>var</code>:</p>
+<ul>
+<li>Grab the annotation from <code>MyClass.__annotations__[&quot;var&quot;]</code>.</li>
+<li>Grab the endpoints of the range from the annotation.</li>
+<li>Generate ASTs for the getter and setter of <code>var</code>.</li>
+<li>Compile the ASTs to Python functions.</li>
+<li>Create a property from the compiled functions.</li>
+<li>Bind the property to the class.</li>
+<li>Create an AST for the <code>__init__</code> method.</li>
+<li>Compile the <code>__init__</code> AST to a function.</li>
+<li>Bind the <code>__init__</code> function to the class.</li>
+</ul>
+<p>Each class variable with an annotation is represented by a <code>MacroItem</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MacroItem</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#96b5b4;">__init__</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">var_name</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">annotation</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.var = var_name
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.annotation = annotation
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.lower = </span><span style="background-color:#2b303b;color:#d08770;">None
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.upper = </span><span style="background-color:#2b303b;color:#d08770;">None
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.getter = </span><span style="background-color:#2b303b;color:#d08770;">None
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.setter = </span><span style="background-color:#2b303b;color:#d08770;">None
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.init_stmt = </span><span style="background-color:#2b303b;color:#d08770;">None
+</span></pre>
+<p>These <code>MacroItem</code>s get passed to the functions that extract information from the annotation, generate ASTs, etc. For example, here is the function that generates a getter from a <code>MacroItem</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">_getter</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">item</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">func_name = </span><span style="background-color:#2b303b;color:#b48ead;">f</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;{item.var}</span><span style="background-color:#2b303b;color:#a3be8c;">_getter</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">self_arg = </span><span style="background-color:#2b303b;color:#bf616a;">arg</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">arg</span><span style="background-color:#2b303b;color:#c0c5ce;">=&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, </span><span style="background-color:#2b303b;color:#bf616a;">annotation</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">None</span><span style="background-color:#2b303b;color:#c0c5ce;">)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">func_args = </span><span style="background-color:#2b303b;color:#bf616a;">arguments</span><span style="background-color:#2b303b;color:#c0c5ce;">(
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">args</span><span style="background-color:#2b303b;color:#c0c5ce;">=[self_arg],
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">kwonlyargs</span><span style="background-color:#2b303b;color:#c0c5ce;">=[],
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">vararg</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">None</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">kwarg</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">None</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">defaults</span><span style="background-color:#2b303b;color:#c0c5ce;">=[],
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">kw_defaults</span><span style="background-color:#2b303b;color:#c0c5ce;">=[],
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">inst_var = </span><span style="background-color:#2b303b;color:#bf616a;">Attribute</span><span style="background-color:#2b303b;color:#c0c5ce;">(
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">value</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#bf616a;">Name</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">id</span><span style="background-color:#2b303b;color:#c0c5ce;">=&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, </span><span style="background-color:#2b303b;color:#bf616a;">ctx</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">Load</span><span style="background-color:#2b303b;color:#c0c5ce;">()), </span><span style="background-color:#2b303b;color:#bf616a;">attr</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#b48ead;">f</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">_</span><span style="background-color:#2b303b;color:#c0c5ce;">{item.var}&quot;, </span><span style="background-color:#2b303b;color:#bf616a;">ctx</span><span style="background-color:#2b303b;color:#c0c5ce;">=ast.</span><span style="background-color:#2b303b;color:#bf616a;">Load</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">ret_stmt = </span><span style="background-color:#2b303b;color:#bf616a;">Return</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">value</span><span style="background-color:#2b303b;color:#c0c5ce;">=inst_var)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">func_node = </span><span style="background-color:#2b303b;color:#bf616a;">FunctionDef</span><span style="background-color:#2b303b;color:#c0c5ce;">(
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">name</span><span style="background-color:#2b303b;color:#c0c5ce;">=func_name,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">args</span><span style="background-color:#2b303b;color:#c0c5ce;">=func_args,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">body</span><span style="background-color:#2b303b;color:#c0c5ce;">=[ret_stmt],
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">decorator_list</span><span style="background-color:#2b303b;color:#c0c5ce;">=[],
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">returns</span><span style="background-color:#2b303b;color:#c0c5ce;">=</span><span style="background-color:#2b303b;color:#d08770;">None</span><span style="background-color:#2b303b;color:#c0c5ce;">,
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">mod_node = </span><span style="background-color:#2b303b;color:#bf616a;">Module</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">body</span><span style="background-color:#2b303b;color:#c0c5ce;">=[func_node])
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#bf616a;">_ast_to_func</span><span style="background-color:#2b303b;color:#c0c5ce;">(mod_node, func_name)
+</span></pre>
+<p>Note that you can't compile a <code>FunctionDef</code> node by itself, you have to wrap it in a <code>Module</code> node first. Here is the magic that compiles an AST into a function.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">_ast_to_func</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">node</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">name</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">ast.</span><span style="background-color:#2b303b;color:#bf616a;">fix_missing_locations</span><span style="background-color:#2b303b;color:#c0c5ce;">(node)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">code = </span><span style="background-color:#2b303b;color:#96b5b4;">compile</span><span style="background-color:#2b303b;color:#c0c5ce;">(node, __file__, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">exec</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">context = {}
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#96b5b4;">exec</span><span style="background-color:#2b303b;color:#c0c5ce;">(code, </span><span style="background-color:#2b303b;color:#96b5b4;">globals</span><span style="background-color:#2b303b;color:#c0c5ce;">(), context)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#c0c5ce;">context[name]
+</span></pre>
+<p>This definitively shows that you can make Rust-like macros in Python. That's not to say that it's easy or recommended though. Constructing an AST is definitely verbose (the AST for <code>-10</code> is ~4x as many characters as <code>10</code>), so it can be tedious. It was a fun exercise, but I'll show you a better way to make code-generating macros.</p>
+<h1 id="example-2">Example 2 - <code>@notify</code></h1>
+<p>Like I said above, constructing ASTs, compiling them, etc is pretty tedious. For my next trick, I've made a decorator <code>@notify</code> that will print a message to the terminal when you try to assign a new value to a class or instance variable marked with a specific annotation.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">@</span><span style="background-color:#2b303b;color:#bf616a;">notify
+</span><span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">var: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">this one</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; = </span><span style="background-color:#2b303b;color:#d08770;">5
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#96b5b4;">__init__</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">x</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.x = x
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.y: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">this one</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; = </span><span style="background-color:#2b303b;color:#d08770;">0
+</span></pre>
+<p>If you try typing that into the Python shell, it will crash for some reason. If you're working in the shell and you decorate a class that has an <code>__init__</code> method, it will crash. I have no idea what that's about. If you want to try this in the shell, put the annotation on a class variable. You can put whatever you want into a file though, and it will work just fine. Let's see what happens when you try to assign to a variable you've marked.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">from </span><span style="background-color:#2b303b;color:#c0c5ce;">annotation_abuse.notify </span><span style="background-color:#2b303b;color:#b48ead;">import </span><span style="background-color:#2b303b;color:#c0c5ce;">notify
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">@</span><span style="background-color:#2b303b;color:#bf616a;">notify
+</span><span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">MyClass</span><span style="background-color:#2b303b;color:#eff1f5;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#96b5b4;">__init__</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">x</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.x = x
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.y: &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">this one</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; = </span><span style="background-color:#2b303b;color:#d08770;">0
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#c0c5ce;">__name__ == &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">__main__</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo = </span><span style="background-color:#2b303b;color:#bf616a;">MyClass</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">foo.y = </span><span style="background-color:#2b303b;color:#d08770;">1
+</span></pre>
+<p>Run this, and you'll see a familiar face:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">   </span><span style="background-color:#2b303b;color:#c0c5ce;">_________________________________________________
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">/                                                 \
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">| It looks like you&#39;re trying to update MyClass.y |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">|                 from &quot;0&quot; to &quot;1&quot;.                |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">|       Would you like some help with that?       |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">\_________________________________________________/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">\
+</span><span style="background-color:#2b303b;color:#c0c5ce;">     </span><span style="background-color:#2b303b;color:#c0c5ce;">\
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">__
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">/  \
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|  |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">@  @
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|| |/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|| ||
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|\_/|
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">\___/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">Let Clippy update the value? (y/n):
+</span></pre>
+<p>If you say yes:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">Let Clippy update the value? (y/n): y
+</span><span style="background-color:#2b303b;color:#c0c5ce;">   </span><span style="background-color:#2b303b;color:#c0c5ce;">_____________
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">/             \
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">| No problem! |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">\_____________/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">\
+</span><span style="background-color:#2b303b;color:#c0c5ce;">     </span><span style="background-color:#2b303b;color:#c0c5ce;">\
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">__
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">/  \
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|  |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">@  @
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|| |/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|| ||
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|\_/|
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">\___/
+</span></pre>
+<p>If you say no:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">Let Clippy update the value? (y/n): n
+</span><span style="background-color:#2b303b;color:#c0c5ce;">   </span><span style="background-color:#2b303b;color:#c0c5ce;">______
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">/      \
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">| FINE |
+</span><span style="background-color:#2b303b;color:#c0c5ce;">  </span><span style="background-color:#2b303b;color:#c0c5ce;">\______/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">\
+</span><span style="background-color:#2b303b;color:#c0c5ce;">     </span><span style="background-color:#2b303b;color:#c0c5ce;">\
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">__
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">/  \
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">\  /
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">@  @
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|| |/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|| ||
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">|\_/|
+</span><span style="background-color:#2b303b;color:#c0c5ce;">       </span><span style="background-color:#2b303b;color:#c0c5ce;">\___/
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span></pre>
+<p>This example was easier in some ways, but harder in others. I'm not constructing ASTs, so the code is much less verbose. On the other hand, I'm overriding <code>MyClass.__setattr__</code> in order to intercept writes to the marked variables. Boy oh boy was that a can of worms.</p>
+<p>Annotations on class variables can be pulled from <code>MyClass.__annotations__</code> (like the previous example), but annotations that appear inside <code>__init__</code> don't show up there. To find those annotations, I parse <code>__init__</code> into an AST (look, I'm sorry, I couldn't help myself), then traverse the tree looking for things that have the annotation <code>&quot;this one&quot;</code>.</p>
+<p>Once I've built a list of attributes to watch, I need to intercept writes to those attributes. I knew I could intercept writes to certain attributes by replacing them with properties, but I wondered if there was a different way to do it (just for kicks). I went back to the documentation for the <a href="https://docs.python.org/3/reference/datamodel.html">data model</a> and read up on <code>__setattr__</code>. The <code>__setattr__</code> method gets called when you try to set the value of an attribute, so overriding <code>__setattr__</code> will let me intercept writes to the attributes I care about.</p>
+<p>I generate a new <code>__setattr__</code> as a closure, as you can see below:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">make_setattr</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">cls</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">var_names</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">new_setattr</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">attr_name</span><span style="background-color:#2b303b;color:#c0c5ce;">, </span><span style="background-color:#2b303b;color:#bf616a;">new_value</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#c0c5ce;">attr_name not in var_names:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#96b5b4;">setattr</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, attr_name, new_value)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#b48ead;">return
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;"># The instance variable will be set for the first time during __init__ but we
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#65737e;"># don&#39;t want to prompt the user on instantiation.
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#c0c5ce;">attr_name not in </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.__dict__.</span><span style="background-color:#2b303b;color:#bf616a;">keys</span><span style="background-color:#2b303b;color:#c0c5ce;">():
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#96b5b4;">setattr</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, attr_name, new_value)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#b48ead;">return
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">current_value = </span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">.__dict__[attr_name]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">attr = </span><span style="background-color:#2b303b;color:#bf616a;">cls</span><span style="background-color:#2b303b;color:#c0c5ce;">.__name__ + &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">.</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot; + attr_name
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#bf616a;">show_message</span><span style="background-color:#2b303b;color:#c0c5ce;">(attr, current_value, new_value)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#c0c5ce;">user_resp = </span><span style="background-color:#2b303b;color:#bf616a;">prompt_user</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#c0c5ce;">user_resp == Response.</span><span style="background-color:#2b303b;color:#bf616a;">YES</span><span style="background-color:#2b303b;color:#c0c5ce;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#bf616a;">no_problem_message</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#96b5b4;">setattr</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">self</span><span style="background-color:#2b303b;color:#c0c5ce;">, attr_name, new_value)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">elif </span><span style="background-color:#2b303b;color:#c0c5ce;">user_resp == Response.</span><span style="background-color:#2b303b;color:#bf616a;">NO</span><span style="background-color:#2b303b;color:#c0c5ce;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">            </span><span style="background-color:#2b303b;color:#bf616a;">angry_message</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#c0c5ce;">new_setattr
+</span></pre>
+<p>I model the user's response with an enum, storing the acceptable responses in the value of each enum variant to make it easier to validate the response. The <code>Response.INVALID</code> case is handled in the <code>prompt_user</code> function.</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#b48ead;">class </span><span style="background-color:#2b303b;color:#ebcb8b;">Response</span><span style="background-color:#2b303b;color:#eff1f5;">(</span><span style="background-color:#2b303b;color:#a3be8c;">Enum</span><span style="background-color:#2b303b;color:#eff1f5;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">YES </span><span style="background-color:#2b303b;color:#c0c5ce;">= [&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">y</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">Y</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">yes</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">Yes</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">YES</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">NO = [&quot;</span><span style="background-color:#2b303b;color:#a3be8c;">n</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">N</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">no</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">No</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;, &quot;</span><span style="background-color:#2b303b;color:#a3be8c;">NO</span><span style="background-color:#2b303b;color:#c0c5ce;">&quot;]
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#bf616a;">INVALID </span><span style="background-color:#2b303b;color:#c0c5ce;">= &quot;&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#b48ead;">def </span><span style="background-color:#2b303b;color:#8fa1b3;">interpret_resp</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">text</span><span style="background-color:#2b303b;color:#c0c5ce;">):
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#65737e;">&quot;&quot;&quot;Interpret the user&#39;s response.&quot;&quot;&quot;
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#c0c5ce;">resp = text.</span><span style="background-color:#2b303b;color:#bf616a;">strip</span><span style="background-color:#2b303b;color:#c0c5ce;">()
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">if </span><span style="background-color:#2b303b;color:#c0c5ce;">resp in Response.</span><span style="background-color:#2b303b;color:#bf616a;">YES</span><span style="background-color:#2b303b;color:#c0c5ce;">.value:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#c0c5ce;">Response.</span><span style="background-color:#2b303b;color:#bf616a;">YES
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">elif </span><span style="background-color:#2b303b;color:#c0c5ce;">resp in Response.</span><span style="background-color:#2b303b;color:#bf616a;">NO</span><span style="background-color:#2b303b;color:#c0c5ce;">.value:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#c0c5ce;">Response.</span><span style="background-color:#2b303b;color:#bf616a;">NO
+</span><span style="background-color:#2b303b;color:#c0c5ce;">    </span><span style="background-color:#2b303b;color:#b48ead;">else</span><span style="background-color:#2b303b;color:#c0c5ce;">:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">        </span><span style="background-color:#2b303b;color:#b48ead;">return </span><span style="background-color:#2b303b;color:#c0c5ce;">Response.</span><span style="background-color:#2b303b;color:#bf616a;">INVALID
+</span></pre>
+<p>One thing I found confusing during this process is that lots of documentation surrounding <code>__setattr__</code> says that you should call the super class's <code>__setattr__</code> when you're overriding <code>__setattr__</code>, and most documentation just cites <code>object.__setattr__(self, name, value)</code>. I found the documentation around this to be sparse, at best, and I only accidentally stumbled onto a solution. Here's what happened.</p>
+<p>My working solution uses <code>setattr</code>, so let's replace <code>setattr(self, attr_name, new_value)</code> with <code>object.__setattr__(self, attr_name, new_value)</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">TypeError: can&#39;t apply this __setattr__ to type object
+</span></pre>
+<p>Huh? I searched the internet for what this error message meant, and my understanding is that it's related to setting new attributes on built-in types. So, that tells me that I was accidentally trying to set a new attribute on <code>object</code>. Using <code>super(cls, self).__setattr__</code> gives you the same error.</p>
+<p>Let's try <code>super().__setattr__(self, attr_name, new_value)</code>:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">RuntimeError: super(): __class__ cell not found
+</span></pre>
+<p>Ok, this one actually makes sense (<a href="https://docs.python.org/3/reference/datamodel.html#creating-the-class-object">see here</a>). In short, I'm calling <code>super()</code> in a function that's not bound to a class when it's defined, so it doesn't know what class it belongs to. I think.</p>
+<p>Eventually I just tried <code>setattr</code> and it worked. I was pressed for time preparing this for a lightning talk, so I didn't have time to really dig into the issue. If someone knows what's going on, let me know!</p>
+<h1 id="taking-it-to-the-next-level">Taking it to the next level</h1>
+<p>I presented the two examples above in a lightning talk at PyOhio 2018. The reception was good, and I ended up talking to Dan Lindeman and Jace Browning in an open space about alternative uses for type annotations. As we were talking, we came to a realization.</p>
+<p>Remember earlier when I said that a type annotation can be any valid Python expression? Well, lots of things are valid Python expressions. Say, for instance, a <code>lambda</code>. Take a look:</p>
+<pre style="background-color:#2b303b">
+<span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; class MyClass:
+</span><span style="background-color:#2b303b;color:#c0c5ce;">...     foo: lambda x: 0 &lt; x &lt; 5
+</span><span style="background-color:#2b303b;color:#c0c5ce;">...
+</span><span style="background-color:#2b303b;color:#c0c5ce;">
+</span><span style="background-color:#2b303b;color:#c0c5ce;">&gt;&gt;&gt; MyClass.__annotations__[&quot;foo&quot;](3)
+</span><span style="background-color:#2b303b;color:#c0c5ce;">True
+</span></pre>
+<p>If you're not amazed that this is possible, check your pulse. This is saying that you can attach entire functions to an attribute, not just a string!</p>
+<p>I think I'm done with this particular project for now, but I'm sure there's all kinds of <s>terrible</s> wonderful things you can do with this. If you have any ideas, I'd love to hear them!</p>
+
+</article>
+
+        </main>
+
+    <script src="/livereload.js?port=1112&mindelay=10"></script></body>
+
+</html>

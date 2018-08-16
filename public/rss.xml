@@ -1,18 +1,18 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>Tinkering</title>
-        <link>https:&#x2F;&#x2F;tinkering.xyz</link>
-        <description>Come for the X, stay for the Y</description>
+        <link>http:&#x2F;&#x2F;127.0.0.1:1111</link>
+        <description>Come for the Foo, stay for the Bar</description>
         <generator>Gutenberg</generator>
         <language>en</language>
-        <atom:link href="https:&#x2F;&#x2F;tinkering.xyz&#x2F;rss.xml" rel="self" type="application/rss+xml"/>
+        <atom:link href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;rss.xml" rel="self" type="application/rss+xml"/>
         <lastBuildDate>Sat, 03 Feb 2018 19:36:37 -0500</lastBuildDate>
         
             <item>
                 <title>Introduction to Procedural Macros in Rust</title>
                 <pubDate>Sat, 03 Feb 2018 19:36:37 -0500</pubDate>
-                <link>https:&#x2F;&#x2F;tinkering.xyz&#x2F;introduction-to-proc-macros&#x2F;</link>
-                <guid>https:&#x2F;&#x2F;tinkering.xyz&#x2F;introduction-to-proc-macros&#x2F;</guid>
+                <link>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;introduction-to-proc-macros&#x2F;</link>
+                <guid>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;introduction-to-proc-macros&#x2F;</guid>
                 <description>&lt;p&gt;As a newcomer to Rust, I heard the phrase &amp;quot;procedural macro&amp;quot; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I&#x27;m working on the guts of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;antoyo&#x2F;relm&quot;&gt;&lt;code&gt;relm&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, and a large chunk of it is procedural macros. I&#x27;ve learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.&lt;&#x2F;p&gt;
 &lt;p&gt;The purpose of this post is to give you an overview of the ins and outs of procedural macros so that you feel confident enough to incorporate them into your own Rust arsenal. I&#x27;ll start off by discussing what makes a declarative macro (&lt;code&gt;macro_rules!&lt;&#x2F;code&gt;) different from a procedural macro, then I&#x27;ll discuss the different types of procedural macros, how to define them, where to define them, and the basics of packaging them. At the end I&#x27;ll walk you through making your very first procedural macro. Here&#x27;s a taste of where we&#x27;re going to end up:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;not-the-bees-editor.jpg&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
@@ -61,7 +61,7 @@
 &lt;p&gt;This post isn&#x27;t about declarative macros, so I&#x27;ll keep this explanation brief. The &lt;code&gt;failed!&lt;&#x2F;code&gt; macro just generates a formatted string saying &lt;code&gt;failed to parse &amp;lt;whatever the example was&amp;gt;&lt;&#x2F;code&gt;. The &lt;code&gt;check_example!&lt;&#x2F;code&gt; macro lets me test that a given example can be parsed into the given type (&lt;code&gt;Message&lt;&#x2F;code&gt; in this case). The &lt;code&gt;check_examples!&lt;&#x2F;code&gt; macro lets me test several examples at once. I&#x27;m not doing anything crazy here, and I&#x27;m not doing anything that couldn&#x27;t be done by hand. I&#x27;m just lazy, and I&#x27;d like my tests to be short and to the point.&lt;&#x2F;p&gt;
 &lt;p&gt;It&#x27;s entirely possible to write complex, intricate, incredibly useful declarative macros using this syntax, but (to me, at least) these macro definitions become nearly illegible as they get larger. Procedural macros, in my opinoin, are much better suited to writing something non-trivial.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;procedural-macros-introduction&quot;&gt;Procedural Macros - Introduction&lt;&#x2F;h2&gt;
-&lt;p&gt;When you define a macro with &lt;code&gt;macro_rules!&lt;&#x2F;code&gt;, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully ~~armed and operational battle station~~ parsed syntax tree, at which point the compiler says &amp;quot;go nuts, just give me back another syntax tree when you&#x27;re done.&amp;quot;&lt;&#x2F;p&gt;
+&lt;p&gt;When you define a macro with &lt;code&gt;macro_rules!&lt;&#x2F;code&gt;, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully &lt;s&gt;armed and operational battle station&lt;&#x2F;s&gt; parsed syntax tree, at which point the compiler says &amp;quot;go nuts, just give me back another syntax tree when you&#x27;re done.&amp;quot;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;syntax-trees&quot;&gt;Syntax Trees&lt;&#x2F;h3&gt;
 &lt;p&gt;Before we get too deep into procedural macros, you&#x27;ll want to have at least a vague understanding of what a syntax tree is. If you&#x27;re someone like me that doesn&#x27;t come from a computer science background, maybe you don&#x27;t have any idea what a syntax tree is. Well, buckle up, you&#x27;re going to need to get pretty cozy with this concept.&lt;&#x2F;p&gt;
 &lt;p&gt;Let&#x27;s say we want to parse the definition of a function. How would we represent the pieces of a function definition as a Rust struct? Well, there&#x27;s obviously the characters &lt;code&gt;fn&lt;&#x2F;code&gt; somewhere, so we&#x27;ll store that in our struct. There might also be a &lt;code&gt;pub&lt;&#x2F;code&gt; at the front of the definition, so we&#x27;ll store that as an &lt;code&gt;Option&amp;lt;T&amp;gt;&lt;&#x2F;code&gt; of some kind. Then there are parentheses, so we&#x27;ll store those too. What about the contents of the parentheses (the arguments)? There might be nothing there, and there might be a bunch of stuff there. The arguments have names, types, and potentially trait or lifetime bounds, so we&#x27;ll store that as well. This goes on and on until you&#x27;ve built a collection of structs and enums that represent the various bits and pieces of Rust code. This is what the &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;syn&#x2F;0.12.12&#x2F;syn&#x2F;&quot;&gt;&lt;code&gt;syn&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; crate does for you. We&#x27;ll come back to &lt;code&gt;syn&lt;&#x2F;code&gt; in a minute.&lt;&#x2F;p&gt;
@@ -424,16 +424,17 @@
             <item>
                 <title>About</title>
                 <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
-                <link>https:&#x2F;&#x2F;tinkering.xyz&#x2F;about&#x2F;</link>
-                <guid>https:&#x2F;&#x2F;tinkering.xyz&#x2F;about&#x2F;</guid>
+                <link>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;about&#x2F;</link>
+                <guid>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;about&#x2F;</guid>
                 <description>&lt;p&gt;I &lt;em&gt;&lt;strong&gt;love&lt;&#x2F;strong&gt;&lt;&#x2F;em&gt; the details. I&#x27;m the kind of person that watches YouTube videos about Unix syscalls in his free time 🤓.&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;m finishing up the last year of my physics PhD at Purdue University, where I study the details of photosynthesis using ⚡️ultrafast spectroscopy⚡️. Have you burned holes in your business cards with 20fs laser pulses? I have! I also write the software that glues together the equipment used in my experiments.&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;ve been writing Python for a little over 5 years. I decided to try Rust for a side project and it was love at first sight ❤️. I&#x27;ve been tinkering away at things in Rust ever since. From there I developed an interest in systems programming and the details of how operating systems work.&lt;&#x2F;p&gt;
-&lt;p&gt;This blog is made using &lt;a href=&quot;getgutenberg.io&quot;&gt;Gutenberg&lt;&#x2F;a&gt;, a static site generator written in Rust (Rewrite It In Rust can apply to blogs too). The site is hosted on &lt;a href=&quot;https:&#x2F;&#x2F;www.netlify.com&quot;&gt;Netlify&lt;&#x2F;a&gt;, a service I can&#x27;t believe is free.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m finishing up the last year of my physics PhD at Purdue University, where I study the details of photosynthesis using ⚡️ultrafast spectroscopy⚡️. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I also write the software that glues together the equipment used in my experiments.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;ve been writing Python for a little over 5 years. I decided to try Rust for a side project and it was love at first sight ❤️. I&#x27;ve been tinkering away at things in Rust ever since. From there I developed an interest in systems programming.&lt;&#x2F;p&gt;
+&lt;p&gt;This blog is made using &lt;a href=&quot;getgutenberg.io&quot;&gt;Gutenberg&lt;&#x2F;a&gt;, a static site generator written in Rust (&amp;quot;Rewrite It In Rust&amp;quot; can apply to blogs too). The site is hosted on &lt;a href=&quot;https:&#x2F;&#x2F;www.netlify.com&quot;&gt;Netlify&lt;&#x2F;a&gt;, a service I can&#x27;t believe is free.&lt;&#x2F;p&gt;
 &lt;p&gt;If you need to reach me, you can find me in the following places:&lt;&#x2F;p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&quot;&gt;GitHub&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;zmitchell22&quot;&gt;LinkedIn&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.twitter.com&#x2F;gluons&quot;&gt;Twitter&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;Email: &lt;a href=&quot;mailto:zmitchell@fastmail.com&quot;&gt;zmitchell@fastmail.com&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 </description>

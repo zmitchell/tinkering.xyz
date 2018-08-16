@@ -10,10 +10,10 @@
       <title>Tinkering</title>
 
       <!-- CSS -->
-      <link rel="stylesheet" href="https:&#x2F;&#x2F;tinkering.xyz&#x2F;hyde.css">
+      <link rel="stylesheet" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;hyde.css">
 
       
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2F;&#x2F;tinkering.xyz&#x2F;rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;rss.xml">
       
 
       
@@ -26,9 +26,9 @@
                 <div class="container ">
                     <div class="sidebar-about">
                         
-                            <a href="https:&#x2F;&#x2F;tinkering.xyz"><h1>Tinkering</h1></a>
+                            <a href="http:&#x2F;&#x2F;127.0.0.1:1111"><h1>Tinkering</h1></a>
                             
-                            <p class="lead">Come for the X, stay for the Y</p>
+                            <p class="lead">Come for the Foo, stay for the Bar</p>
                             
                         
                     </div>
@@ -101,7 +101,7 @@
 <p>This post isn't about declarative macros, so I'll keep this explanation brief. The <code>failed!</code> macro just generates a formatted string saying <code>failed to parse &lt;whatever the example was&gt;</code>. The <code>check_example!</code> macro lets me test that a given example can be parsed into the given type (<code>Message</code> in this case). The <code>check_examples!</code> macro lets me test several examples at once. I'm not doing anything crazy here, and I'm not doing anything that couldn't be done by hand. I'm just lazy, and I'd like my tests to be short and to the point.</p>
 <p>It's entirely possible to write complex, intricate, incredibly useful declarative macros using this syntax, but (to me, at least) these macro definitions become nearly illegible as they get larger. Procedural macros, in my opinoin, are much better suited to writing something non-trivial.</p>
 <h2 id="procedural-macros-introduction">Procedural Macros - Introduction</h2>
-<p>When you define a macro with <code>macro_rules!</code>, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully ~~armed and operational battle station~~ parsed syntax tree, at which point the compiler says &quot;go nuts, just give me back another syntax tree when you're done.&quot;</p>
+<p>When you define a macro with <code>macro_rules!</code>, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully <s>armed and operational battle station</s> parsed syntax tree, at which point the compiler says &quot;go nuts, just give me back another syntax tree when you're done.&quot;</p>
 <h3 id="syntax-trees">Syntax Trees</h3>
 <p>Before we get too deep into procedural macros, you'll want to have at least a vague understanding of what a syntax tree is. If you're someone like me that doesn't come from a computer science background, maybe you don't have any idea what a syntax tree is. Well, buckle up, you're going to need to get pretty cozy with this concept.</p>
 <p>Let's say we want to parse the definition of a function. How would we represent the pieces of a function definition as a Rust struct? Well, there's obviously the characters <code>fn</code> somewhere, so we'll store that in our struct. There might also be a <code>pub</code> at the front of the definition, so we'll store that as an <code>Option&lt;T&gt;</code> of some kind. Then there are parentheses, so we'll store those too. What about the contents of the parentheses (the arguments)? There might be nothing there, and there might be a bunch of stuff there. The arguments have names, types, and potentially trait or lifetime bounds, so we'll store that as well. This goes on and on until you've built a collection of structs and enums that represent the various bits and pieces of Rust code. This is what the <a href="https://docs.rs/syn/0.12.12/syn/"><code>syn</code></a> crate does for you. We'll come back to <code>syn</code> in a minute.</p>
@@ -463,6 +463,6 @@
 
         </main>
 
-    </body>
+    <script src="/livereload.js?port=1112&mindelay=10"></script></body>
 
 </html>

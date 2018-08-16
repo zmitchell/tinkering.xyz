@@ -2,7 +2,6 @@
 title = "Introduction to Procedural Macros in Rust"
 date = 2018-02-03T19:36:37-05:00
 draft = false
-tags = ["rust", "macros"]
 categories = []
 description = "...in which I teach you how to fill your editor with bees"
 
@@ -65,7 +64,7 @@ This post isn't about declarative macros, so I'll keep this explanation brief. T
 It's entirely possible to write complex, intricate, incredibly useful declarative macros using this syntax, but (to me, at least) these macro definitions become nearly illegible as they get larger. Procedural macros, in my opinoin, are much better suited to writing something non-trivial.
 
 ## Procedural Macros - Introduction
-When you define a macro with `macro_rules!`, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully ~~armed and operational battle station~~ parsed syntax tree, at which point the compiler says "go nuts, just give me back another syntax tree when you're done."
+When you define a macro with `macro_rules!`, you are writing pattern matching expressions to define what your input should look like, and what output to generate using those matched patterns. When you write a procedural macro, you are handed a fully <s>armed and operational battle station</s> parsed syntax tree, at which point the compiler says "go nuts, just give me back another syntax tree when you're done."
 
 ### Syntax Trees
 Before we get too deep into procedural macros, you'll want to have at least a vague understanding of what a syntax tree is. If you're someone like me that doesn't come from a computer science background, maybe you don't have any idea what a syntax tree is. Well, buckle up, you're going to need to get pretty cozy with this concept.

@@ -12,7 +12,7 @@ highlight_code = true
 title = "Tinkering"
 default_language = "en"
 generate_rss = true
-description = "Come for the X, stay for the Y"
+description = "Come for the Foo, stay for the Bar"
 
 # Theming
 theme = "hyde"
