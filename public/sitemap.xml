@@ -1,14 +1,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
         <url>
-            <loc>http://127.0.0.1:1111/about/</loc>
+            <loc>https://tinkering.xyz/about/</loc>
             
                 <lastmod>2018-02-03</lastmod>
             
         </url>
     
         <url>
-            <loc>http://127.0.0.1:1111/introduction-to-proc-macros/</loc>
+            <loc>https://tinkering.xyz/introduction-to-proc-macros/</loc>
             
                 <lastmod>2018-02-03T19:36:37-05:00</lastmod>
             
@@ -16,17 +16,8 @@
     
     
         <url>
-            <loc>http://127.0.0.1:1111/</loc>
+            <loc>https://tinkering.xyz/</loc>
         </url>
     
-    
-        <url>
-            <loc>http://127.0.0.1:1111/categories/</loc>
-        </url>
-    
-    
-        <url>
-            <loc>http://127.0.0.1:1111/tags/</loc>
-        </url>
     
 </urlset>

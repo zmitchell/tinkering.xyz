@@ -1,18 +1,18 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>Tinkering</title>
-        <link>http:&#x2F;&#x2F;127.0.0.1:1111</link>
+        <link>https://tinkering.xyz</link>
         <description>Come for the Foo, stay for the Bar</description>
         <generator>Gutenberg</generator>
         <language>en</language>
-        <atom:link href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;rss.xml" rel="self" type="application/rss+xml"/>
+        <atom:link href="https://tinkering.xyz/rss.xml/" rel="self" type="application/rss+xml"/>
         <lastBuildDate>Sat, 03 Feb 2018 19:36:37 -0500</lastBuildDate>
         
             <item>
                 <title>Introduction to Procedural Macros in Rust</title>
                 <pubDate>Sat, 03 Feb 2018 19:36:37 -0500</pubDate>
-                <link>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;introduction-to-proc-macros&#x2F;</link>
-                <guid>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;introduction-to-proc-macros&#x2F;</guid>
+                <link>https://tinkering.xyz/introduction-to-proc-macros/</link>
+                <guid>https://tinkering.xyz/introduction-to-proc-macros/</guid>
                 <description>&lt;p&gt;As a newcomer to Rust, I heard the phrase &amp;quot;procedural macro&amp;quot; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I&#x27;m working on the guts of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;antoyo&#x2F;relm&quot;&gt;&lt;code&gt;relm&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, and a large chunk of it is procedural macros. I&#x27;ve learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.&lt;&#x2F;p&gt;
 &lt;p&gt;The purpose of this post is to give you an overview of the ins and outs of procedural macros so that you feel confident enough to incorporate them into your own Rust arsenal. I&#x27;ll start off by discussing what makes a declarative macro (&lt;code&gt;macro_rules!&lt;&#x2F;code&gt;) different from a procedural macro, then I&#x27;ll discuss the different types of procedural macros, how to define them, where to define them, and the basics of packaging them. At the end I&#x27;ll walk you through making your very first procedural macro. Here&#x27;s a taste of where we&#x27;re going to end up:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;not-the-bees-editor.jpg&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
@@ -162,11 +162,7 @@
 &lt;p&gt;The &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;quote&#x2F;0.4.2&#x2F;quote&#x2F;&quot;&gt;&lt;code&gt;quote&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; crate is basically the opposite of &lt;code&gt;syn&lt;&#x2F;code&gt; in that it generates tokens rather than parsing them. The basic idea is that you use &lt;code&gt;syn&lt;&#x2F;code&gt; to parse strings or tokens into syntax trees, then use &lt;code&gt;quote&lt;&#x2F;code&gt; to turn syntax trees back into tokens or strings.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;let-s-write-a-the-wicker-man-macro&quot;&gt;Let&#x27;s Write a &quot;The Wicker Man&quot; Macro&lt;&#x2F;h2&gt;
 &lt;p&gt;First, some context:&lt;&#x2F;p&gt;
-&lt;div &gt;
-    &lt;iframe src=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;embed&#x2F;EVCrmXW6-Pk&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;
-    &lt;&#x2F;iframe&gt;
-&lt;&#x2F;div&gt;
-&lt;p&gt;
+&lt;div &gt;&lt;iframe src=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;embed&#x2F;EVCrmXW6-Pk&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;&lt;&#x2F;iframe&gt;&lt;&#x2F;div&gt;
 &lt;p&gt;Let&#x27;s lay out the requirements for our macro. We want to create a custom attribute that a user can only apply to a struct definition. If the user applies the attribute to an enum, function, etc, we should generate a compiler error. If the struct has a field named &amp;quot;bees,&amp;quot; we want the compiler to lose its mind.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve posted the code for this macro on &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;wickerman&quot;&gt;GitHub&lt;&#x2F;a&gt; so you can do all kinds of crazy things with it. If you&#x27;re reading this post to learn procedural macros for the first time, take a look at the commit history of the repo to see how I put the macro together piece by piece. I&#x27;ve largely followed the same process in the sections that follow.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;getting-started&quot;&gt;Getting Started&lt;&#x2F;h3&gt;
@@ -359,11 +355,7 @@
 &lt;p&gt;Now, there is some weirdness involved. At first the errors only showed up when I tried to build the example in my terminal. I&#x27;m guessing I had to build both the &lt;code&gt;wickerman&lt;&#x2F;code&gt; crate and the example before the error messages would show up in my editor (Sublime Text). I would also like to point out that things may look different in your editor or your terminal because Unicode Is Hard (TM). I know that the error message doesn&#x27;t look like this (different spacing) in either iTerm2 or the built in terminal on macOS, and each terminal renders it differently. I think the issue lies in the width of the bee emoji. I&#x27;m not all that concerned about it.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;blowing-up-the-editor&quot;&gt;Blowing up the editor&lt;&#x2F;h4&gt;
 &lt;p&gt;We&#x27;re generating an error message for the field named &amp;quot;bees,&amp;quot; but I said I wanted the compiler to lose its mind. So, here&#x27;s what I want to do: if I find the &amp;quot;bees&amp;quot; field, I&#x27;ll show the bees error message, but for every other field and its type I&#x27;ll show a random error message inspired by The Wicker Man. First, some inspiration (WARNING: GRATUITOUS AMOUNTS OF 240p):&lt;&#x2F;p&gt;
-&lt;div &gt;
-    &lt;iframe src=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;embed&#x2F;Qjme5hh&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;
-    &lt;&#x2F;iframe&gt;
-&lt;&#x2F;div&gt;
-&lt;p&gt;
+&lt;div &gt;&lt;iframe src=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;embed&#x2F;Qjme5hh&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;&lt;&#x2F;iframe&gt;&lt;&#x2F;div&gt;
 &lt;p&gt;Now let&#x27;s get to work. The first order of business is creating a function to return a random error message. Here&#x27;s the outline:&lt;&#x2F;p&gt;
 &lt;pre style=&quot;background-color:#2b303b&quot;&gt;
 &lt;span style=&quot;background-color:#2b303b;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#2b303b;color:#8fa1b3;&quot;&gt;random_error_message&lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#2b303b;color:#bf616a;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;: &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#2b303b;color:#b48ead;&quot;&gt;str&lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;) -&amp;gt; String {
@@ -424,12 +416,12 @@
             <item>
                 <title>About</title>
                 <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
-                <link>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;about&#x2F;</link>
-                <guid>http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;about&#x2F;</guid>
+                <link>https://tinkering.xyz/about/</link>
+                <guid>https://tinkering.xyz/about/</guid>
                 <description>&lt;p&gt;I &lt;em&gt;&lt;strong&gt;love&lt;&#x2F;strong&gt;&lt;&#x2F;em&gt; the details. I&#x27;m the kind of person that watches YouTube videos about Unix syscalls in his free time 🤓.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;m finishing up the last year of my physics PhD at Purdue University, where I study the details of photosynthesis using ⚡️ultrafast spectroscopy⚡️. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I also write the software that glues together the equipment used in my experiments.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve been writing Python for a little over 5 years. I decided to try Rust for a side project and it was love at first sight ❤️. I&#x27;ve been tinkering away at things in Rust ever since. From there I developed an interest in systems programming.&lt;&#x2F;p&gt;
-&lt;p&gt;This blog is made using &lt;a href=&quot;getgutenberg.io&quot;&gt;Gutenberg&lt;&#x2F;a&gt;, a static site generator written in Rust (&amp;quot;Rewrite It In Rust&amp;quot; can apply to blogs too). The site is hosted on &lt;a href=&quot;https:&#x2F;&#x2F;www.netlify.com&quot;&gt;Netlify&lt;&#x2F;a&gt;, a service I can&#x27;t believe is free.&lt;&#x2F;p&gt;
+&lt;p&gt;This blog is made using &lt;a href=&quot;https:&#x2F;&#x2F;www.getgutenberg.io&quot;&gt;Gutenberg&lt;&#x2F;a&gt;, a static site generator written in Rust (&amp;quot;Rewrite It In Rust&amp;quot; can apply to blogs too). The site is hosted on &lt;a href=&quot;https:&#x2F;&#x2F;www.netlify.com&quot;&gt;Netlify&lt;&#x2F;a&gt;, a service I can&#x27;t believe is free.&lt;&#x2F;p&gt;
 &lt;p&gt;If you need to reach me, you can find me in the following places:&lt;&#x2F;p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&quot;&gt;GitHub&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;

@@ -10,10 +10,10 @@
       <title>Tinkering</title>
 
       <!-- CSS -->
-      <link rel="stylesheet" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;hyde.css">
+      <link rel="stylesheet" href="https:&#x2F;&#x2F;tinkering.xyz&#x2F;hyde.css">
 
       
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2F;&#x2F;tinkering.xyz&#x2F;rss.xml">
       
 
       
@@ -26,7 +26,7 @@
                 <div class="container ">
                     <div class="sidebar-about">
                         
-                            <a href="http:&#x2F;&#x2F;127.0.0.1:1111"><h1>Tinkering</h1></a>
+                            <a href="https:&#x2F;&#x2F;tinkering.xyz"><h1>Tinkering</h1></a>
                             
                             <p class="lead">Come for the Foo, stay for the Bar</p>
                             
@@ -202,11 +202,7 @@
 <p>The <a href="https://docs.rs/quote/0.4.2/quote/"><code>quote</code></a> crate is basically the opposite of <code>syn</code> in that it generates tokens rather than parsing them. The basic idea is that you use <code>syn</code> to parse strings or tokens into syntax trees, then use <code>quote</code> to turn syntax trees back into tokens or strings.</p>
 <h2 id="let-s-write-a-the-wicker-man-macro">Let's Write a "The Wicker Man" Macro</h2>
 <p>First, some context:</p>
-<div >
-    <iframe src="https://www.youtube.com/embed/EVCrmXW6-Pk" webkitallowfullscreen mozallowfullscreen allowfullscreen>
-    </iframe>
-</div>
-<p>
+<div ><iframe src="https://www.youtube.com/embed/EVCrmXW6-Pk" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>
 <p>Let's lay out the requirements for our macro. We want to create a custom attribute that a user can only apply to a struct definition. If the user applies the attribute to an enum, function, etc, we should generate a compiler error. If the struct has a field named &quot;bees,&quot; we want the compiler to lose its mind.</p>
 <p>I've posted the code for this macro on <a href="https://github.com/zmitchell/wickerman">GitHub</a> so you can do all kinds of crazy things with it. If you're reading this post to learn procedural macros for the first time, take a look at the commit history of the repo to see how I put the macro together piece by piece. I've largely followed the same process in the sections that follow.</p>
 <h3 id="getting-started">Getting Started</h3>
@@ -399,11 +395,7 @@
 <p>Now, there is some weirdness involved. At first the errors only showed up when I tried to build the example in my terminal. I'm guessing I had to build both the <code>wickerman</code> crate and the example before the error messages would show up in my editor (Sublime Text). I would also like to point out that things may look different in your editor or your terminal because Unicode Is Hard (TM). I know that the error message doesn't look like this (different spacing) in either iTerm2 or the built in terminal on macOS, and each terminal renders it differently. I think the issue lies in the width of the bee emoji. I'm not all that concerned about it.</p>
 <h4 id="blowing-up-the-editor">Blowing up the editor</h4>
 <p>We're generating an error message for the field named &quot;bees,&quot; but I said I wanted the compiler to lose its mind. So, here's what I want to do: if I find the &quot;bees&quot; field, I'll show the bees error message, but for every other field and its type I'll show a random error message inspired by The Wicker Man. First, some inspiration (WARNING: GRATUITOUS AMOUNTS OF 240p):</p>
-<div >
-    <iframe src="https://www.youtube.com/embed/Qjme5hh" webkitallowfullscreen mozallowfullscreen allowfullscreen>
-    </iframe>
-</div>
-<p>
+<div ><iframe src="https://www.youtube.com/embed/Qjme5hh" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>
 <p>Now let's get to work. The first order of business is creating a function to return a random error message. Here's the outline:</p>
 <pre style="background-color:#2b303b">
 <span style="background-color:#2b303b;color:#b48ead;">fn </span><span style="background-color:#2b303b;color:#8fa1b3;">random_error_message</span><span style="background-color:#2b303b;color:#c0c5ce;">(</span><span style="background-color:#2b303b;color:#bf616a;">name</span><span style="background-color:#2b303b;color:#c0c5ce;">: &amp;</span><span style="background-color:#2b303b;color:#b48ead;">str</span><span style="background-color:#2b303b;color:#c0c5ce;">) -&gt; String {
@@ -463,6 +455,6 @@
 
         </main>
 
-    <script src="/livereload.js?port=1112&mindelay=10"></script></body>
+    </body>
 
 </html>

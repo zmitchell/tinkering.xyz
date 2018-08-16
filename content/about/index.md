@@ -13,7 +13,7 @@ I'm finishing up the last year of my physics PhD at Purdue University, where I s
 
 I've been writing Python for a little over 5 years. I decided to try Rust for a side project and it was love at first sight ❤️. I've been tinkering away at things in Rust ever since. From there I developed an interest in systems programming.
 
-This blog is made using [Gutenberg](getgutenberg.io), a static site generator written in Rust ("Rewrite It In Rust" can apply to blogs too). The site is hosted on [Netlify](https://www.netlify.com), a service I can't believe is free.
+This blog is made using [Gutenberg](https://www.getgutenberg.io), a static site generator written in Rust ("Rewrite It In Rust" can apply to blogs too). The site is hosted on [Netlify](https://www.netlify.com), a service I can't believe is free.
 
 If you need to reach me, you can find me in the following places:
 
