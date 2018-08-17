@@ -45,11 +45,20 @@ struct Opt {
     output: PathBuf,
 }
 ```
-This will generate all of the code needed to parse command line arguments into the struct `Opt`. That's pretty handy, right? All you had to do was define which arguments you were expecting, and the macro took care of the rest!
+The compiler will see the macro and generate all of the code needed to parse command line arguments into the struct `Opt`.
+
+```rust
+fn main() {
+    let opt = Opt::from_args();  // thank you structopt!
+    println!("{:?}", opt);
+}
+```
+
+That's pretty handy, right? All you had to do was define which arguments you were expecting, and the macro took care of the rest!
 
 You can also do less useful things, like blow up your editor with error messages from The Wickerman.
 
-![](/images/not-the-bees-editor.jpg)
+![error message saying "not the bees" pointing to a struct field named "bees"](/images/not-the-bees-editor.jpg)
 
 If you'd like to read about that, you can do so here: [link to shameless plug](https://tinkering.xyz/introduction-to-proc-macros)
 
@@ -65,10 +74,10 @@ Let's unpack what it means to have Rust-like macros in Python. I'll examine this
 Usually a macro provides a shorthand for something. In this case, a macro would be a function that takes your class definition as input, reads it, generates some code for you, and returns a new class with the generated code.
 
 ## What's special about Rust macros?
-A primitive macro system operates by simply replacing one bit of text with another i.e. replacing `PY_VERSION` with `3.6.5`. Rust's (procedural) macros operate by performing operations on the logical structure of your code after it's been parsed (this is the abstract syntax tree). Rust's macros can be applied to struct, enum, function, and module declarations. Furthermore, macros can be applied to the members of structs/enums, like in the example above.
+A primitive macro system operates by simply replacing one bit of text with another i.e. replacing `PY_VERSION` with `3.6.5`. Rust's (procedural) macros operate by performing operations on the logical structure of your code (the AST). Rust's macros can be applied to struct, enum, function, and module declarations. Furthermore, macros can be applied to the members of structs/enums, like in the example above.
 
 ## What do my macros need to do?
-Since this is only a proof of concept, I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though. The macros should also do some sort of code generation.
+I want the macros to provide a convenient alternative to something tedious. That said, this is only a proof of concept, so the problems I'm solving will be a little contrived. I'm going to keep the scope narrow and apply my macros only to class definitions. I still want to be able to configure how the macro operates on individual class/instance attributes, though.
 
 # Research
 I set out to determine if it was even possible to do what I wanted to do. I knew that I could apply a decorator to a class, so that part was covered. The part that would be trickier is attaching information to individual class or instance attributes. Eventually something jumped out at me. Take a look:
@@ -85,15 +94,15 @@ class MyClass:
     foo: "MyClass"
 ```
 
-This allows you to use types that haven't been defined yet, like when you're defining a recursive data structure. So the type annotation doesn't have to be an actual class, it can also be a string. What can go in this string? Anything, apparently!
+This allows you to use types that haven't been defined yet as an annotation, like when you're defining a recursive data structure. So the type annotation doesn't have to be an actual class, it can also be a string. Well, what can go in this string? Anything, apparently!
 
-If you read <s>the sacred texts</s> [PEP 484][pep_484] you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.
+If you read PEP 484 (relevent section [here][pep_484]) you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.
 
-At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this would not play well with type checkers or really any sane use case for type annotations, but no one *really* uses type annotations, right? All the cool kids are doing it, no one will get hurt. Don't be such a square! Fine, I talked me into it.
+At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this wouldn't play well with type checkers, or really any sane use case for type annotations, but no one *really* uses type annotations, right? All the cool kids are doing it, no one will get hurt. Don't be such a square!
 
 Ok, so I can store information in the annotations, but how do I read it at some later time? To the [Python data model][data_model]! I dove into the data model to learn about the guts of Python. I actually got my first CPython contribution from this endeavor.
 
-![](/images/cpython-pr.png)
+![a pull request changing a single letter in some documentation](/images/cpython-pr.png)
 
 I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the `__annotations__` attribute. The `__annotations__` attribute is a dictionary where the keys are the attribute names, and the values are the annotations. Consider the following class:
 
@@ -134,12 +143,48 @@ x_node = ast.Name(id="x", ctx=ast.Store())
 assign_node = ast.Assign(targets=[x_node], value=num_node)
 ```
 
-Hopefully you get the idea. You represent the structure of your code by building up instances of classes like `ast.Assign`, `ast.FunctionDef`, etc.
+That's really all there is to it, so hopefully you get the idea. Building up anything more complicated than that is just a matter of putting the right nodes together. If you want to play around with this, you can also do the reverse:
 
-Now that I have all of the pieces in place (decorators, type annotations, and ASTs), I can show you an example of what can be done with this.
+```
+>>> ast.parse("x = -10")
+<_ast.Module object at 0x10f5f3208>
+```
+
+Note that any time you use `ast.parse`, the result will be a module. The `Assign` node will be in the `body` of the `Module`.
+
+```
+>>> module = ast.parse("x = -10")
+>>> module.body[0]
+<_ast.Assign object at 0x101ad4d68>
+```
+
+As you can see, the string representation isn't super helpful. Some libraries that provide useful tools for dealing with ASTs in Python (and printing them in more useful ways) are [astor][astor] and [astpretty][astpretty]. Here's the same thing using `astpretty`:
+
+```
+>>> import ast
+>>> from astpretty import pprint
+>>> pprint(ast.parse("x = -10"))
+Module(
+    body=[
+        Assign(
+			lineno=1,
+			col_offset=0,
+			targets=[Name(lineno=1, col_offset=0, id='x', ctx=Store())],
+			value=UnaryOp(
+				lineno=1,
+				col_offset=4,
+				op=USub(),
+				operand=Num(lineno=1, col_offset=5, n=10),
+			),
+		),
+	],
+)
+```
+
+Now that I have all of the pieces in place (decorators, type annotations, and ASTs), I can show you what you can do with all of this!
 
 # Example 1 - `@inrange`
-For my first trick, I've created a decorator, `@inrange`. If you place the annotation `"0 < foo < 3"` on a class variable named `foo`, the decorator will generate a class with a property named `foo` that only accepts values in the range `0 < value < 3`. Consider the following class definition:
+For my first trick, I've created a decorator, `@inrange`. If you place the annotation `"0 < foo < 3"` on a class variable named `foo`, the decorator will generate a class with a property named `foo` that only accepts values in the range (0, 3) exclusive. Consider the following class definition:
 
 ```python
 @inrange
@@ -167,7 +212,9 @@ class MyClass:
         else:
             raise ValueError
 ```
-Note that each instance of `MyClass` gets its own `var` since we're generating properties, even though `var` is a class variable in the original definition of `MyClass`. Also note that there's much less code in the macro version! Here's what it looks like in action:
+
+Here's what it looks like in action:
+
 ```
 >>> @inrange
 ... class MyClass:
@@ -176,7 +223,7 @@ Note that each instance of `MyClass` gets its own `var` since we're generating p
 
 >>> bar = MyClass()
 >>> bar.foo = 1  # no problems here!
->>> bar.foo = 6  # oh no!
+>>> bar.foo = 6  # oh no, greater than 5!
 Traceback (most recent call last):
   File "<input>", line 1, in <module>
     bar.foo = 6
@@ -184,6 +231,7 @@ Traceback (most recent call last):
     import ast
 ValueError: value outside of range 0 < foo < 5
 ```
+
 There are some weird things here. Note that the line above the `ValueError` says `import ast`, even though I didn't import the `ast` module in the shell. I use the `ast` module to generate code, but I don't really know what that's about. The error message also says that the error occurs in `foo_setter`, even though you don't have a function called `foo_setter`. This is a result of the way that I make the properties. For a variable named `foo` I create the functions `foo_getter` and `foo_setter`, create a property with `property(foo_getter, foo_setter)`, then bind that to the attribute `foo`.
 
 Here are the broad strokes of how this works, assuming you have a class named `MyClass` and you've annotated a class variable named `var`:
@@ -198,6 +246,7 @@ Here are the broad strokes of how this works, assuming you have a class named `M
 - Bind the `__init__` function to the class.
 
 Each class variable with an annotation is represented by a `MacroItem`:
+
 ```python
 class MacroItem:
     def __init__(self, var_name, annotation):
@@ -209,9 +258,11 @@ class MacroItem:
         self.setter = None
         self.init_stmt = None
 ```
+
 These `MacroItem`s get passed to the functions that extract information from the annotation, generate ASTs, etc. For example, here is the function that generates a getter from a `MacroItem`:
+
 ```python
-def _getter(item):
+def getter(item):
     func_name = f"{item.var}_getter"
     self_arg = arg(arg="self", annotation=None)
     func_args = arguments(
@@ -240,7 +291,7 @@ def _getter(item):
 Note that you can't compile a `FunctionDef` node by itself, you have to wrap it in a `Module` node first. Here is the magic that compiles an AST into a function.
 
 ```python
-def _ast_to_func(node, name):
+def ast_to_func(node, name):
     ast.fix_missing_locations(node)
     code = compile(node, __file__, "exec")
     context = {}
@@ -248,10 +299,10 @@ def _ast_to_func(node, name):
     return context[name]
 ```
 
-This definitively shows that you can make Rust-like macros in Python. That's not to say that it's easy or recommended though. Constructing an AST is definitely verbose (the AST for `-10` is ~4x as many characters as `10`), so it can be tedious. It was a fun exercise, but I'll show you a better way to make code-generating macros.
+This definitively shows that you can make Rust-like macros in Python. That's not to say that it's easy or recommended though. Constructing an AST is definitely (the AST for `-10` is ~4x as many characters as `10`), so it can be tedious. It was a fun exercise, but I'll show you a better way to make code-generating macros.
 
 # Example 2 - `@notify`
-Like I said above, constructing ASTs, compiling them, etc is pretty tedious. For my next trick, I've made a decorator `@notify` that will print a message to the terminal when you try to assign a new value to a class or instance variable marked with a specific annotation.
+For my next trick, I've made a decorator `@notify` that will print a message to the terminal when you try to assign a new value to a class or instance variable marked with a specific annotation.
 
 ```python
 @notify
@@ -263,7 +314,8 @@ class MyClass:
         self.y: "this one" = 0
 ```
 
-If you try typing that into the Python shell, it will crash for some reason. If you're working in the shell and you decorate a class that has an `__init__` method, it will crash. I have no idea what that's about. If you want to try this in the shell, put the annotation on a class variable. You can put whatever you want into a file though, and it will work just fine. Let's see what happens when you try to assign to a variable you've marked.
+If you try typing that into the Python shell, it will crash. If you're working in the shell and you decorate a class with `@notify` that has an `__init__` method, it will crash. I have no idea what that's about. If you want to try this in the shell, put the annotation on a class variable. You can put whatever you want into a file though, and it will work just fine. Let's see what happens when you try to assign to a variable you've marked.
+
 ```python
 from annotation_abuse.notify import notify
 
@@ -348,6 +400,7 @@ Annotations on class variables can be pulled from `MyClass.__annotations__` (lik
 Once I've built a list of attributes to watch, I need to intercept writes to those attributes. I knew I could intercept writes to certain attributes by replacing them with properties, but I wondered if there was a different way to do it (just for kicks). I went back to the documentation for the [data model][data_model] and read up on `__setattr__`. The `__setattr__` method gets called when you try to set the value of an attribute, so overriding `__setattr__` will let me intercept writes to the attributes I care about.
 
 I generate a new `__setattr__` as a closure, as you can see below:
+
 ```python
 def make_setattr(cls, var_names):
 
@@ -355,8 +408,8 @@ def make_setattr(cls, var_names):
         if attr_name not in var_names:
             setattr(self, attr_name, new_value)
             return
-        # The instance variable will be set for the first time during __init__ but we
-        # don't want to prompt the user on instantiation.
+        # The instance variable will be set for the first time during
+        # __init__, but we don't want to prompt the user on instantiation.
         if attr_name not in self.__dict__.keys():
             setattr(self, attr_name, new_value)
             return
@@ -372,7 +425,9 @@ def make_setattr(cls, var_names):
 
 return new_setattr
 ```
-I model the user's response with an enum, storing the acceptable responses in the value of each enum variant to make it easier to validate the response. The `Response.INVALID` case is handled in the `prompt_user` function.
+
+I model the user's response with an enum, storing the acceptable responses in the value of each enum variant to make it easier to validate the response. The `Response.INVALID` case is handled in the `prompt_user` function. Rust taught me how powerful enums can be, so now I want to use them everywhere!
+
 ```python
 class Response(Enum):
     YES = ["y", "Y", "yes", "Yes", "YES"]
@@ -393,15 +448,19 @@ def interpret_resp(text):
 One thing I found confusing during this process is that lots of documentation surrounding `__setattr__` says that you should call the super class's `__setattr__` when you're overriding `__setattr__`, and most documentation just cites `object.__setattr__(self, name, value)`. I found the documentation around this to be sparse, at best, and I only accidentally stumbled onto a solution. Here's what happened.
 
 My working solution uses `setattr`, so let's replace `setattr(self, attr_name, new_value)` with `object.__setattr__(self, attr_name, new_value)`:
+
 ```
 TypeError: can't apply this __setattr__ to type object
 ```
+
 Huh? I searched the internet for what this error message meant, and my understanding is that it's related to setting new attributes on built-in types. So, that tells me that I was accidentally trying to set a new attribute on `object`. Using `super(cls, self).__setattr__` gives you the same error.
 
-Let's try `super().__setattr__(self, attr_name, new_value)`:
+Let's try `super().__setattr__(self, attr_name, new_value)` and see if it just sorts itself out:
+
 ```
 RuntimeError: super(): __class__ cell not found
 ```
+
 Ok, this one actually makes sense ([see here][class_var]). In short, I'm calling `super()` in a function that's not bound to a class when it's defined, so it doesn't know what class it belongs to. I think.
 
 Eventually I just tried `setattr` and it worked. I was pressed for time preparing this for a lightning talk, so I didn't have time to really dig into the issue. If someone knows what's going on, let me know!
@@ -418,7 +477,7 @@ Remember earlier when I said that a type annotation can be any valid Python expr
 >>> MyClass.__annotations__["foo"](3)
 True
 ```
-If you're not amazed that this is possible, check your pulse. This is saying that you can attach entire functions to an attribute, not just a string!
+If you're not amazed that this is possible, check your pulse. This is saying that you can attach entire functions to an attribute, not just a string or a type! It's like every variable carries around a little suitcase that can hold (almost) anything you want!
 
 I think I'm done with this particular project for now, but I'm sure there's all kinds of <s>terrible</s> wonderful things you can do with this. If you have any ideas, I'd love to hear them!
 
@@ -427,3 +486,5 @@ I think I'm done with this particular project for now, but I'm sure there's all 
 [ast_docs]: https://docs.python.org/3/library/ast.html
 [ast_nodes]: https://greentreesnakes.readthedocs.io/en/latest/
 [class_var]: https://docs.python.org/3/reference/datamodel.html#creating-the-class-object
+[astor]: https://github.com/berkerpeksag/astor
+[astpretty]: https://github.com/asottile/astpretty
