@@ -480,7 +480,7 @@ True
 ```
 If you're not amazed that this is possible, check your pulse. This is saying that you can attach entire functions to an attribute, not just a string or a type! It's like every variable carries around a little suitcase that can hold (almost) anything you want!
 
-I think I'm done with this particular project for now, but I'm sure there's all kinds of <s>terrible</s> wonderful things you can do with this. If you have any ideas, I'd love to hear them!
+I think I'm done with this particular project for now, but I'm sure there's all kinds of <s>terrible</s> wonderful things you can do with this. If you have any ideas, I'd love to hear them! The code for all of this can be found on my GitHub at [zmitchell/annotation-abuse][github].
 
 [data_model]: https://docs.python.org/3/reference/datamodel.html
 [pep_484]: https://www.python.org/dev/peps/pep-0484/#acceptable-type-hints
@@ -489,3 +489,4 @@ I think I'm done with this particular project for now, but I'm sure there's all 
 [class_var]: https://docs.python.org/3/reference/datamodel.html#creating-the-class-object
 [astor]: https://github.com/berkerpeksag/astor
 [astpretty]: https://github.com/asottile/astpretty
+[github]: https://github.com/zmitchell/annotation-abuse
