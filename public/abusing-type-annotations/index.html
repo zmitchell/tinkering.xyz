@@ -54,7 +54,7 @@
   <h1 class="post-title">Bringing macros to Python by abusing type annotations</h1>
   
   <h1 id="introduction">Introduction</h1>
-<p>The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. Rust is becoming more and more popular by the day for reasons that you've probably heard about:</p>
+<p>The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. If you'd like to skip ahead to the Python stuff, <a href="#skip">click here</a>. Rust is becoming more and more popular by the day for reasons that you've probably heard about:</p>
 <ul>
 <li>It's really fast.</li>
 <li>It has a nice, modern type system.</li>
@@ -100,6 +100,7 @@
 <p><img src="/images/not-the-bees-editor.jpg" alt="error message saying &quot;not the bees&quot; pointing to a struct field named &quot;bees&quot;" /></p>
 <p>If you'd like to read about that, you can do so here: <a href="https://tinkering.xyz/introduction-to-proc-macros">link to shameless plug</a></p>
 <p>So, here's the million dollar question: Can you make Rust-like macros in Python?</p>
+<p><a name="skip"></a></p>
 <h1 id="what-am-i-trying-to-build">What am I trying to build?</h1>
 <p>Let's unpack what it means to have Rust-like macros in Python. I'll examine this with three questions:</p>
 <ul>

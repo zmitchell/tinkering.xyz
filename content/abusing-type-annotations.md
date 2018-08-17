@@ -9,7 +9,7 @@ show_date = false
 +++
 
 # Introduction
-The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. Rust is becoming more and more popular by the day for reasons that you've probably heard about:
+The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. If you'd like to skip ahead to the Python stuff, <a href="#skip">click here</a>. Rust is becoming more and more popular by the day for reasons that you've probably heard about:
 - It's really fast.
 - It has a nice, modern type system.
 - It prevents lots of memory errors.
@@ -64,6 +64,7 @@ If you'd like to read about that, you can do so here: [link to shameless plug](h
 
 So, here's the million dollar question: Can you make Rust-like macros in Python?
 
+<a name="skip"></a>
 # What am I trying to build?
 Let's unpack what it means to have Rust-like macros in Python. I'll examine this with three questions:
 - What is a macro?
