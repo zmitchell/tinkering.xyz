@@ -343,7 +343,7 @@ angle_units = "degrees"
 
 It might look odd to have to define the angle units everywhere, but that's done on purpose. It can be more convenient to use degrees in one place or radians in another, and I'm planning on incorporating other angles types in the future (wavelengths and fractions of `pi`). On top of that, you definitely don't want your simulation results to be wrong because you meant radians where `polsim` thought you meant degrees.
 
-I use `serde` to serialize this TOML file into a struct so that I can do some validation. The structs that this gets serialized into are a bit ugly because I have to account for all possible beam and element definitions. For example, the `polarization` field in the beam definition determines which other fields are required in the beam definition. Here's the struct that a beam gets serialized into:
+I use `serde` to deserialize this TOML file into a struct so that I can do some validation. The structs that this gets deserialized into are a bit ugly because I have to account for all possible beam and element definitions. For example, the `polarization` field in the beam definition determines which other fields are required in the beam definition. Here's the struct that a beam gets deserialized into:
 
 ```rust
 #[derive(Debug, Deserialize, Serialize)]
