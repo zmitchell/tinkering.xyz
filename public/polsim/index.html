@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Tinkering</title>
+
+      <!-- CSS -->
+      <link rel="stylesheet" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;hyde.css">
+
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;rss.xml">
+      
+
+      
+      
+    </head>
+
+    <body class="theme-base-0d ">
+        
+            <div class="sidebar">
+                <div class="container ">
+                    <div class="sidebar-about">
+                        
+                            <a href="https:&#x2f;&#x2f;tinkering.xyz"><h1>Tinkering</h1></a>
+                            
+                            <p class="lead">Come for the Foo, stay for the Bar</p>
+                            
+                        
+                    </div>
+
+                    <ul class="sidebar-nav">
+                        
+                        
+                        <li><a href="&#x2f;">Home</a></li>
+                        
+                        <li><a href="https:&#x2f;&#x2f;github.com&#x2f;zmitchell">GitHub</a></li>
+                        
+                        <li><a href="&#x2f;about&#x2f;">About</a></li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <main class="content container">
+            
+<article class="post">
+  <h1 class="post-title">Polsim - a case study for small-scale scientific computing in Rust</h1>
+  
+  <!-- Math rendering -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<p>Let's get this out of the way: <code>polsim</code> is a command line utility for doing <strong>pol</strong>arization <strong>sim</strong>ulations. I'm a physicist by day (shell of a man by night), and I work with lasers on a daily basis. My PhD is based on a measurement technique<sup class="footnote-reference"><a href="#1">1</a></sup> that's polarization-sensitive, so it would be useful to be able to predict or ballpark the polarization of a laser beam without too much trouble. The code can be found on GitHub:</p>
+<ul>
+<li><a href="https://github.com/zmitchell/polarization"><code>polarization</code></a>: the library that handles the simulations</li>
+<li><a href="https://github.com/zmitchell/polsim"><code>polsim</code></a>: the command line utility for using <code>polarization</code></li>
+</ul>
+<p>The motivation for this post is to recount my experiences developing a scientific tool written in Rust in the context of someone with a scientific background<sup class="footnote-reference"><a href="#2">2</a></sup>. I'll explain why I made certain choices, and I'll document the things that I struggled with along the way.</p>
+<h1 id="polarization">Polarization</h1>
+<p>I'm not here to teach you physics, but a little bit of background is required. I'll keep it to a minimum so that I don't give you nightmares.</p>
+<p>Polarization is loosely defined as how light oscillates as it travels through space. See the image below:</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/0/09/Circular.Polarization.Circularly.Polarized.Light_Homogenous_Circular.Polarizer_Left.Handed.svg" alt="circular and linear polarization" /></p>
+<p>Technically speaking, polarization is a vector, meaning that it has a size and a direction, which is why the polarization is represented by an arrow in the figure above (the size is the length of the arrow, the direction is the direction the arrow is pointing). The red line is the path traced out by the tip of the polarization vector. For linearly polarized light, the vector just swings back and forth along some line (this is the middle portion of the image). For circularly polarized light, the vector traces out a circle if you look at the beam head-on<sup class="footnote-reference"><a href="#3">3</a></sup>, or a spiral if you look at the beam traveling through space<sup class="footnote-reference"><a href="#4">4</a></sup>.</p>
+<p>The polarization of a beam changes when it interacts with other objects, for instance, when the beam reflects from a surface or passes through some optical element (e.g. a polarizer). We want to be able to predict what will happen to the polarization of a beam after it interacts with a series of optical elements. Conversely, we could also look at the polarization before and after some optical elements and ask &quot;what could have made my beam look this way&quot;. This kind of modeling is what <code>polsim</code> is for.</p>
+<p>Luckily, there are standard techniques for this kind of modeling so I don't need reinvent that wheel. The formalism that <code>polsim</code> is based on is called <a href="https://en.wikipedia.org/wiki/Jones_calculus">Jones calculus</a>. Jones calculus is relatively simple but approximates reality well enough for my purposes. There is a more complete formalism called <a href="https://en.wikipedia.org/wiki/Mueller_calculus">Mueller calculus</a> but it's more complex and I don't need the additional information it provides.</p>
+<h1 id="jones-calculus">Jones calculus</h1>
+<p>Jones calculus informs the structure of <code>polsim</code> so I need to discuss this a little bit. In Jones calculus your polarization is a vector (basically a one-column matrix) of complex numbers</p>
+<p>$$
+\vec{E} = \begin{bmatrix} A \\ B e^{i\delta} \end{bmatrix} = \begin{bmatrix} \text{complex} \\ \text{complex} \end{bmatrix}
+$$</p>
+<p>and optical elements, the things that interact with your beam, are 2x2 matrices of complex numbers:</p>
+<p>$$
+M = \begin{bmatrix}
+m_{00} &amp; m_{01} \\ m_{10} &amp; m_{11} \end{bmatrix} = \begin{bmatrix} \text{complex} &amp; \text{complex} \\ \text{complex} &amp; \text{complex} \end{bmatrix}
+$$</p>
+<p>You obtain the final polarization by multiplying the initial polarization by all the elements that the beam interacts with, like so:</p>
+<p>$$
+E_{f} = M_{N} \times \ldots \times M_2 \times M_1 \times E_i
+$$</p>
+<p>So, when you really get down to it, you're just multiplying 2x2 matrices together. That fact means that I don't need a ton of computational horsepower, freeing me up to make decisions based on preference rather than necessity. I'll discuss this further when it comes to which linear algebra crate I chose.</p>
+<p>In principle you could do all of this multiplication by hand. In fact, if you're trying to see how one particular parameter of an optical element influences the final result, it's often a good idea to do this multiplication by hand to get an analytical solution. However, these matrices can get ugly and doing the arithmetic by hand is tedious:</p>
+<p>$$
+\begin{bmatrix} \cos^{2}\left(\theta\right) + e^{i\varphi} \sin^{2}\left(\theta\right) &amp; \sin\left(\theta\right)\cos\left(\theta\right) - e^{i\varphi} \sin\left(\theta\right)\cos\left(\theta\right) \\ \sin\left(\theta\right)\cos\left(\theta\right) - e^{i\varphi} \sin\left(\theta\right)\cos\left(\theta\right) &amp; \sin^{2}\left(\theta\right) + e^{i\varphi} \cos^{2}\left(\theta\right) \\ \end{bmatrix}
+$$</p>
+<p>No one has ever used this matrix without looking it up.</p>
+<h1 id="crate-choices">Crate choices</h1>
+<p>Now that I have the background out of the way, I can walk through some of the necessary building blocks:</p>
+<ul>
+<li>complex numbers</li>
+<li>vectors (essentially a 1-column matrix)</li>
+<li>matrices</li>
+</ul>
+<p>There's no complex number support in the Rust standard library, so I had to look elsewhere. The most mature and feature-complete solution is the <a href="https://github.com/rust-num/num"><code>num</code></a> crate and its <code>num::complex::Complex</code> type. The type <code>Complex&lt;T&gt;</code> is parameterized by some numerical type <code>T</code> e.g. <code>f32</code> or <code>f64</code>.</p>
+<p>My choice in the linear algebra space was made more difficult by the wealth of linear algebra crates that are available. A <a href="https://crates.io/search?q=linear+algebra">quick search on crates.io</a> for the query &quot;linear algebra&quot; returns 95 results. There are really two options that stand out: <a href="https://github.com/rust-ndarray/ndarray"><code>ndarray</code></a> and <a href="https://github.com/rustsim/nalgebra"><code>nalgebra</code></a>. The <code>ndarray</code> crate seems to be a generic multi-dimensional array, similar to what NumPy provides in the Python world, whereas <code>nalgebra</code> seems to be more focused on square matrices and vectors for computer graphics. I only need square (2x2) matrices, so I went with <code>nalgebra</code>, though I'm sure I would have been able to achieve the same results with <code>ndarray</code>.</p>
+<p>I use the <code>nalgebra::Vector2&lt;T&gt;</code> and <code>nalgebra::Matrix2&lt;T&gt;</code> types to represent beams and optical elements respectively, where <code>T</code> is <code>num::complex::Complex&lt;f64&gt;</code>.</p>
+<h1 id="the-polarization-crate">The polarization crate</h1>
+<p>Getting back to the code, I needed to translate the physics of the problem into Rust. To do this I made a crate called <code>polarization</code> which does the actual simulation work. <code>polsim</code> allows users to define simulations in a declarative fashion, does validation on those simulation definitions, then hands things off to <code>polarization</code> to do the simulation. </p>
+<p>There were two distinct &quot;entities&quot; that I wanted to model, beams and optical elements, so I described each one with its own trait. In Jones calculus the polarization of a beam is represented by a two-element vector. We refer to this type of vector as a &quot;Jones vector&quot;. Some examples of things I expect to be able to do with a beam are get its intensity (brightness), pull out the x/y-component, get the underlying vector so I can multiply it with a matrix, and a variety of other things. I came to the following (truncated) definition:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">pub trait </span><span style="color:#c0c5ce;">JonesVector {
+    </span><span style="color:#65737e;">// Intensity of the beam
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">intensity</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; Result&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;;
+
+    </span><span style="color:#65737e;">// Returns the x-component of the beam
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">x</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">;
+
+    </span><span style="color:#65737e;">// Returns the y-component of the beam
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">y</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">;
+
+    </span><span style="color:#65737e;">// Returns the vector representation of the beam
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">vector</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; Vector2&lt;Complex&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;&gt;;
+
+    ...
+}
+</span></pre>
+<p>I implement this trait for a type called <code>Beam</code>:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#65737e;">// Basically a container for the Vector2&lt;T&gt;
+</span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">Beam {
+    </span><span style="color:#bf616a;">vec</span><span style="color:#c0c5ce;">: Vector2&lt;Complex&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;&gt;,
+}
+</span></pre>
+<p>The crate isn't actually generic over the <code>JonesVector</code> trait (you'll see functions take and return <code>Beam</code> explicitly), but the plan is to rectify that at some point.</p>
+<p>For optical elements I again define a trait to encode the behavior that all optical elements should have. This trait is smaller because most of the behavior will be element-specific.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">pub trait </span><span style="color:#c0c5ce;">JonesMatrix {
+    </span><span style="color:#65737e;">// Rotate the element by the given angle
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rotated</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">: Angle) -&gt; </span><span style="color:#b48ead;">Self</span><span style="color:#c0c5ce;">;
+
+    </span><span style="color:#65737e;">// Return the matrix representation of the element
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">matrix</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; Matrix2&lt;Complex&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;&gt;;
+
+    ...
+
+}
+
+</span><span style="color:#65737e;">// An ideal linear polarizer
+</span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">Polarizer {
+    </span><span style="color:#bf616a;">mat</span><span style="color:#c0c5ce;">: Matrix2&lt;Complex&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;&gt;,
+}
+
+</span><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">JonesMatrix </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">Polarizer {
+    ...
+}
+</span></pre>
+<p>In order to perform this simulation you need exactly one beam and at least one element for the beam to propagate through. You can represent a vacuum (which won't change the polarization of the beam) with an identity matrix, so you really have no excuse for doing a simulation without at least one optical element. Another point to consider is that the order in which the beam encounters the optical elements determines the order in which the matrices should be multiplied together<sup class="footnote-reference"><a href="#6">5</a></sup>. I'm not just going to let you multiply matrices together willy-nilly, sorry. </p>
+<p>I define a type called <code>OpticalSystem</code> so that there is an adult in the room. You add a beam and some elements to the system, call <code>OpticalSystem::propagate()</code>, and the system will return a <code>Result&lt;Beam, JonesError&gt;</code>. When you put it all together, a very simple simulation looks like this:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> initial_beam = Beam::linear(Angle::Degrees(</span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">));
+</span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> pol = Polarizer::new(Angle::Degrees(</span><span style="color:#d08770;">45.0</span><span style="color:#c0c5ce;">));
+</span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> qwp = QuarterWavePlate::new(Angle::Degrees(</span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">));
+</span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> system = OpticalSystem::new()
+    .</span><span style="color:#96b5b4;">add_beam</span><span style="color:#c0c5ce;">(initial_beam)
+    .</span><span style="color:#96b5b4;">add_element</span><span style="color:#c0c5ce;">(pol)
+    .</span><span style="color:#96b5b4;">add_element</span><span style="color:#c0c5ce;">(qwp);
+</span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> final_beam = system.</span><span style="color:#96b5b4;">propagate</span><span style="color:#c0c5ce;">().</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">();
+</span></pre><h1 id="debugging">Debugging</h1>
+<p>The first thing I struggled with was using a debugger. This was my first time using a debugger, so I was already in uncharted territory. At the time I was working on this I was using neovim and a terminal as my &quot;IDE&quot;, but since then I've moved to CLion and I can say that its debugger is relatively pleasant to use.</p>
+<p>Let's start with some minor things, like how values are printed in the debugger. I'll first set a breakpoint inside of a closure:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">(lldb) br set -f system.rs -l 348
+Breakpoint 1: where = polarization-b20b1f754e235950`polarization
+::jones::system::OpticalSystem::composed_elements
+::_$u7b$$u7b$closure$u7d$$u7d$
+::h19d2e65336af7615 + 577 at system.rs:348:30, address = 0x00000001001e8c11
+</span></pre>
+<p>Most of this looks fine except for the <code>_$u7b$$u7b$closure$u7d$$u7d$</code> piece. I think this is supposed to read <code>{{closure}}</code>, but this isn't a big deal because you can still basically read what it says. Now let's let the program run until we hit that breakpoint.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">(lldb) r
+...
+Process 33329 stopped
+* thread #2, name = &#39;jones::system::test::test_beam_passes_through&#39;, stop reason = breakpoint 1.1
+    frame #0: 0x00000001001e8c11 polarization-b20b1f754e235950`polarization::jones::system::OpticalSystem
+    ::composed_elements::_$u7b$$u7b$closure$u7d$$u7d$::h19d2e65336af7615((null)=0x000070000ef72f98,
+    acc=Matrix&lt;num_complex::Complex&lt;f64&gt;, nalgebra::base::dimension::U2, nalgebra::base::dimension::U2,
+    nalgebra::base::matrix_array::MatrixArray&lt;num_complex::Complex&lt;f64&gt;, nalgebra::base::dimension::U2,
+    nalgebra::base::dimension::U2&gt;&gt; @ 0x000070000ef73030, elem=0x0000000100c16aa0) at system.rs:348:30
+</span></pre>
+<p>There's quite a bit more output now. If you wade through the sea of colons<sup class="footnote-reference"><a href="#5">6</a></sup>, you can see the the entire second half of this output is just defining the type of a matrix named <code>acc</code> (this is inside of a <code>fold</code>, and <code>acc</code> is the accumulator). The point here is that the actual types of matrices in <code>nalgebra</code> can be very verbose. There is a language feature on the horizon called const-generics that should eventually alleviate some of the pain here.</p>
+<p>Getting back to debugging, lets try to find the values inside this matrix <code>acc</code>. You can list the variables in this stack frame with the command <code>fr v</code>. There are three variables in this stack frame, but I'll only show one because there's a lot to wade through.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">(nalgebra::base::matrix::Matrix&lt;num_complex::Complex&lt;double&gt;, nalgebra::base::dimension::U2,
+nalgebra::base::dimension::U2, nalgebra::base::matrix_array::MatrixArray&lt;num_complex::Complex&lt;double&gt;,
+nalgebra::base::dimension::U2, nalgebra::base::dimension::U2&gt; &gt;) acc = {
+  data = {
+    data = {
+      data = {
+        parent1 = {
+          parent1 = {
+            parent1 = &lt;Unable to determine byte size.&gt;
+
+            parent2 = &lt;Unable to determine byte size.&gt;
+
+            data = (re = 1, im = 0)
+          }
+          parent2 = {
+            parent1 = &lt;Unable to determine byte size.&gt;
+
+            parent2 = &lt;Unable to determine byte size.&gt;
+
+            data = (re = 0, im = 0)
+          }
+          _marker = {}
+        }
+        parent2 = {
+          parent1 = {
+            parent1 = &lt;Unable to determine byte size.&gt;
+
+            parent2 = &lt;Unable to determine byte size.&gt;
+
+            data = (re = 0, im = 0)
+          }
+          parent2 = {
+            parent1 = &lt;Unable to determine byte size.&gt;
+
+            parent2 = &lt;Unable to determine byte size.&gt;
+
+            data = (re = 1, im = 0)
+          }
+          _marker = {}
+        }
+        _marker = {}
+      }
+    }
+  }
+  _phantoms = {}
+}
+</span></pre>
+<p>Again, you can see that there's quite a lot of information here, but there's really only four relevant lines:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">...
+data = (re = 1, im = 0)
+...
+data = (re = 0, im = 0)
+...
+data = (re = 0, im = 0)
+...
+data = (re = 1, im = 0)
+...
+</span></pre>
+<p>I know from experience which element of the matrix (row/column) each of these values is supposed to appear in, but there's no other indicator which <code>data</code> belongs to which row/column. I know I'm really harping on this debugging thing, but debugging is a crucial part of the developer experience. That's not to say that effort hasn't been put towards this, just that there's still plenty of work to be done.</p>
+<h1 id="testing">Testing</h1>
+<p>This is science, so you should be able to rely on the correctness of the results. It's generally a good practice to test your code, but that goes doubly so for a scientific tool. In order to really cover my bases I'm using property based testing (PBT).</p>
+<p>For those of you not familiar with PBT here's a quick introduction. A unit test for a function that does addition might check a statement like &quot;the sum of 2 and 3 is 5&quot;. In this type of test you know (and supply) the exact input and verify that it produces some known exact output. This test is simple to write and simple to come up with, but doesn't provide much confidence that the addition function would work for other inputs.</p>
+<p>In PBT you make more general statements about your program and verify them several times with a sequence of randomly generated inputs. This type of test might check a statement like &quot;the sum of two positive integers <strong>x</strong> and <strong>y</strong> is also positive&quot;. The test would randomly generate several positive integers and make sure their sum is greater than zero, giving you the confidence that your addition function works for a wide range of inputs.</p>
+<p>There's always a tradeoff, however. Your test suite will generally take longer to run since you're running each test several times. You will also spend some amount of time debugging broken tests when you discover  edge cases <strong>in your tests</strong> due to the randomly generated inputs.</p>
+<p>I think PBT and science should be best friends, and here's why: science provides you a wealth of properties to test. Different scientific fields may have more or less difficulty identifying properties that map well to software tests, but for a &quot;hard&quot;, quantitative field like experimental physics, there's more properties to test than I care to implement.</p>
+<p>For example, here is a very short list of properties I test just in <code>polarization</code>:</p>
+<ul>
+<li>The intensity of a beam that's passed through two crossed polarizers should be zero.</li>
+<li>The intensity of a beam shouldn't change if it's rotated by an arbitrary angle.</li>
+<li>A beam that's rotated 360 degrees should look exactly the same as the original beam.</li>
+<li>An optical element that's rotated 360 should look exactly the same as the original element.</li>
+</ul>
+<p>My PBT crate of choice is <a href="https://github.com/AltSysrq/proptest"><code>proptest</code></a>. If you've ever used <a href="https://github.com/HypothesisWorks/hypothesis"><code>hypothesis</code></a> in the Python world, <code>proptest</code> is similar in spirit. The central idea is that there are &quot;strategies&quot; that produce instances of a given type, and your test specifies that its inputs should come from some strategies.</p>
+<p>There are strategies for many primitive and built-in types like <code>f64</code>, <code>Vec&lt;T&gt;</code>, etc. You can also create your own strategies or compose strategies together. Those two features allow you to generate instances of complicated types such as <code>OpticalSystem</code>.</p>
+<p>You tell <code>proptest</code> how to randomly generate an instance of your type by implementing the <code>Arbitrary</code> trait. Here's what that looks like for my <code>Angle</code> type:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">pub enum </span><span style="color:#c0c5ce;">Angle {
+    Degrees(</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">),
+    Radians(</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">),
+}
+
+</span><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">Arbitrary </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">Angle {
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Parameters = ();
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Strategy = BoxedStrategy&lt;</span><span style="color:#b48ead;">Self</span><span style="color:#c0c5ce;">&gt;;
+
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">arbitrary_with</span><span style="color:#c0c5ce;">(_: </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Parameters) -&gt; </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Strategy {
+        prop_oneof![
+            (any::&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| Angle::Degrees(x)),
+            (any::&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| Angle::Radians(x)),
+        ]
+        .</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">()
+    }
+}
+</span></pre>
+<p>Most of this is boilerplate so here's the important bit:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">prop_oneof![
+    (any::&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| Angle::Degrees(x)),
+    (any::&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| Angle::Radians(x)),
+]
+</span></pre>
+<p>The <code>prop_oneof!</code> macro instructs <code>proptest</code> to randomly select one strategy from a list of strategies, and is useful for generating the different variants of an enum. The <code>any::&lt;T&gt;()</code> function produces a strategy that generates instances of the type <code>T</code>. Both lines in the macro are generating <code>f64</code>s and mapping them into the variants of the <code>Angle</code> enum. So, if I were to call <code>any::&lt;Angle&gt;()</code> I would get a strategy that produces a random stream of <code>Angle::Degrees(some f64)</code> and <code>Angle::Radians(some f64)</code>. In fact, I do exactly that to generate <code>Beam</code>s:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">Arbitrary </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">Beam {
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Parameters = PolarizationKind;
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Strategy = BoxedStrategy&lt;Beam&gt;;
+
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">arbitrary_with</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">args</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Parameters) -&gt; </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Strategy {
+        </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> args {
+            PolarizationKind::Linear =&gt; </span><span style="color:#96b5b4;">any_linear_beam</span><span style="color:#c0c5ce;">().</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">(),
+            </span><span style="color:#65737e;">// ... omitted
+        </span><span style="color:#c0c5ce;">}
+    }
+}
+
+</span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">any_linear_beam</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = Beam&gt; {
+    any::&lt;Angle&gt;().</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">| Beam::linear(angle))
+}
+</span></pre><h1 id="polsim">polsim</h1>
+<p>With all of that out of the way, we can finally talk about <code>polsim</code> itself. Simulations are defined in a TOML file using a syntax I've laid out in the documentation. Here's what it looks like:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">[beam]
+</span><span style="color:#bf616a;">polarization </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">linear</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">angle </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">90
+</span><span style="color:#bf616a;">angle_units </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">degrees</span><span style="color:#c0c5ce;">&quot;
+
+[[elements]]
+</span><span style="color:#bf616a;">element_type </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">polarizer</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">angle </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">45
+</span><span style="color:#bf616a;">angle_units </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">degrees</span><span style="color:#c0c5ce;">&quot;
+
+[[elements]]
+</span><span style="color:#bf616a;">element_type </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">qwp</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">angle </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">0
+</span><span style="color:#bf616a;">angle_units </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">degrees</span><span style="color:#c0c5ce;">&quot;
+</span></pre>
+<p>It might look odd to have to define the angle units everywhere, but that's done on purpose. It can be more convenient to use degrees in one place or radians in another, and I'm planning on incorporating other angles types in the future (wavelengths and fractions of <code>pi</code>). On top of that, you definitely don't want your simulation results to be wrong because you meant radians where <code>polsim</code> thought you meant degrees.</p>
+<p>I use <code>serde</code> to serialize this TOML file into a struct so that I can do some validation. The structs that this gets serialized into are a bit ugly because I have to account for all possible beam and element definitions. For example, the <code>polarization</code> field in the beam definition determines which other fields are required in the beam definition. Here's the struct that a beam gets serialized into:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, Deserialize, Serialize)]
+</span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">BeamDef {
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">polarization</span><span style="color:#c0c5ce;">: PolType,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">: Option&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">angle_units</span><span style="color:#c0c5ce;">: Option&lt;AngleType&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">x_mag</span><span style="color:#c0c5ce;">: Option&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">x_phase</span><span style="color:#c0c5ce;">: Option&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">y_mag</span><span style="color:#c0c5ce;">: Option&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">y_phase</span><span style="color:#c0c5ce;">: Option&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">phase_units</span><span style="color:#c0c5ce;">: Option&lt;AngleType&gt;,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">handedness</span><span style="color:#c0c5ce;">: Option&lt;HandednessType&gt;,
+}
+</span></pre>
+<p>The next step is to validate the beam definition:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">validate_element</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">elem</span><span style="color:#c0c5ce;">: &amp;ElemDef) -&gt; Result&lt;OpticalElement&gt; {
+    </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> elem.element_type {
+        ElemType::Polarizer =&gt; {
+            </span><span style="color:#96b5b4;">validate_polarizer</span><span style="color:#c0c5ce;">(elem).</span><span style="color:#96b5b4;">chain_err</span><span style="color:#c0c5ce;">(|| &quot;</span><span style="color:#a3be8c;">invalid polarizer definition</span><span style="color:#c0c5ce;">&quot;)
+        }
+        ElemType::</span><span style="color:#d08770;">HWP </span><span style="color:#c0c5ce;">=&gt; </span><span style="color:#96b5b4;">validate_hwp</span><span style="color:#c0c5ce;">(elem).</span><span style="color:#96b5b4;">chain_err</span><span style="color:#c0c5ce;">(|| &quot;</span><span style="color:#a3be8c;">invalid half-wave plate definition</span><span style="color:#c0c5ce;">&quot;),
+        ElemType::</span><span style="color:#d08770;">QWP </span><span style="color:#c0c5ce;">=&gt; </span><span style="color:#96b5b4;">validate_qwp</span><span style="color:#c0c5ce;">(elem).</span><span style="color:#96b5b4;">chain_err</span><span style="color:#c0c5ce;">(|| &quot;</span><span style="color:#a3be8c;">invalid quarter-wave plate definition</span><span style="color:#c0c5ce;">&quot;),
+        ElemType::Retarder =&gt; </span><span style="color:#96b5b4;">validate_retarder</span><span style="color:#c0c5ce;">(elem).</span><span style="color:#96b5b4;">chain_err</span><span style="color:#c0c5ce;">(|| &quot;</span><span style="color:#a3be8c;">invalid retarder definition</span><span style="color:#c0c5ce;">&quot;),
+        ElemType::Rotator =&gt; {
+            </span><span style="color:#96b5b4;">validate_rotator</span><span style="color:#c0c5ce;">(elem).</span><span style="color:#96b5b4;">chain_err</span><span style="color:#c0c5ce;">(|| &quot;</span><span style="color:#a3be8c;">invalid polarization rotator definition</span><span style="color:#c0c5ce;">&quot;)
+        }
+    }
+}
+</span></pre>
+<p>You'll note that I'm using <code>error-chain</code> here for my error handling. I've never been very clear on what the in-vogue method of error handling is in the Rust ecosystem, but <code>error-chain</code> makes it very easy to spell out exactly where a user went wrong in their simulation definition:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">$ polsim has_error.toml
+error: invalid system definition
+caused by: invalid element definition
+caused by: invalid polarizer definition
+caused by: invalid angle definition
+caused by: missing parameter in definition: &#39;angle_units&#39;
+</span></pre>
+<p>If a user defines a simulation with more than one instance of a given optical element, <code>polsim</code> won't point out which one has the error, so there's some work to do there.</p>
+<p>Another area that needs work is the output because it's currently very basic:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">$ polsim examples/circular_polarizer.toml
+intensity: 5.00000e-1
+x_mag: 5.00000e-1
+x_phase: 0.00000e0
+y_mag: 5.00000e-1
+y_phase: 1.57080e0
+</span></pre>
+<p>or</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">$ polsim --table examples/circular_polarizer.toml
++------------+------------+-----------+------------+-----------+
+| intensity  | x_mag      | x_phase   | y_mag      | y_phase   |
++------------+------------+-----------+------------+-----------+
+| 5.00000e-1 | 5.00000e-1 | 0.00000e0 | 5.00000e-1 | 1.57080e0 |
++------------+------------+-----------+------------+-----------+
+</span></pre>
+<p>The goal is to have the initial and final polarization plotted with <code>gnuplot</code>, and some preliminary work on that front suggests that it shouldn't be very difficult.</p>
+<h1 id="future-work">Future work</h1>
+<p>There's a wealth of improvements that could be made to this project, so I'll just drop a list of them right here.</p>
+<ul>
+<li>Migrate to the Rust 2018 edition.</li>
+<li>Add <code>wavelength</code> and <code>pi</code> angle units.</li>
+<li>Plot the initial and final polarization ellipses using <code>gnuplot</code>.</li>
+<li>Add a way to sweep a parameter to see how the result changes as the input changes.</li>
+<li>Improve support for custom optical element types.</li>
+<li>Add support for reflections from metals/dielectrics (blocked by a bug).</li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<p>This was a fun project to work on because it gave me an excuse to bring Rust into my day job, but I'm ready to focus my efforts on other projects for now. I would be more than happy to mentor anyone that wants to contribute, and I've put a good deal of effort into making sure that the documentation is thorough and easy to read.</p>
+<p>As for the state of the Rust ecosystem, I still don't think it's quite there yet for the average scientist. I felt pretty comfortable with Rust because I'm a programming nerd, but I still see Python as the tool of choice for most physicists. Here's an illustrative example: find a modified Bessel function of the second kind of order 0. In Python (even if you don't know what I just asked) your first step is to search the SciPy documentation (the function is called <code>k0</code> there). In Rust, without looking I'm not confident that function exists yet. In the Python world you know that <code>X</code> exists somewhere, you just need to find it, but that certainty that <code>X</code> exists isn't there yet for Rust. Give it time and I think Rust will start to show up in some surprising places.</p>
+<p>I don't want this to come off as too negative towards Rust, I love it and wish more scientific software was written in it. When it comes to handling communication between equipment or data collection, I see Rust being a superpower due to its speed, safety, and ease of use. I've been toying with the idea of reimplementing the program that controls/coordinates the equipment in my experiment because I inherited the spaghettiest of spaghetti code, but at the same time I'd like to graduate at some point.</p>
+<p>Like I mentioned at the beginning, this was just meant to document my experience, but hopefully you at least learned a little bit about polarization. Feel free to open an issue on either of the <code>polsim</code> or <code>polarization</code> repositories if you have any questions!</p>
+<h1 id="footnotes">Footnotes</h1>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>It's an ultrafast circular-dichroism spectrometer, if you must know.</p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p>At this point I've been programming for about half as long as I've been doing science, so I'm not a complete n00b. That last statement is probably inviting the wrath of The Internet. YOLO</p>
+</div>
+<div class="footnote-definition" id="3"><sup class="footnote-definition-label">3</sup>
+<p>APPLY DIRECTLY TO THE FOREHEAD</p>
+</div>
+<div class="footnote-definition" id="4"><sup class="footnote-definition-label">4</sup>
+<p>How is it possible for the polarization to spiral? I'm glad you asked! You can always break down the polarization into two separate pieces that oscillate perpendiular to one another e.g. x- and y-components. If the two components oscillate in lock-step with each other i.e. in phase with each other, you get linear polarization. If one of the components lags behind the other one by a fixed amount, you get elliptical polarization. Circular polarization is a special case of elliptical polarization for which the two components have the same size and one component lags by a quarter of a cycle (a phase of <code>pi/2</code>).</p>
+</div>
+<div class="footnote-definition" id="5"><sup class="footnote-definition-label">6</sup>
+<p>Admit it, you thought I was going to make a joke about colons here. You know what they say happens when you assume.</p>
+</div>
+<div class="footnote-definition" id="6"><sup class="footnote-definition-label">5</sup>
+<p>For you math-inclined folks, these matrices don't commute.</p>
+</div>
+
+</article>
+
+        </main>
+
+    </body>
+
+</html>

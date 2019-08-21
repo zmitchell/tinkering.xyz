@@ -1,7 +1,7 @@
 +++
 title = "Polsim - a case study for small-scale scientific computing in Rust"
 date = 2019-06-06T11:33:37-05:00
-draft = true
+draft = false
 categories = []
 description = "...in which I teach you more about polarization than you ever cared to know"
 
