@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Property-based testing in Rust with Proptest &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="shortcut icon"  href="https://tinkering.xyz/favicon.ico" />
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:38rem;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 38rem){.homepage-list li a{width:100%}}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="Property-based testing in Rust with Proptest">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/property-based-testing-with-proptest/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2020-06-19T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/dicer-roller-service/" />
+      <link rel="next" href="https://tinkering.xyz/interacting-with-assembly-in-rust/" />
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>Property-based testing in Rust with Proptest</h1>
+
+  
+    <p style="font-size:90%;">Posted on <time datetime="2020-06-19T00:00:00+00:00">June 19, 2020</time></p>
+  
+
+  <p>Note: I originally wrote this article for LogRocket. You can find the original <a href="https://blog.logrocket.com/property-based-testing-in-rust-with-proptest/">here</a>.</p>
+<p>Software testing is an industry standard practice, but testing methodologies and techniques vary dramatically in their practicality and effectiveness. Today you’ll learn about property-based testing (PBT) including how it works, when it makes sense, and how to do it in Rust.</p>
+<h2 id="what-is-property-based-testing">What is property-based testing?</h2>
+<p>To illustrate how PBT works, let’s first look at a basic unit test. Let’s say that you’ve written a function <code>maybe_works</code> that you want to compare against a function that you know works properly, say <code>definitely_works</code>. A unit test comparing these two functions for some input <code>input</code> would look like the test below.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">test_maybe_works</span><span style="color:#c0c5ce;">() {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> input = ...;
+    assert_eq!(</span><span style="color:#96b5b4;">maybe_works</span><span style="color:#c0c5ce;">(input), </span><span style="color:#96b5b4;">definitely_works</span><span style="color:#c0c5ce;">(input));
+}
+</span></code></pre>
+<p>That test was very easy to write, but there are some issues to be aware of. One issue is that you need to know which exact inputs to use in your tests that will alert you to the presence of bugs. Another issue is that this becomes tedious when you want to test <code>maybe_works</code> against <code>definitely_works</code> for a variety of inputs.</p>
+<p>A more efficient way to test <code>maybe_works</code> against <code>definitely_works</code> would be to run the test several times with a variety of randomly generated inputs. With these randomly generated inputs you don’t know the precise value being supplied to <code>maybe_works</code> or <code>definitely_works</code>, but you can often make a general statement such as “the outputs of <code>maybe_works</code> and <code>definitely_works</code> should be the same given the same input.” In practice the “randomly generated inputs” are rarely truly random. You typically constrain the inputs somehow so that you can target a certain piece of code and avoid false positives or negatives.</p>
+<p>It’s common, however, not to have a reference implementation such as <code>definitely_works</code>. In this case you need to think harder and more abstractly about the properties of your code (hence property-based testing) and how you can verify them. Yet another way to use PBT is as a guide in the design of a piece of code. In this article we’re going to use PBT to help us write a parser.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>Create a new <code>cargo</code> project called <code>sentence-parser</code>. </p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ cargo new --lib sentence-parser
+</span></code></pre>
+<p>You’ll use the <code>pest</code> crate to write the parser, so add <code>pest</code> to your <code>Cargo.toml</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">[dependencies]
+</span><span style="color:#bf616a;">pest </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">~2.1</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">pest_derive </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">~2.1</span><span style="color:#c0c5ce;">&quot;
+</span></code></pre>
+<p>The <code>pest</code> crate generates a parser from a user-defined grammar file, so create a file called <code>sentence.pest</code> and put it in the <code>src</code> directory. Paste the following contents into the file.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">word = { ASCII_ALPHA+ }
+WHITESPACE = _{&quot; &quot;}
+</span></code></pre>
+<p>The <code>pest</code> crate is not the focus of this tutorial, but it’s helpful to have a cursory understanding of this grammar file. Each rule in the file tells <code>pest</code> how to parse a certain type of input. You can use rules within the definition of other rules to eventually build a parser that understands complex input. For a detailed overview of the syntax, see the <code>pest</code> syntax guide.</p>
+<p>For simplicity’s sake we’re going to significantly relax the definitions of “word” and “sentence.” We’ll define a “word” as “any sequence of one or more ASCII alphabetical characters.” This means that <code>flkjasdfAQTCcs</code> is a valid word for our purposes.</p>
+<p>To create a parser from this file add the following snippet to <code>lib.rs</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">macro_use</span><span style="color:#c0c5ce;">] </span><span style="color:#b48ead;">extern crate</span><span style="color:#c0c5ce;"> pest_derive;
+</span><span style="color:#b48ead;">use </span><span style="color:#c0c5ce;">pest::Parser;
+
+#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Parser)]
+#[</span><span style="color:#bf616a;">grammar </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">sentence.pest</span><span style="color:#c0c5ce;">&quot;]
+</span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">SentenceParser;
+</span></code></pre>
+<p>The <code>#[derive(Parser)]</code> and <code>#[grammar =</code> <code>&quot;``sentence.pest``&quot;``]</code> attributes will read the grammar file and generate a parser based on that grammar. This will also generate an enum called <code>Rule</code> which has a variant for each of the rules in the grammar file. When you want to parse the contents of a string, you pass one of the <code>Rule</code> variants to <code>SentenceParser::parse</code> along with the string. We will use this feature to test individual rules in the grammar rather than testing the whole thing at once.</p>
+<p>Finally, add <code>proptest</code> to your <code>Cargo.toml</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">[dev-dependencies]
+</span><span style="color:#bf616a;">proptest </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">~0.9</span><span style="color:#c0c5ce;">&quot;
+</span></code></pre><h2 id="using-proptest">Using <code>proptest</code></h2>
+<p>Doing PBT with <code>proptest</code> can look mostly the same as writing normal tests. There are two major differences which I’ll illustrate with the snippet below.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">cfg</span><span style="color:#c0c5ce;">(test)]
+</span><span style="color:#b48ead;">mod </span><span style="color:#c0c5ce;">tests {
+    </span><span style="color:#b48ead;">use super</span><span style="color:#c0c5ce;">::*;
+
+    #[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">a_normal_test</span><span style="color:#c0c5ce;">() {
+        ...
+        assert!(...)
+    }
+
+    proptest!{
+        #[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+        </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">a_property_based_test</span><span style="color:#c0c5ce;">(foo in some_strategy()) {
+            ...
+            prop_assert!(...)
+        }
+    }
+}
+</span></code></pre>
+<p>The first thing to note is that you can mix PBT with normal unit tests; PBT isn’t all or nothing. Next, note that your property-based tests must be wrapped in the <code>proptest!</code> macro. Another point of note is that <code>prop_assert!</code> is used in place of <code>assert!</code>. The <code>proptest</code> test runner will attempt to find a minimal failing input by causing the test to fail with simpler and simpler inputs. Using the <code>prop_assert!</code> and <code>prop_assert_eq!</code> macros will cause the test failure message (panic message) to be printed only for the minimal failing input rather than multiple times for a single test. Finally, notice that the function arguments to the property-based test are of the form <code>argname in strategy</code>.</p>
+<p>Conceptually, a “strategy” is a way of generating instances of a type, possibly with some constraints. More concretely, a strategy is a type that implements the <code>Strategy</code> trait. In addition, implementing the <code>Arbitrary</code> trait defines the default or main strategy for a type. This <code>Arbitrary</code> implementation will typically be the strategy that generates the widest range of values for the type. The <code>any&lt;T&gt;()</code> function provided by <code>proptest</code> uses this <code>Arbitrary</code> implementation to generate truly arbitrary instances of the type <code>T</code>. If you would like to generate instances that are subject to some constraints, you need to define functions that return <code>impl Strategy</code>. </p>
+<p>The <code>proptest</code> crate provides implementations of <code>Arbitrary</code> for a wide variety of Rust primitives and collections. Implementing <code>Arbitrary</code> for your own type is straightforward. The example below is mostly boilerplate.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">Arbitrary </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">T {
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Parameters = ();
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Strategy = BoxedStrategy&lt;</span><span style="color:#b48ead;">Self</span><span style="color:#c0c5ce;">&gt;;
+
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">arbitrary_with</span><span style="color:#c0c5ce;">(_: </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Parameters) -&gt; </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Strategy {
+        ...
+    }
+}
+</span></code></pre>
+<p>The only piece that really requires thought on your part is the <code>…</code>, which defines how to generate the values. You may parameterize how the strategy generates values using the <code>Parameters</code> type definition. In most cases this isn’t necessary, so define it as <code>()</code>. The concrete type of the strategy returned by <code>arbitrary_with</code> is defined by the <code>Strategy</code> type definition. You may declare a specific type, or you may choose the simplest route and return a trait object via the <code>BoxedStrategy</code> type.</p>
+<p>The strategy defined by the <code>Arbitrary</code> trait may generate values that are too general for some scenario, or you may simply want to define more than one strategy for a given type. In either case you will want to write a function that returns a strategy. </p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">my_strategy</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = T&gt; {
+    ...
+}
+</span></code></pre>
+<p>Both methods above share some common patterns represented by <code>…</code>. The Transforming Strategies section of the <code>proptest</code> book illustrates how this is done in great detail, but we’ll discuss it briefly since it’s such a common practice when using <code>proptest</code>.</p>
+<h2 id="strategies">Strategies</h2>
+<p>The <code>proptest</code> crate comes with several built-in strategies, namely <code>any&lt;T&gt;</code>, the <code>proptest::collection</code> module, <code>proptest::string::string_regex</code>, and a variety of others. In addition, tuples and arrays of strategies are themselves strategies. This means that you can generate a tuple of values where each value is drawn from a different strategy, then apply methods from the <code>Strategy</code> trait and turn the tuple’s elements into another type.</p>
+<h3 id="strategy-prop-map"><code>Strategy::prop_map</code></h3>
+<p>The <code>prop_map</code> method allows you to transform the values generated by a strategy and transform them into a new type. This is one of the primary methods you’ll use to build up a custom type from primitives or other types. The example below illustrates how you can generate a struct by transforming a tuple of primitive types.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">Point {
+    </span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">,
+    </span><span style="color:#bf616a;">y</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">f32
+</span><span style="color:#c0c5ce;">}
+
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">point_strat</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = Point&gt; {
+    (any&lt;</span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">&gt;::(), any&lt;</span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">&gt;::()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">y</span><span style="color:#c0c5ce;">)| {
+        Point {
+            x: x,
+            y: y
+        }
+    })
+}
+</span></code></pre>
+<p>In short, a strategy produces a random value and <code>prop_map</code> uses that random value to compute a different value.</p>
+<h3 id="strategy-prop-filter"><code>Strategy::prop_filter</code></h3>
+<p>The <code>prop_filter</code> methods lets you constrain the values produced by one strategy by filtering with a predicate. The function below returns a strategy that generates <code>u8</code>s that are greater than 100.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">u8_greater_than_100</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = </span><span style="color:#b48ead;">u8</span><span style="color:#c0c5ce;">&gt; {
+    any::&lt;</span><span style="color:#b48ead;">u8</span><span style="color:#c0c5ce;">&gt;().</span><span style="color:#96b5b4;">prop_filter</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">reason for filtering</span><span style="color:#c0c5ce;">&quot;, |</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| x &gt; &amp;</span><span style="color:#d08770;">100</span><span style="color:#b48ead;">u8</span><span style="color:#c0c5ce;">)
+}
+</span></code></pre><h3 id="strategy-prop-flat-map"><code>Strategy::prop_flat_map</code></h3>
+<p>Sometimes you want to generate values that depend on each other somehow. This is a scenario in which you’ll want to reach for the <code>prop_flat_map</code> method. When called on a strategy, the <code>prop_flat_map</code> method takes a random value from that strategy and uses it to produce another strategy. Note the difference between <code>prop_map</code> and <code>prop_flat_map</code>. With <code>prop_map</code> a value from a strategy is used to produce a new value, whereas with <code>prop_flat_map</code> a value from a strategy is used to produce a new strategy. The canonical example use case from the <code>proptest</code> documentation is a strategy that produces a <code>Vec</code> and a random valid index into that <code>Vec</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">vec_and_index</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = (Vec&lt;String&gt;, </span><span style="color:#b48ead;">usize</span><span style="color:#c0c5ce;">)&gt; {
+    prop::collection::vec(&quot;</span><span style="color:#a3be8c;">.*</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">..</span><span style="color:#d08770;">100</span><span style="color:#c0c5ce;">)
+        .</span><span style="color:#96b5b4;">prop_flat_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">vec</span><span style="color:#c0c5ce;">| {
+            </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> len = vec.</span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">();
+            (Just(vec), </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">..len)
+        })
+}
+</span></code></pre><h3 id="just"><code>Just</code></h3>
+<p>This type creates a strategy that always returns the same value. One use case is shown in the <code>prop_flat_map</code> example above. Another use case is with the <code>prop_oneof!</code> macro.</p>
+<h3 id="prop-oneof"><code>prop_oneof!</code></h3>
+<p>This macro creates a strategy that produces values from a list of strategies. The most common use case is generating enum variants.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">enum </span><span style="color:#c0c5ce;">MyEnum {
+    Foo,
+    Bar,
+    Baz,
+}
+
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">myenum_strategy</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = MyEnum&gt; {
+    prop_oneof![
+        Just(MyEnum::Foo),
+        Just(MyEnum::Bar),
+        Just(MyEnum::Baz),
+    ]
+}
+</span></code></pre>
+<p>Note that you must supply a list of strategies, not a list of values. This is why you must wrap the enum variants in <code>Just</code>.</p>
+<h2 id="writing-the-parser">Writing the parser</h2>
+<p>Now that you know some common <code>proptest</code> patterns you can get down to the business of writing and testing a parser.</p>
+<h3 id="word">Word</h3>
+<p>Create a <code>proptest!</code> block in the <code>test</code> module. First we’ll create a function called <code>valid_word</code> that returns a strategy that produces, you guessed it, a valid word.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">cfg</span><span style="color:#c0c5ce;">(test)]
+</span><span style="color:#b48ead;">mod </span><span style="color:#c0c5ce;">test {
+    </span><span style="color:#b48ead;">use super</span><span style="color:#c0c5ce;">::*;
+
+    proptest!{
+        </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">valid_word</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+            proptest::string::string_regex(&quot;</span><span style="color:#a3be8c;">[a-zA-Z]+</span><span style="color:#c0c5ce;">&quot;).</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">()
+        }
+
+        #[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+        </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_word</span><span style="color:#c0c5ce;">(w in valid_word()) {
+            </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::word, w.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+            prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+        }
+    }
+}
+</span></code></pre>
+<p>The <code>proptest::string::string_regex</code> function returns a strategy that produces strings that match the provided regular expression. In this case that’s a sequence of one or more ASCII letters. You could have used the shorthand <code>w in</code> <code>&quot;``[a-zA-Z]+``&quot;</code> to accomplish the same thing, but I find that writing the strategy as a function allows you to give a descriptive name to the regular expression. Note that in <code>_ in valid_word()</code> the <code>_</code> defines the name of the value produced by the strategy so that you can use it in the body of your test.</p>
+<p>The test attempts to parse the generated word using the rule <code>Rule::word</code>. If you run <code>cargo test</code> you should see that your test passes (along with other compilation statements).</p>
+<p>Tests that pass when fed valid inputs are important, but tests that detect errors when your code is fed invalid inputs are equally important. This time you’ll create a test that feeds non-letter characters to the parser as well as strings of length zero. Create another test that looks like this.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">invalid_word</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    proptest::string::string_regex(&quot;</span><span style="color:#a3be8c;">[^a-zA-Z]*</span><span style="color:#c0c5ce;">&quot;).</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">()
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_invalid_word</span><span style="color:#c0c5ce;">(w in invalid_word()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::word, w.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>Run the test suite again and see that the tests pass.</p>
+<h3 id="words">Words</h3>
+<p>Now create a <code>words</code> rule that looks like this.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">words = { word+ }
+</span></code></pre>
+<p>This rule will match sequences of <code>word</code>s joined by spaces. We’ll follow the same pattern as before to test whether we’ve created a good rule. First create a test that attempts to parse valid input. Note that this time we’ll use <code>Rule::words</code> instead of <code>Rule::word</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">words</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    proptest::string::string_regex(&quot;</span><span style="color:#a3be8c;">[a-z]+( [a-z]+)*</span><span style="color:#c0c5ce;">&quot;).</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">()
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_words</span><span style="color:#c0c5ce;">(ws in words()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::words, ws.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>Run the test to make sure everything works.</p>
+<p>Next we’ll create a test that attempts to parse invalid input, but first we need to decide what that invalid input should look like. We already know that we can parse a <code>word</code> properly, so let’s test whether the <code>words</code> rule can parse zero <code>word</code>s and whether it can parse <code>word</code>s separated by characters other than spaces. You don’t need a property-based test for the empty string, so go ahead and create the following test inside the <code>test</code> module, but outside the <code>proptest!</code> block.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">words_rejects_empty_string</span><span style="color:#c0c5ce;">() {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::words, &quot;&quot;);
+    assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>What’s left is to test what happens when we have characters other than just a space between <code>word</code>s such as <code>\t</code>, <code>\r</code>, and <code>\n</code>. Unfortunately, supplying an input string like this and expecting parsing to fail doesn’t work. Consider the string <code>&quot;``a\tb``&quot;</code>. The issue is that <code>\t</code> isn’t a valid character that can appear in a <code>word</code>, so the parser stops consuming characters at <code>\t</code>, having only consumed the <code>a</code>. However, <code>a</code> matches the <code>word</code>, which matches <code>words</code> (“at least one <code>word</code>&quot;). So, our string that contains invalid word separators still successfully matches the <code>words</code> rule because <code>words</code> is only matching part of the input. We can rectify this by changing our rule to parse until the end of the input rather than finishing on some minimal prefix of the input that parses successfully.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">words = { word+ ~ EOI }
+</span></code></pre>
+<p>The <code>EOI</code> rule is provided by <code>pest</code> and represents “end of input.” This solves our problem for now, but it will break things later when we try to parse entire sentences. For now we’ll leave the <code>words</code> rule as is and forego feeding it this kind of invalid input.</p>
+<h3 id="enclosed">Enclosed</h3>
+<p>Now we’re going to build on the <code>words</code> rule by creating a rule, <code>enclosed</code>, that simply wraps a <code>words</code> in some kind of delimiter such as commas or parentheses.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">enclosed = ${
+    &quot;(&quot; ~ words ~ &quot;)&quot; |
+    &quot;, &quot; ~ words ~ &quot;,&quot;
+}
+</span></code></pre>
+<p>Note that this rule begins with <code>$</code>, which indicates that we don’t want <code>~</code> to implicitly gobble up whitespace. We want this because <code>(foo bar)</code> is valid, but <code>( foo bar )</code> is not.</p>
+<p>To test this rule we’re going generate more complex inputs from strategies that we’ll define. First, we’ll create a strategy that generates a string that can be parsed by the <code>enclosed</code> rule. To do this we need a way of generating matching delimiters. In your <code>tests</code> module, create the following type.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, PartialEq, Clone)]
+</span><span style="color:#b48ead;">enum </span><span style="color:#c0c5ce;">EnclosedDelimiter {
+    OpenParen,
+    CloseParen,
+    OpenComma,
+    CloseComma,
+}
+</span></code></pre>
+<p>Next we’ll create a method that converts the various enum variants into <code>&amp;str</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">EnclosedDelimiter {
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">to_str</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; &amp;</span><span style="color:#b48ead;">str </span><span style="color:#c0c5ce;">{
+        </span><span style="color:#b48ead;">match </span><span style="color:#bf616a;">self </span><span style="color:#c0c5ce;">{
+            EnclosedDelimiter::OpenParen =&gt; &quot;</span><span style="color:#a3be8c;">(</span><span style="color:#c0c5ce;">&quot;,
+            EnclosedDelimiter::CloseParen =&gt; &quot;</span><span style="color:#a3be8c;">)</span><span style="color:#c0c5ce;">&quot;,
+            EnclosedDelimiter::OpenComma =&gt; &quot;</span><span style="color:#a3be8c;">, </span><span style="color:#c0c5ce;">&quot;,
+            EnclosedDelimiter::CloseComma =&gt; &quot;</span><span style="color:#a3be8c;">,</span><span style="color:#c0c5ce;">&quot;
+        }
+    }
+}
+</span></code></pre>
+<p>Now create a function called <code>opening_delimiter</code>. This function will only generate valid opening delimiters.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">opening_delimiter</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = EnclosedDelimiter&gt; {
+    prop_oneof![
+        Just(EnclosedDelimiter::OpenParen),
+        Just(EnclosedDelimiter::OpenComma)
+    ].</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">()
+}
+</span></code></pre>
+<p>Now create a function called <code>valid_enclosed</code>. This function will return a strategy that only generates strings that the <code>enclosed</code> rule can successfully parse by matching the randomly chosen valid opening delimiter with its matching closing delimiter. This is an example of when the <code>prop_flat_map</code> method comes in handy.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">valid_enclosed</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> words_strat = proptest::string::string_regex(&quot;</span><span style="color:#a3be8c;">[a-z]+( [a-z]+)*</span><span style="color:#c0c5ce;">&quot;).</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">();
+    (</span><span style="color:#96b5b4;">opening_delimiter</span><span style="color:#c0c5ce;">(), words_strat).</span><span style="color:#96b5b4;">prop_flat_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">open</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">words</span><span style="color:#c0c5ce;">)| {
+        </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> close = </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> open {
+            EnclosedDelimiter::OpenParen =&gt; Just(EnclosedDelimiter::CloseParen),
+            EnclosedDelimiter::OpenComma =&gt; Just(EnclosedDelimiter::CloseComma),
+            _ =&gt; unreachable!()
+        };
+        (Just(open), close, Just(words))
+    }).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">open</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">close</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">words</span><span style="color:#c0c5ce;">)| {
+        </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> enclosed = String::new();
+        enclosed.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(open.</span><span style="color:#96b5b4;">to_str</span><span style="color:#c0c5ce;">());
+        enclosed.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(words.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+        enclosed.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(close.</span><span style="color:#96b5b4;">to_str</span><span style="color:#c0c5ce;">());
+        enclosed
+    })
+}
+</span></code></pre>
+<p>This strategy begins with an opening delimiter and a valid sequence of words, then uses <code>prop_flat_map</code> to select the valid closing delimiter. Once the delimiters and words have been generated they are combined into a <code>String</code>. The <code>_ =&gt; unreachable!()</code> line is included because <code>match</code> must be exhaustive and we know that <code>opening_delimiter</code> can’t generate either of the closing delimiters.</p>
+<p>Now write the <code>parses_valid_enclosed</code> test and make sure it works.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_enclosed</span><span style="color:#c0c5ce;">(enc in valid_enclosed()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::enclosed, enc.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>Uh oh, this test fails! The minimal failing input in this case is <code>(a a)</code>. The reason may not be obvious unless you’re familiar with <code>pest</code>, but it has to do with how whitespace is handled. Remember that the <code>enclosed</code> rule began with <code>$</code>. A rule that starts with <code>@</code> or <code>$</code> is called “atomic” and will not implicitly consume whitespace between tokens, and this property cascades to sub-rules within the current rule. In this case, <code>enclosed</code> references the <code>words</code> rule, which changes how <code>words</code> matches whitespace in the context of the <code>enclosed</code> rule. All we need to do is put a <code>!</code> in front of the <code>words</code> rule to prevent this cascade. The new rules should look like this.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">word = { ASCII_ALPHA+ }
+words = !{ word+ }
+enclosed = ${
+    &quot;(&quot; ~ words ~ &quot;)&quot; |
+    &quot;, &quot; ~ words ~ &quot;,&quot;
+}
+WHITESPACE = _{&quot; &quot;}
+</span></code></pre>
+<p>The tests should all pass now.</p>
+<p>The next task is to generate invalid strings for the <code>enclosed</code> rule. Now the opening delimiter may be any of the delimiters, and the closing delimiter will be explicitly chosen not to match the opening delimiter.</p>
+<p>First we’ll implement the <code>Arbitrary</code> trait so that we can generate randomly selected instances of <code>EnclosedDelimiter</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">Arbitrary </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">EnclosedDelimiter {
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Parameters = ();
+    </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Strategy = BoxedStrategy&lt;</span><span style="color:#b48ead;">Self</span><span style="color:#c0c5ce;">&gt;;
+    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">arbitrary_with</span><span style="color:#c0c5ce;">(_: </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Parameters) -&gt; </span><span style="color:#b48ead;">Self::</span><span style="color:#c0c5ce;">Strategy {
+        prop_oneof![
+            Just(EnclosedDelimiter::OpenParen),
+            Just(EnclosedDelimiter::CloseParen),
+            Just(EnclosedDelimiter::OpenComma),
+            Just(EnclosedDelimiter::CloseComma),
+        ].</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">()
+    }
+}
+</span></code></pre>
+<p>Now create the function that intentionally mismatches the delimiters.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">invalid_enclosed</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> words_strat = proptest::string::string_regex(&quot;</span><span style="color:#a3be8c;">[a-z]+( [a-z]+)*</span><span style="color:#c0c5ce;">&quot;).</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">();
+    (any::&lt;EnclosedDelimiter&gt;(), words_strat).</span><span style="color:#96b5b4;">prop_flat_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">open</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">words</span><span style="color:#c0c5ce;">)| {
+        </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> close = </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> open {
+            EnclosedDelimiter::OpenParen =&gt; prop_oneof![
+                Just(EnclosedDelimiter::OpenParen),
+                Just(EnclosedDelimiter::OpenComma),
+                Just(EnclosedDelimiter::CloseComma)
+            ].</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">(),
+            EnclosedDelimiter::CloseParen =&gt; any::&lt;EnclosedDelimiter&gt;(),
+            EnclosedDelimiter::OpenComma =&gt; prop_oneof![
+                Just(EnclosedDelimiter::OpenParen),
+                Just(EnclosedDelimiter::CloseParen),
+                </span><span style="color:#65737e;">// Just(EnclosedDelimiter::OpenComma),
+            </span><span style="color:#c0c5ce;">].</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">(),
+            EnclosedDelimiter::CloseComma =&gt; any::&lt;EnclosedDelimiter&gt;(),
+        };
+        (Just(open), close, Just(words))
+    }).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">open</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">close</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">words</span><span style="color:#c0c5ce;">)| {
+        </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> enc = String::new();
+        enc.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(open.</span><span style="color:#96b5b4;">to_str</span><span style="color:#c0c5ce;">());
+        enc.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(words.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+        enc.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(close.</span><span style="color:#96b5b4;">to_str</span><span style="color:#c0c5ce;">());
+        enc
+    })
+}
+</span></code></pre>
+<p>You’ll notice that one of the lines is commented out. If you uncomment this line you’ll see that the test fails because it successfully parses what is supposed to be invalid input. The string representation of the <code>OpenComma</code> variant ends with a space, so the parser sees <code>foo,</code>  as <code>foo</code>, followed by <code>CloseComma</code>, followed by  ``. This means that an <code>OpenComma</code>/<code>OpenComma</code> pair can accidentally be parsed as <code>OpenComma</code>/<code>CloseComma</code> and no error will be generated. This error will be addressed by a later rule so we’ll skip testing it in this rule. This is what the test looks like.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_mismatched_enclosed_delimiters</span><span style="color:#c0c5ce;">(enc in invalid_enclosed()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::enclosed, enc.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>We can make another test that simply leaves off the closing delimiter. </p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">missing_closing_delimiter</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    (any::&lt;EnclosedDelimiter&gt;(), </span><span style="color:#96b5b4;">words</span><span style="color:#c0c5ce;">()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">open</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">ws</span><span style="color:#c0c5ce;">)| {
+        </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> enc = String::new();
+        enc.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(open.</span><span style="color:#96b5b4;">to_str</span><span style="color:#c0c5ce;">());
+        enc.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(ws.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+        enc
+    })
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_missing_closing_delimiter</span><span style="color:#c0c5ce;">(enc in missing_closing_delimiter()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::enclosed, enc.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>Run the tests again and verify that they all still pass.</p>
+<h3 id="chunk">Chunk</h3>
+<p>The <code>words</code> and <code>enclosed</code> rules are similar in the sense that they both represent sequences of words. To encode this similarity we’ll make a <code>chunk</code> rule that matches either <code>words</code> or <code>enclosed</code> so that we can represent a sequence of words, some of which may be enclosed in delimiters, as a sequence of <code>chunk</code>s.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">chunk = ${ words | enclosed }
+</span></code></pre>
+<p>Fortunately we’ve already written strategies for <code>words</code>  and <code>enclosed</code> so we can skip straight to writing tests for this rule.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_words_chunk</span><span style="color:#c0c5ce;">(ws in words()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::chunk, ws.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_enclosed_chunk</span><span style="color:#c0c5ce;">(enc in valid_enclosed()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::chunk, enc.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_mismatched_delim_chunk</span><span style="color:#c0c5ce;">(enc in invalid_enclosed()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::chunk, enc.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_missing_delim_chunk</span><span style="color:#c0c5ce;">(enc in missing_closing_delimiter()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::chunk, enc.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>Run the tests to make sure they all pass.</p>
+<h3 id="punctuation">Punctuation</h3>
+<p>Sentences end with punctuation, so next we’ll create a rule that matches punctuation.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">punctuation = { &quot;.&quot; | &quot;!&quot; | &quot;?&quot; }
+</span></code></pre>
+<p>This is a relatively simple rule, so the strategies are also simple. A valid punctuation character is either <code>.</code>, <code>!</code>, or <code>?</code>, and anything else is an invalid punctuation character.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">punctuation</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    prop_oneof![
+        Just(String::from(&quot;</span><span style="color:#a3be8c;">.</span><span style="color:#c0c5ce;">&quot;)),
+        Just(String::from(&quot;</span><span style="color:#a3be8c;">?</span><span style="color:#c0c5ce;">&quot;)),
+        Just(String::from(&quot;</span><span style="color:#a3be8c;">!</span><span style="color:#c0c5ce;">&quot;)),
+    ]
+}
+
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">invalid_punctuation</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    proptest::string::string_regex(&quot;</span><span style="color:#a3be8c;">[^</span><span style="color:#96b5b4;">\\</span><span style="color:#a3be8c;">.</span><span style="color:#96b5b4;">\\</span><span style="color:#a3be8c;">?!]</span><span style="color:#c0c5ce;">&quot;).</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">()
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_punctuation</span><span style="color:#c0c5ce;">(s in punctuation()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::punctuation, s.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_invalid_punctuation</span><span style="color:#c0c5ce;">(s in invalid_punctuation()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::punctuation, s.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>These tests should pass without any trouble.</p>
+<h3 id="sentence">Sentence</h3>
+<p>We’re almost done! It’s finally time to put it all together into a <code>sentence</code> rule.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">sentence = ${ SOI ~ chunk+ ~ punctuation ~ EOI }
+</span></code></pre>
+<p>The <code>SOI</code> and <code>EOI</code> in this rule make sure that the entire input is parsed so that inputs like <code>a b c.def</code> aren’t valid sentences.</p>
+<p>We’ll begin with the most basic type of valid sentence: one or more <code>chunk</code>s followed by a valid <code>punctuation</code>. First let’s write a strategy that produces a sequence of <code>chunk</code>s joined by spaces.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">chunks</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    proptest::collection::vec(</span><span style="color:#96b5b4;">chunk</span><span style="color:#c0c5ce;">(), </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">..</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">cs</span><span style="color:#c0c5ce;">| {
+        cs.</span><span style="color:#96b5b4;">join</span><span style="color:#c0c5ce;">(&quot; &quot;)
+    })
+}
+</span></code></pre>
+<p>Now use this <code>chunks</code> strategy to make a <code>valid_sentence</code> strategy.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">valid_sentence</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = String&gt; {
+    (</span><span style="color:#96b5b4;">chunks</span><span style="color:#c0c5ce;">(), </span><span style="color:#96b5b4;">punctuation</span><span style="color:#c0c5ce;">()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|(</span><span style="color:#bf616a;">cs</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">p</span><span style="color:#c0c5ce;">)| {
+        </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> sentence = String::new();
+        sentence.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(cs.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+        sentence.</span><span style="color:#96b5b4;">push_str</span><span style="color:#c0c5ce;">(p.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+        sentence
+    })
+}
+</span></code></pre>
+<p>Now write a test that attempts to parse a valid sentence.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parses_valid_sentence</span><span style="color:#c0c5ce;">(s in valid_sentence()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::sentence, s.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre>
+<p>Run the test to make sure it…wait a minute, this test fails! Notice that the minimal failing input, <code>&quot;(a) a.&quot;</code>, is a valid sentence (by our definition). This means that we must have misinformed the parser how to parse a sentence. After a little bit of investigation you’ll remember that our <code>sentence</code> rule is atomic (it starts with <code>$</code>).</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">sentence = ${ SOI ~ chunk+ ~ punctuation ~ EOI }
+</span></code></pre>
+<p>As a reminder, this means that whitespace between rules is not consumed. When our parser tries to parse <code>&quot;(a) a.&quot;</code> what it really sees is <code>&lt;chunk&gt;&lt;whitespace&gt;&lt;chunk&gt;&lt;punctuation&gt;</code>. That <code>&lt;whitespace&gt;</code> doesn’t match the <code>chunk+</code> piece of the <code>sentence</code> rule, so parsing fails. To fix this we’ll need to handle whitespace manually where there’s repetition.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">words = ${ word ~ (&quot; &quot; ~ word)* }
+sentence = ${ SOI ~ chunk ~ (&quot; &quot; ~ chunk)* ~ punctuation ~ EOI }
+</span></code></pre>
+<p>Now the test should pass.</p>
+<p>There’s a couple of other tests we can write, all of which should still pass with the current rules.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_missing_punctuation</span><span style="color:#c0c5ce;">(s in chunks()) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::sentence, s.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_trailing_characters</span><span style="color:#c0c5ce;">(s in valid_sentence(), t in &quot;[\\sa-zA-Z]+&quot;) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> input = [s.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">(), t.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">()].</span><span style="color:#96b5b4;">join</span><span style="color:#c0c5ce;">(&quot; &quot;);
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::sentence, input.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+
+#[</span><span style="color:#bf616a;">test</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rejects_missing_space_between_chunks</span><span style="color:#c0c5ce;">(
+    w in words(),
+    enc in valid_enclosed(),
+    p in punctuation()
+) {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> input = [w, enc, p].</span><span style="color:#96b5b4;">join</span><span style="color:#c0c5ce;">(&quot;&quot;);
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> parsed = SentenceParser::parse(Rule::sentence, input.</span><span style="color:#96b5b4;">as_str</span><span style="color:#c0c5ce;">());
+    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span style="color:#c0c5ce;">());
+}
+</span></code></pre><h2 id="conclusion">Conclusion</h2>
+<p>At this point you should have a passing understanding of how to write property-based tests. PBT isn’t always the answer, but the simple act of thinking about the abstract properties of your code can help you better understand it. The code used in this tutorial can be found on GitHub.</p>
+
+</article>
+
+
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
+
+    </main>
+    
+    
+  </body>
+</html>
+

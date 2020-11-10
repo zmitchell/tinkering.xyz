@@ -1,58 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta http-equiv="content-type" content="text/html; charset=utf-8">
-
-      <!-- Enable responsiveness on mobile devices-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-
-      <title>Tinkering</title>
-
-      <!-- CSS -->
-      <link rel="stylesheet" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;hyde.css">
-
-      
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;rss.xml">
-      
-
-      
-      
-    </head>
-
-    <body class="theme-base-0d ">
-        
-            <div class="sidebar">
-                <div class="container ">
-                    <div class="sidebar-about">
-                        
-                            <a href="https:&#x2f;&#x2f;tinkering.xyz"><h1>Tinkering</h1></a>
-                            
-                            <p class="lead">Come for the Foo, stay for the Bar</p>
-                            
-                        
-                    </div>
-
-                    <ul class="sidebar-nav">
-                        
-                        
-                        <li><a href="&#x2f;">Home</a></li>
-                        
-                        <li><a href="https:&#x2f;&#x2f;github.com&#x2f;zmitchell">GitHub</a></li>
-                        
-                        <li><a href="&#x2f;about&#x2f;">About</a></li>
-                        
-                        
-                    </ul>
-                </div>
-            </div>
-        
-
-        <main class="content container">
-            
-<article class="post">
-  <h1 class="post-title">Using Python&#x27;s asyncio with serial devices</h1>
   
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Using Python&#x27;s asyncio with serial devices &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="shortcut icon"  href="https://tinkering.xyz/favicon.ico" />
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:38rem;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 38rem){.homepage-list li a{width:100%}}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="Using Python&#x27;s asyncio with serial devices">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/async-serial/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2018-03-15T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/about/" />
+      <link rel="next" href="https://tinkering.xyz/abusing-type-annotations/" />
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>Using Python&#x27;s asyncio with serial devices</h1>
+
+  
+    <p style="font-size:90%;">Posted on <time datetime="2018-03-15T00:00:00+00:00">March 15, 2018</time></p>
+  
+
   <p>I'm an experimental physicist, so part of my job entails writing software that orchestrates equipment in my experiment. Most of the code that runs my experiment is written in a proprietary scripting language that I guarantee none of you have ever heard of. The old code is brittle, difficult to debug, and generally makes it too much of a pain to add features unless absolutely necessary. Lately I've been thinking about how I would do a modernized rewrite in Python.
 <a name="continue-reading"></a></p>
 <p>If you're working in an industrial, IoT, or scientific setting you might find yourself communicating with various devices via serial protocols. In my experience, ASCII-over-serial is the JSON of the scientific world in the sense that just about any piece of equipment you buy will have some sort of ASCII/serial support. For example, every single piece of equipment in my experiment uses ASCII-over-serial.</p>
@@ -64,8 +62,8 @@
 <p>It would be a real shame if you needed a real serial device to even try this out. Luckily, some smart people made a tool called <a href="http://www.dest-unreach.org/socat/"><code>socat</code></a> which lets you create virtual serial ports. Not only is this great for just tooling around, but it also means that you can test your serial-facing code in a CI environment as opposed to using a hardware loopback adapter or sticking a wire into the TX/RX pins of a serial cable (experimental physicists are half Einstein, half MacGyver).</p>
 <p>This is the command I'll use to create a pair of virtual serial ports:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#bf616a;">socat -d -d -v</span><span style="color:#c0c5ce;"> pty,rawer,echo=0,link=./reader pty,rawer,echo=0,link=./writer
-</span></pre>
+<code><span style="color:#bf616a;">socat -d -d -v</span><span style="color:#c0c5ce;"> pty,rawer,echo=0,link=./reader pty,rawer,echo=0,link=./writer
+</span></code></pre>
 <ul>
 <li><code>-d -d</code> specifies the logging level.</li>
 <li><code>-v</code> writes the data sent to each device to the terminal.</li>
@@ -78,15 +76,15 @@
 <h1 id="synchronous-serial-communication">Synchronous serial communication</h1>
 <p>If you're using a serial port right now in Python, you're probably using the <code>pyserial</code> library to do something like this:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">serial </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Serial
+<code><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">serial </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Serial
 
 ser = </span><span style="color:#bf616a;">Serial</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">/dev/ttysomething</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">baudrate</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">9600</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">timeout</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">0.5</span><span style="color:#c0c5ce;">)
 ser.</span><span style="color:#bf616a;">write</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">b</span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">foo</span><span style="color:#c0c5ce;">&#39;)
 ser.</span><span style="color:#bf616a;">read</span><span style="color:#c0c5ce;">(num_bytes)
-</span></pre>
+</span></code></pre>
 <p>You create a <code>Serial</code> object by telling it which device to connect to and how the connection should be configured. Once you have the <code>Serial</code> object you can send or receive bytes from the serial port via the <code>Serial.write</code> and <code>Serial.read</code> methods respectively. To create a class representing some equipment that uses this connection, you can just pass the <code>Serial</code> object into the constructor.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">serial </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Serial
+<code><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">serial </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Serial
 
 </span><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MeasurementDevice</span><span style="color:#eff1f5;">:
     </span><span style="color:#b48ead;">def </span><span style="color:#96b5b4;">__init__</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">ser</span><span style="color:#c0c5ce;">):
@@ -100,7 +98,7 @@ ser.</span><span style="color:#bf616a;">read</span><span style="color:#c0c5ce;">
 
 foo = </span><span style="color:#bf616a;">Serial</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">/dev/ttysomething/</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">baudrate</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">9600</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">timeout</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">0.5</span><span style="color:#c0c5ce;">)
 my_device = </span><span style="color:#bf616a;">MeasurementDevice</span><span style="color:#c0c5ce;">(foo)
-</span></pre>
+</span></code></pre>
 <p>You could of course just create the connection inside the constructor, but if your class takes the <code>Serial</code> object as an argument you can provide it objects configured in different ways in different situations i.e. configured to connect to <code>/dev/something</code> in production and configured to connect to <code>/foo/bar</code> in tests.</p>
 <h1 id="the-asynchronous-story">The asynchronous story</h1>
 <p><strong>Aside:</strong> I will not be covering the basics of <code>asyncio</code>, that is beyond the scope of this post.</p>
@@ -123,7 +121,7 @@ my_device = </span><span style="color:#bf616a;">MeasurementDevice</span><span st
 <h2 id="writer"><code>Writer</code></h2>
 <p>Here is the protocol subclass that will send the messages:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Writer</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">asyncio.Protocol</span><span style="color:#eff1f5;">):
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Writer</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">asyncio.Protocol</span><span style="color:#eff1f5;">):
     </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">connection_made</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">transport</span><span style="color:#c0c5ce;">):
         </span><span style="color:#65737e;">&quot;&quot;&quot;Store the serial transport and schedule the task to send data.
         &quot;&quot;&quot;
@@ -144,14 +142,14 @@ my_device = </span><span style="color:#bf616a;">MeasurementDevice</span><span st
             </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.transport.serial.</span><span style="color:#bf616a;">write</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">bytes</span><span style="color:#c0c5ce;">([b]))
             </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">f</span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">Writer sent: </span><span style="color:#c0c5ce;">{</span><span style="color:#bf616a;">bytes</span><span style="color:#c0c5ce;">([b])}&#39;)
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.transport.</span><span style="color:#bf616a;">close</span><span style="color:#c0c5ce;">()
-</span></pre>
+</span></code></pre>
 <p>The <code>connection_made</code> and <code>connection_lost</code> methods will each be called once per connection. If you need to do any setup or teardown, those methods are a good place to do it. The transport passed to <code>connection_made</code> will be a <code>SerialTransport</code>, and it will have a field <code>SerialTransport.serial</code> that is a <code>Serial</code> instance. We'll use this <code>Serial</code> instance to read and write data to the serial port.</p>
 <p>I've defined a coroutine function <code>send</code> that is responsible for sending messages a single character at a time with a delay of 0.5 seconds between characters. I've made <code>send</code> a coroutine function rather than a normal function because I want there to be a delay between characters, but calling <code>time.sleep(0.5)</code> would block the whole program, which kind of defeats the purpose when I'm trying to teach you about non-blocking I/O.</p>
 <p>When you want to close the connection you call the <code>Transport.close</code> method, which will trigger the <code>Protocol.connection_lost</code> callback. I've sprinkled in some <code>print</code> statements so that if you run this on your own you'll see the flow of execution and things being scheduled on the event loop.</p>
 <h2 id="reader"><code>Reader</code></h2>
 <p>Here is the protocol subclass that will receive messages:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Reader</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">asyncio.Protocol</span><span style="color:#eff1f5;">):
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Reader</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">asyncio.Protocol</span><span style="color:#eff1f5;">):
     </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">connection_made</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">transport</span><span style="color:#c0c5ce;">):
         </span><span style="color:#65737e;">&quot;&quot;&quot;Store the serial transport and prepare to receive data.
         &quot;&quot;&quot;
@@ -175,13 +173,13 @@ my_device = </span><span style="color:#bf616a;">MeasurementDevice</span><span st
 
     </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">connection_lost</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">exc</span><span style="color:#c0c5ce;">):
         </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Reader closed</span><span style="color:#c0c5ce;">&#39;)
-</span></pre>
+</span></code></pre>
 <p>This time in <code>connection_made</code> I create an emtpy <code>bytes</code> object that I will use to store the received characters. For the sake of brevity I also store a count of how many complete messages I've received, and I'll use this as my termination condition since I know exactly how many messages that <code>Writer</code> will send (I designed it after all).</p>
 <p>The interesting part of <code>Reader</code> is <code>data_received</code>. You aren't guaranteed whether you receive data byte-by-byte or in chunks, so doing the comparison <code>data == b'\n'</code> isn't guaranteed to work. Instead, I just add the new data to the buffer and then check whether there's a newline in there somewhere. If there is, I split the buffer on the newlines and increment the number of messages that have been received. I stop once I've read the number of messages that I know <code>Writer</code> will send.</p>
 <h2 id="the-rest">The rest</h2>
 <p>I've shown you the interesting bits, so here's the rest of the stuff that you need to run the program (I've put the whole program on GitHub <a href="https://github.com/zmitchell/async-serial/blob/master/async_serial_protocol.py">here</a>):</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
+<code><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
 </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">serial_asyncio
 
 </span><span style="color:#65737e;"># Reader, Writer
@@ -196,11 +194,11 @@ asyncio.</span><span style="color:#bf616a;">ensure_future</span><span style="col
 loop.</span><span style="color:#bf616a;">call_later</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">, loop.stop)
 loop.</span><span style="color:#bf616a;">run_forever</span><span style="color:#c0c5ce;">()
 </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Done</span><span style="color:#c0c5ce;">&#39;)
-</span></pre>
+</span></code></pre>
 <p>Here I'm importing the requisite modules and setting all of the async stuff into motion. The <code>create_serial_connection</code> function takes a protocol subclass along with any arguments you want to pass to the constructor of <code>Serial</code> i.e. <code>baudrate</code>. The value returned by <code>create_serial_connection</code> is a coroutine object that creates connections to that particular serial port. Finally, I schedule the execution of the <code>reader</code> and <code>writer</code> coroutine objects, and schedule the loop to stop 10 seconds later.</p>
 <p>If all goes well, you should see something like this in your terminal:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">Reader scheduled
+<code><span style="color:#c0c5ce;">Reader scheduled
 Writer scheduled
 Reader connection created
 Writer connection created
@@ -228,11 +226,11 @@ Writer closed
 Reader received: qux
 Reader closed
 Done
-</span></pre>
+</span></code></pre>
 <p>This is a pretty trivial example. Neither protocol needs to communicate with the outside world, so they basically just go off and do their own thing. Subclassing <code>Protocol</code> gives you lots of control over the behavior of the connection, but it's not immediately obvious how you get data <em>out</em> of your <code>Protocol</code>.</p>
 <p>One method is to override the default constructor as a way of storing some kind of connection to the outside world. In the constructor you'll take an argument that is a resource shared between your protocol subclass and the rest of your code. This resource could be an <code>asyncio.Queue</code>, for instance. Here's how that would look:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
+<code><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
 
 </span><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Reader</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">asyncio.Protocol</span><span style="color:#eff1f5;">):
     </span><span style="color:#65737e;">&quot;&quot;&quot;Receives newline-terminated messages and places them on a queue.
@@ -254,10 +252,10 @@ Done
             </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.buf = lines[-</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]  </span><span style="color:#65737e;"># whatever was left over
             </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">line </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">lines[:-</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]:
                 asyncio.</span><span style="color:#bf616a;">ensure_future</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.queue.</span><span style="color:#bf616a;">put</span><span style="color:#c0c5ce;">(line))
-</span></pre>
+</span></code></pre>
 <p>In the constructor I store the queue, and in <code>data_received</code> I place complete messages onto the queue as they arrive. The <code>create_serial_connection</code> function won't pass anything to the constructor of your protocol subclass, so you'll need to somehow store the queue before handing the subclass to <code>create_serial_connection</code>. This is exactly the kind of problem that <code>functools.partial</code> was meant to solve. The <code>partial</code> function lets you specify some of the arguments to a function right now, and get back a function that takes the remaining arguments. In our case we're specifying the arguments to the constructor of <code>Reader</code>, and getting back something that will create <code>Reader</code> instances without needing any arguments.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
+<code><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
 </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">serial_asyncio
 </span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">functools </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">partial
 
@@ -269,19 +267,19 @@ loop = asyncio.</span><span style="color:#bf616a;">get_event_loop</span><span st
 reader = serial_asyncio.</span><span style="color:#bf616a;">create_serial_connection</span><span style="color:#c0c5ce;">(loop, reader_with_queue, &quot;</span><span style="color:#a3be8c;">port_name</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#bf616a;">baudrate</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">115200</span><span style="color:#c0c5ce;">)
 
 </span><span style="color:#65737e;"># ...
-</span></pre>
+</span></code></pre>
 <p>I've modified the <code>Reader</code>/<code>Writer</code> example to use a queue as described above and put it <a href="https://github.com/zmitchell/async-serial/blob/master/async_serial_protocol_queue.py">here</a>. This obviously works, but it feels like a lot of work to do something relatively simple. Isn't there an easier way?</p>
 <h1 id="streams">Streams</h1>
 <p>I'm glad you asked! As mentioned above, subclassing <code>asyncio.Protocol</code> has its drawbacks. A simpler solution is to use the <code>serial_asyncio.open_serial_connection</code> function (note the difference in names: <code>create_serial_connection</code> vs. <code>open_serial_connection</code>) to generate an <code>asyncio.StreamReader</code>/<code>asyncio.StreamWriter</code> pair.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">reader, writer = </span><span style="color:#b48ead;">await </span><span style="color:#c0c5ce;">serial_asyncio.</span><span style="color:#bf616a;">open_serial_connection</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">url</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">&lt;your_device&gt;</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">baudrate</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">115200</span><span style="color:#c0c5ce;">)
-</span></pre>
+<code><span style="color:#c0c5ce;">reader, writer = </span><span style="color:#b48ead;">await </span><span style="color:#c0c5ce;">serial_asyncio.</span><span style="color:#bf616a;">open_serial_connection</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">url</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">&lt;your_device&gt;</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">baudrate</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">115200</span><span style="color:#c0c5ce;">)
+</span></code></pre>
 <p>There's no need to subclass anything, you just call a function. The <code>url='&lt;your_device&gt;'</code> bit is a little odd (what do URLs have to do with anything?)<sup class="footnote-reference"><a href="#1">1</a></sup>, but <code>&lt;your_device&gt;</code> is just the name of the serial device i.e. <code>/dev/ttysomething</code>.</p>
 <p>Using these two objects could not be easier. If you want to read from your serial device, you call one of the <code>read</code> coroutine methods on your <code>StreamReader</code> (<code>read</code>, <code>readexactly</code>, <code>readuntil</code>, or <code>readline</code>). If you want to write to your serial device, you call the <code>write</code> method on your <code>StreamWriter</code>. Let's see an example.</p>
 <h2 id="streams-and-queues">Streams and Queues</h2>
 <p>Let's say that I have two devices, <code>reader</code> and <code>writer</code>, and one of them will send messages to the other. Here's the entire program:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
+<code><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">asyncio
 </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">serial_asyncio
 
 
@@ -317,7 +315,7 @@ reader = serial_asyncio.</span><span style="color:#bf616a;">create_serial_connec
 loop = asyncio.</span><span style="color:#bf616a;">get_event_loop</span><span style="color:#c0c5ce;">()
 loop.</span><span style="color:#bf616a;">run_until_complete</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">main</span><span style="color:#c0c5ce;">(loop))
 loop.</span><span style="color:#bf616a;">close</span><span style="color:#c0c5ce;">()
-</span></pre>
+</span></code></pre>
 <p>In <code>main</code> I create my <code>reader</code> and <code>writer</code> objects, define the messages that will be sent, then create two coroutine objects for actually doing the reading/writing. At the end of <code>main</code> I say to wait for the reading and writing to finish before calling it quits.</p>
 <p>I defined two coroutine functions <code>send</code> and <code>recv</code>, and each one does what it says on the tin. The <code>send</code> coroutine function takes a <code>StreamWriter</code> and a list of messages, then sends one message every 0.5 seconds. The <code>recv</code> coroutine function takes a <code>StreamReader</code> and tries to read until a newline character is encountered. If the message is <code>DONE</code>, then we pack up and go home, otherwise we print the message.</p>
 <p>This is about as close as it gets to having a magically async-aware <code>Serial</code> class. In fact, if you wanted to make an async-aware <code>Serial</code> class, you could do it just by wrapping the various <code>read</code> and <code>write</code> methods of your stream reader/writer.</p>
@@ -329,8 +327,40 @@ loop.</span><span style="color:#bf616a;">close</span><span style="color:#c0c5ce;
 
 </article>
 
-        </main>
 
-    </body>
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
 
+    </main>
+    
+    
+  </body>
 </html>
+

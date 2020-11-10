@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Interacting with Assembly in Rust &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="shortcut icon"  href="https://tinkering.xyz/favicon.ico" />
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:38rem;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 38rem){.homepage-list li a{width:100%}}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="Interacting with Assembly in Rust">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/interacting-with-assembly-in-rust/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2020-08-31T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/property-based-testing-with-proptest/" />
+      
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>Interacting with Assembly in Rust</h1>
+
+  
+    <p style="font-size:90%;">Posted on <time datetime="2020-08-31T00:00:00+00:00">August 31, 2020</time></p>
+  
+
+  <p>Note: I originally wrote this article for LogRocket. You can find the original <a href="https://blog.logrocket.com/interacting-with-assembly-in-rust/">here</a>.</p>
+<p>For many Rust developers the process of producing a binary from their Rust code is a straightforward process which doesn’t require much thought. However, modern compilers are complicated programs in and of themselves, and may yield binaries that perform very differently in response to a minor change in the source code. In diagnosing performance issues like this, inspecting the output of the compiler can be helpful. The Rust compiler is able to emit various types of output, one of which is assembly. Rust also has facilities for embedding assembly. In this article you’ll learn about tools provided by the language and the community for extracting and embedding assembly.</p>
+<h2 id="viewing-assembly">Viewing assembly</h2>
+<p>To view the assembly output of various tools we’ll use the following example program:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">const </span><span style="color:#d08770;">NAMES</span><span style="color:#c0c5ce;">: [&amp;</span><span style="color:#b48ead;">&#39;static str</span><span style="color:#c0c5ce;">; </span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">] = [
+    &quot;</span><span style="color:#a3be8c;">Kaladin</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Teft</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Drehy</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Skar</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Rock</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Sigzil</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Moash</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Leyten</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Lopen</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Hobber</span><span style="color:#c0c5ce;">&quot;,
+];
+
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
+    </span><span style="color:#96b5b4;">roll_call</span><span style="color:#c0c5ce;">();
+}
+
+</span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">roll_call</span><span style="color:#c0c5ce;">() {
+    println!(&quot;</span><span style="color:#a3be8c;">SOUND OFF</span><span style="color:#c0c5ce;">&quot;);
+    </span><span style="color:#b48ead;">for</span><span style="color:#c0c5ce;"> name in </span><span style="color:#d08770;">NAMES</span><span style="color:#c0c5ce;">.</span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">() {
+        println!(&quot;</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">: HERE!</span><span style="color:#c0c5ce;">&quot;, name);
+    }
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> num_present = </span><span style="color:#d08770;">NAMES</span><span style="color:#c0c5ce;">.</span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">();
+    println!(&quot;</span><span style="color:#a3be8c;">All </span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> accounted for!</span><span style="color:#c0c5ce;">&quot;, num_present);
+}
+</span></code></pre><h3 id="rustc">rustc</h3>
+<p>The quickest and easiest way to generate assembly is with the compiler itself. This method doesn’t require installing any additional tools, but the output can be difficult to navigate. <code>rustc</code> can emit assembly with the <code>--emit asm</code>  option (documentation). To format the output with Intel syntax (instead of the default AT&amp;T syntax) you can also pass the <code>-C llvm-args=-x86-asm-syntax=intel</code> option to <code>rustc</code>. However, it’s more common to interact with <code>cargo</code> than with <code>rustc</code> directly. You can pass this option to <code>rustc</code> in one of two ways:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ cargo rustc -- --emit asm -C llvm-args=-x86-asm-syntax=intel
+$ RUSTFLAGS=&quot;--emit asm -C llvm-args=-x86-asm-syntax=intel&quot; cargo build
+</span></code></pre>
+<p>The assembly will be placed in <code>target/debug/deps/&lt;crate name&gt;-&lt;hash&gt;.s</code> (if compiled in release mode it will be under <code>target/release</code>). The assembly file contains all the assembly for the crate and can be hard to navigate.</p>
+<h3 id="godbolt-compiler-explorer">Godbolt Compiler Explorer</h3>
+<p>A simple way to examine short snippets of code is to run it through the Godbolt Compiler Explorer. This tool is a web application, and as such doesn’t require installation of any additional tools. Code entered in the left pane is compiled to assembly and displayed in the right pane. The code entered in the left pane acts like it’s inside of the <code>main</code> function, so you don’t need to enter your own <code>main</code> function. </p>
+<p>Sections of the code in the left pane are color coded so that the assembly in the right pane can be easily identified. For example, entering the <code>roll_call</code> function and <code>NAMES</code> array into the left pane displays the following view of the <code>roll_call</code> function.</p>
+<p><img src="/images/roll-call.png" alt="" /></p>
+<p>We can identify the assembly corresponding to the <code>println!(&quot;SOUND OFF&quot;)</code> macro by right-clicking that line and selecting “Reveal linked code” or by searching for the assembly that’s highlighted in the same color.</p>
+<p><img src="/imags/roll-call-asm.png" alt="" /></p>
+<h3 id="cargo-asm">cargo-asm</h3>
+<p><code>cargo-asm</code> is a Cargo subcommand (found here) that displays the assembly for a single function at a time. The beauty of this tool is its ability to resolve symbol names and display the source code interleaved with the corresponding assembly. Note, however, that <code>cargo-asm</code> appears to only work with library crates. Put the <code>NAMES</code> array and <code>roll_call</code> function into a library crate called <code>asm_rust_lib</code> then call <code>cargo-asm</code> as follows (note: the <code>--rust</code> option interleaves the source code as this is not the default).</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ cargo asm --rust asm_rust_lib::roll_call
+</span></code></pre>
+<p>The first few lines of the output should look appear as follows.</p>
+<p><img src="/images/roll-call-rustc-asm.png" alt="" /></p>
+<p>Rust developers learning assembly may find the ability to compare unfamiliar assembly to the corresponding (familiar) Rust code particularly useful.</p>
+<h2 id="including-assembly">Including assembly</h2>
+<p>We could always compile assembly into an object file and link that into our binary, but that adds more complexity than we’d like, especially if we only need to include a few lines of assembly. Luckily Rust provides some facilities to make this process easy, especially in simple cases.</p>
+<h3 id="llvm-asm">llvm_asm!</h3>
+<p>Until recently the official method for including inline assembly into Rust code was the <code>asm!</code> macro, and required Rust nightly. This macro was essentially a wrapper around LLVM’s inline assembler directives. This macro has been renamed to <code>llvm_asm!</code> while a new <code>asm!</code> macro is worked on in Rust nightly, but a nightly compiler is still required to use <code>llvm_asm!</code>.</p>
+<p>The syntax for the macro is as follows:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">llvm_asm!(assembly template
+   : output operands
+   : input operands
+   : clobbers
+   : options
+   );
+</span></code></pre>
+<p>The “assembly template” section is a template string that contains the assembly. The input and output operands handle how values should cross the Rust/assembly boundary. The “clobbers” section lists which registers the assembly may modify to indicate that the compiler shouldn’t rely on values in those registers remaining constant. The “options” section, as you can imagine, contains options, notably the option to use Intel syntax. Each section of the macro requires a specific syntax, so it’s highly recommended to read the documentation for more information.</p>
+<p>Note that using the <code>llvm_asm!</code> macro requires an <code>unsafe</code> block since assembly bypasses all of the safety checks normally provided by the compiler.</p>
+<h3 id="asm">asm!</h3>
+<p>The new <code>asm!</code> macro provides a nicer syntax for using inline assembly than the <code>llvm_asm!</code> macro. An understanding of LLVM inline assembler directives is no longer necessary, and the documentation is extensive compared to that of <code>llvm_asm!</code>. The new syntax is closer to the normal format string syntax used with the <code>println!</code> and <code>format!</code> macros while still allowing the Rust/assembly boundary to be crossed with precision. Consider the small program shown below.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> x: </span><span style="color:#b48ead;">u64 </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">;
+</span><span style="color:#b48ead;">unsafe </span><span style="color:#c0c5ce;">{
+    asm!(&quot;</span><span style="color:#a3be8c;">add {0}, {number}</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#96b5b4;">inout</span><span style="color:#c0c5ce;">(reg) x, number = </span><span style="color:#b48ead;">const </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">);
+}
+</span></code></pre>
+<p>The <code>inout(reg) x</code> statement indicates that the compiler should find a suitable general purpose register, prepare that register with the current value of <code>x</code>, store the output of the <code>add</code> instruction in the same general purpose register, then store the value of that general purpose register in <code>x</code>. The syntax is nice and compact given the complexity of crossing the Rust/assembly boundary.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Assembly is a language that many developers don’t use on a daily basis, but it can still be fun and educational to see how code manipulates the CPU directly. A debugger wasn’t mentioned above, but modern debuggers (GDB, LLDB) also allow you to disassemble code and step through it instruction by instruction. Armed with the tools above and a debugger, you should be able to explore the assembly that your code is translated into in a multitude of ways.</p>
+
+</article>
+
+
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
+
+    </main>
+    
+    
+  </body>
+</html>
+

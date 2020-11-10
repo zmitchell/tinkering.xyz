@@ -1,58 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta http-equiv="content-type" content="text/html; charset=utf-8">
-
-      <!-- Enable responsiveness on mobile devices-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-
-      <title>Tinkering</title>
-
-      <!-- CSS -->
-      <link rel="stylesheet" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;hyde.css">
-
-      
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;rss.xml">
-      
-
-      
-      
-    </head>
-
-    <body class="theme-base-0d ">
-        
-            <div class="sidebar">
-                <div class="container ">
-                    <div class="sidebar-about">
-                        
-                            <a href="https:&#x2f;&#x2f;tinkering.xyz"><h1>Tinkering</h1></a>
-                            
-                            <p class="lead">Come for the Foo, stay for the Bar</p>
-                            
-                        
-                    </div>
-
-                    <ul class="sidebar-nav">
-                        
-                        
-                        <li><a href="&#x2f;">Home</a></li>
-                        
-                        <li><a href="https:&#x2f;&#x2f;github.com&#x2f;zmitchell">GitHub</a></li>
-                        
-                        <li><a href="&#x2f;about&#x2f;">About</a></li>
-                        
-                        
-                    </ul>
-                </div>
-            </div>
-        
-
-        <main class="content container">
-            
-<article class="post">
-  <h1 class="post-title">Polsim - a case study for small-scale scientific computing in Rust</h1>
   
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Polsim - a case study for small-scale scientific computing in Rust &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="shortcut icon"  href="https://tinkering.xyz/favicon.ico" />
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:38rem;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 38rem){.homepage-list li a{width:100%}}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="Polsim - a case study for small-scale scientific computing in Rust">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/polsim/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2019-06-06T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/abusing-type-annotations/" />
+      <link rel="next" href="https://tinkering.xyz/dicer-roller-service/" />
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>Polsim - a case study for small-scale scientific computing in Rust</h1>
+
+  
+    <p style="font-size:90%;">Posted on <time datetime="2019-06-06T00:00:00+00:00">June 06, 2019</time></p>
+  
+
   <!-- Math rendering -->
 <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
 <script type="text/x-mathjax-config">
@@ -105,7 +103,7 @@ $$</p>
 <p>Getting back to the code, I needed to translate the physics of the problem into Rust. To do this I made a crate called <code>polarization</code> which does the actual simulation work. <code>polsim</code> allows users to define simulations in a declarative fashion, does validation on those simulation definitions, then hands things off to <code>polarization</code> to do the simulation. </p>
 <p>There were two distinct &quot;entities&quot; that I wanted to model, beams and optical elements, so I described each one with its own trait. In Jones calculus the polarization of a beam is represented by a two-element vector. We refer to this type of vector as a &quot;Jones vector&quot;. Some examples of things I expect to be able to do with a beam are get its intensity (brightness), pull out the x/y-component, get the underlying vector so I can multiply it with a matrix, and a variety of other things. I came to the following (truncated) definition:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">pub trait </span><span style="color:#c0c5ce;">JonesVector {
+<code><span style="color:#b48ead;">pub trait </span><span style="color:#c0c5ce;">JonesVector {
     </span><span style="color:#65737e;">// Intensity of the beam
     </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">intensity</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">) -&gt; Result&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;;
 
@@ -120,18 +118,18 @@ $$</p>
 
     ...
 }
-</span></pre>
+</span></code></pre>
 <p>I implement this trait for a type called <code>Beam</code>:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#65737e;">// Basically a container for the Vector2&lt;T&gt;
+<code><span style="color:#65737e;">// Basically a container for the Vector2&lt;T&gt;
 </span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">Beam {
     </span><span style="color:#bf616a;">vec</span><span style="color:#c0c5ce;">: Vector2&lt;Complex&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;&gt;,
 }
-</span></pre>
+</span></code></pre>
 <p>The crate isn't actually generic over the <code>JonesVector</code> trait (you'll see functions take and return <code>Beam</code> explicitly), but the plan is to rectify that at some point.</p>
 <p>For optical elements I again define a trait to encode the behavior that all optical elements should have. This trait is smaller because most of the behavior will be element-specific.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">pub trait </span><span style="color:#c0c5ce;">JonesMatrix {
+<code><span style="color:#b48ead;">pub trait </span><span style="color:#c0c5ce;">JonesMatrix {
     </span><span style="color:#65737e;">// Rotate the element by the given angle
     </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">rotated</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">: Angle) -&gt; </span><span style="color:#b48ead;">Self</span><span style="color:#c0c5ce;">;
 
@@ -150,11 +148,11 @@ $$</p>
 </span><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">JonesMatrix </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">Polarizer {
     ...
 }
-</span></pre>
+</span></code></pre>
 <p>In order to perform this simulation you need exactly one beam and at least one element for the beam to propagate through. You can represent a vacuum (which won't change the polarization of the beam) with an identity matrix, so you really have no excuse for doing a simulation without at least one optical element. Another point to consider is that the order in which the beam encounters the optical elements determines the order in which the matrices should be multiplied together<sup class="footnote-reference"><a href="#6">5</a></sup>. I'm not just going to let you multiply matrices together willy-nilly, sorry. </p>
 <p>I define a type called <code>OpticalSystem</code> so that there is an adult in the room. You add a beam and some elements to the system, call <code>OpticalSystem::propagate()</code>, and the system will return a <code>Result&lt;Beam, JonesError&gt;</code>. When you put it all together, a very simple simulation looks like this:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> initial_beam = Beam::linear(Angle::Degrees(</span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">));
+<code><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> initial_beam = Beam::linear(Angle::Degrees(</span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">));
 </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> pol = Polarizer::new(Angle::Degrees(</span><span style="color:#d08770;">45.0</span><span style="color:#c0c5ce;">));
 </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> qwp = QuarterWavePlate::new(Angle::Degrees(</span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">));
 </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> system = OpticalSystem::new()
@@ -162,19 +160,19 @@ $$</p>
     .</span><span style="color:#96b5b4;">add_element</span><span style="color:#c0c5ce;">(pol)
     .</span><span style="color:#96b5b4;">add_element</span><span style="color:#c0c5ce;">(qwp);
 </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> final_beam = system.</span><span style="color:#96b5b4;">propagate</span><span style="color:#c0c5ce;">().</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">();
-</span></pre><h1 id="debugging">Debugging</h1>
+</span></code></pre><h1 id="debugging">Debugging</h1>
 <p>The first thing I struggled with was using a debugger. This was my first time using a debugger, so I was already in uncharted territory. At the time I was working on this I was using neovim and a terminal as my &quot;IDE&quot;, but since then I've moved to CLion and I can say that its debugger is relatively pleasant to use.</p>
 <p>Let's start with some minor things, like how values are printed in the debugger. I'll first set a breakpoint inside of a closure:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">(lldb) br set -f system.rs -l 348
+<code><span style="color:#c0c5ce;">(lldb) br set -f system.rs -l 348
 Breakpoint 1: where = polarization-b20b1f754e235950`polarization
 ::jones::system::OpticalSystem::composed_elements
 ::_$u7b$$u7b$closure$u7d$$u7d$
 ::h19d2e65336af7615 + 577 at system.rs:348:30, address = 0x00000001001e8c11
-</span></pre>
+</span></code></pre>
 <p>Most of this looks fine except for the <code>_$u7b$$u7b$closure$u7d$$u7d$</code> piece. I think this is supposed to read <code>{{closure}}</code>, but this isn't a big deal because you can still basically read what it says. Now let's let the program run until we hit that breakpoint.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">(lldb) r
+<code><span style="color:#c0c5ce;">(lldb) r
 ...
 Process 33329 stopped
 * thread #2, name = &#39;jones::system::test::test_beam_passes_through&#39;, stop reason = breakpoint 1.1
@@ -183,11 +181,11 @@ Process 33329 stopped
     acc=Matrix&lt;num_complex::Complex&lt;f64&gt;, nalgebra::base::dimension::U2, nalgebra::base::dimension::U2,
     nalgebra::base::matrix_array::MatrixArray&lt;num_complex::Complex&lt;f64&gt;, nalgebra::base::dimension::U2,
     nalgebra::base::dimension::U2&gt;&gt; @ 0x000070000ef73030, elem=0x0000000100c16aa0) at system.rs:348:30
-</span></pre>
+</span></code></pre>
 <p>There's quite a bit more output now. If you wade through the sea of colons<sup class="footnote-reference"><a href="#5">6</a></sup>, you can see the the entire second half of this output is just defining the type of a matrix named <code>acc</code> (this is inside of a <code>fold</code>, and <code>acc</code> is the accumulator). The point here is that the actual types of matrices in <code>nalgebra</code> can be very verbose. There is a language feature on the horizon called const-generics that should eventually alleviate some of the pain here.</p>
 <p>Getting back to debugging, lets try to find the values inside this matrix <code>acc</code>. You can list the variables in this stack frame with the command <code>fr v</code>. There are three variables in this stack frame, but I'll only show one because there's a lot to wade through.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">(nalgebra::base::matrix::Matrix&lt;num_complex::Complex&lt;double&gt;, nalgebra::base::dimension::U2,
+<code><span style="color:#c0c5ce;">(nalgebra::base::matrix::Matrix&lt;num_complex::Complex&lt;double&gt;, nalgebra::base::dimension::U2,
 nalgebra::base::dimension::U2, nalgebra::base::matrix_array::MatrixArray&lt;num_complex::Complex&lt;double&gt;,
 nalgebra::base::dimension::U2, nalgebra::base::dimension::U2&gt; &gt;) acc = {
   data = {
@@ -233,10 +231,10 @@ nalgebra::base::dimension::U2, nalgebra::base::dimension::U2&gt; &gt;) acc = {
   }
   _phantoms = {}
 }
-</span></pre>
+</span></code></pre>
 <p>Again, you can see that there's quite a lot of information here, but there's really only four relevant lines:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">...
+<code><span style="color:#c0c5ce;">...
 data = (re = 1, im = 0)
 ...
 data = (re = 0, im = 0)
@@ -245,7 +243,7 @@ data = (re = 0, im = 0)
 ...
 data = (re = 1, im = 0)
 ...
-</span></pre>
+</span></code></pre>
 <p>I know from experience which element of the matrix (row/column) each of these values is supposed to appear in, but there's no other indicator which <code>data</code> belongs to which row/column. I know I'm really harping on this debugging thing, but debugging is a crucial part of the developer experience. That's not to say that effort hasn't been put towards this, just that there's still plenty of work to be done.</p>
 <h1 id="testing">Testing</h1>
 <p>This is science, so you should be able to rely on the correctness of the results. It's generally a good practice to test your code, but that goes doubly so for a scientific tool. In order to really cover my bases I'm using property based testing (PBT).</p>
@@ -264,7 +262,7 @@ data = (re = 1, im = 0)
 <p>There are strategies for many primitive and built-in types like <code>f64</code>, <code>Vec&lt;T&gt;</code>, etc. You can also create your own strategies or compose strategies together. Those two features allow you to generate instances of complicated types such as <code>OpticalSystem</code>.</p>
 <p>You tell <code>proptest</code> how to randomly generate an instance of your type by implementing the <code>Arbitrary</code> trait. Here's what that looks like for my <code>Angle</code> type:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">pub enum </span><span style="color:#c0c5ce;">Angle {
+<code><span style="color:#b48ead;">pub enum </span><span style="color:#c0c5ce;">Angle {
     Degrees(</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">),
     Radians(</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">),
 }
@@ -281,17 +279,17 @@ data = (re = 1, im = 0)
         .</span><span style="color:#96b5b4;">boxed</span><span style="color:#c0c5ce;">()
     }
 }
-</span></pre>
+</span></code></pre>
 <p>Most of this is boilerplate so here's the important bit:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">prop_oneof![
+<code><span style="color:#c0c5ce;">prop_oneof![
     (any::&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| Angle::Degrees(x)),
     (any::&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;()).</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">| Angle::Radians(x)),
 ]
-</span></pre>
+</span></code></pre>
 <p>The <code>prop_oneof!</code> macro instructs <code>proptest</code> to randomly select one strategy from a list of strategies, and is useful for generating the different variants of an enum. The <code>any::&lt;T&gt;()</code> function produces a strategy that generates instances of the type <code>T</code>. Both lines in the macro are generating <code>f64</code>s and mapping them into the variants of the <code>Angle</code> enum. So, if I were to call <code>any::&lt;Angle&gt;()</code> I would get a strategy that produces a random stream of <code>Angle::Degrees(some f64)</code> and <code>Angle::Radians(some f64)</code>. In fact, I do exactly that to generate <code>Beam</code>s:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">Arbitrary </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">Beam {
+<code><span style="color:#b48ead;">impl </span><span style="color:#c0c5ce;">Arbitrary </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">Beam {
     </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Parameters = PolarizationKind;
     </span><span style="color:#b48ead;">type </span><span style="color:#c0c5ce;">Strategy = BoxedStrategy&lt;Beam&gt;;
 
@@ -306,10 +304,10 @@ data = (re = 1, im = 0)
 </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">any_linear_beam</span><span style="color:#c0c5ce;">() -&gt; impl Strategy&lt;Value = Beam&gt; {
     any::&lt;Angle&gt;().</span><span style="color:#96b5b4;">prop_map</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">| Beam::linear(angle))
 }
-</span></pre><h1 id="polsim">polsim</h1>
+</span></code></pre><h1 id="polsim">polsim</h1>
 <p>With all of that out of the way, we can finally talk about <code>polsim</code> itself. Simulations are defined in a TOML file using a syntax I've laid out in the documentation. Here's what it looks like:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">[beam]
+<code><span style="color:#c0c5ce;">[beam]
 </span><span style="color:#bf616a;">polarization </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">linear</span><span style="color:#c0c5ce;">&quot;
 </span><span style="color:#bf616a;">angle </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">90
 </span><span style="color:#bf616a;">angle_units </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">degrees</span><span style="color:#c0c5ce;">&quot;
@@ -323,11 +321,11 @@ data = (re = 1, im = 0)
 </span><span style="color:#bf616a;">element_type </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">qwp</span><span style="color:#c0c5ce;">&quot;
 </span><span style="color:#bf616a;">angle </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">0
 </span><span style="color:#bf616a;">angle_units </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">degrees</span><span style="color:#c0c5ce;">&quot;
-</span></pre>
+</span></code></pre>
 <p>It might look odd to have to define the angle units everywhere, but that's done on purpose. It can be more convenient to use degrees in one place or radians in another, and I'm planning on incorporating other angles types in the future (wavelengths and fractions of <code>pi</code>). On top of that, you definitely don't want your simulation results to be wrong because you meant radians where <code>polsim</code> thought you meant degrees.</p>
 <p>I use <code>serde</code> to deserialize this TOML file into a struct so that I can do some validation. The structs that this gets deserialized into are a bit ugly because I have to account for all possible beam and element definitions. For example, the <code>polarization</code> field in the beam definition determines which other fields are required in the beam definition. Here's the struct that a beam gets deserialized into:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, Deserialize, Serialize)]
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, Deserialize, Serialize)]
 </span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">BeamDef {
     </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">polarization</span><span style="color:#c0c5ce;">: PolType,
     </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">: Option&lt;</span><span style="color:#b48ead;">f64</span><span style="color:#c0c5ce;">&gt;,
@@ -339,10 +337,10 @@ data = (re = 1, im = 0)
     </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">phase_units</span><span style="color:#c0c5ce;">: Option&lt;AngleType&gt;,
     </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">handedness</span><span style="color:#c0c5ce;">: Option&lt;HandednessType&gt;,
 }
-</span></pre>
+</span></code></pre>
 <p>The next step is to validate the beam definition:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">validate_element</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">elem</span><span style="color:#c0c5ce;">: &amp;ElemDef) -&gt; Result&lt;OpticalElement&gt; {
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">validate_element</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">elem</span><span style="color:#c0c5ce;">: &amp;ElemDef) -&gt; Result&lt;OpticalElement&gt; {
     </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> elem.element_type {
         ElemType::Polarizer =&gt; {
             </span><span style="color:#96b5b4;">validate_polarizer</span><span style="color:#c0c5ce;">(elem).</span><span style="color:#96b5b4;">chain_err</span><span style="color:#c0c5ce;">(|| &quot;</span><span style="color:#a3be8c;">invalid polarizer definition</span><span style="color:#c0c5ce;">&quot;)
@@ -355,35 +353,35 @@ data = (re = 1, im = 0)
         }
     }
 }
-</span></pre>
+</span></code></pre>
 <p>You'll note that I'm using <code>error-chain</code> here for my error handling. I've never been very clear on what the in-vogue method of error handling is in the Rust ecosystem, but <code>error-chain</code> makes it very easy to spell out exactly where a user went wrong in their simulation definition:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">$ polsim has_error.toml
+<code><span style="color:#c0c5ce;">$ polsim has_error.toml
 error: invalid system definition
 caused by: invalid element definition
 caused by: invalid polarizer definition
 caused by: invalid angle definition
 caused by: missing parameter in definition: &#39;angle_units&#39;
-</span></pre>
+</span></code></pre>
 <p>If a user defines a simulation with more than one instance of a given optical element, <code>polsim</code> won't point out which one has the error, so there's some work to do there.</p>
 <p>Another area that needs work is the output because it's currently very basic:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">$ polsim examples/circular_polarizer.toml
+<code><span style="color:#c0c5ce;">$ polsim examples/circular_polarizer.toml
 intensity: 5.00000e-1
 x_mag: 5.00000e-1
 x_phase: 0.00000e0
 y_mag: 5.00000e-1
 y_phase: 1.57080e0
-</span></pre>
+</span></code></pre>
 <p>or</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">$ polsim --table examples/circular_polarizer.toml
+<code><span style="color:#c0c5ce;">$ polsim --table examples/circular_polarizer.toml
 +------------+------------+-----------+------------+-----------+
 | intensity  | x_mag      | x_phase   | y_mag      | y_phase   |
 +------------+------------+-----------+------------+-----------+
 | 5.00000e-1 | 5.00000e-1 | 0.00000e0 | 5.00000e-1 | 1.57080e0 |
 +------------+------------+-----------+------------+-----------+
-</span></pre>
+</span></code></pre>
 <p>The goal is to have the initial and final polarization plotted with <code>gnuplot</code>, and some preliminary work on that front suggests that it shouldn't be very difficult.</p>
 <h1 id="future-work">Future work</h1>
 <p>There's a wealth of improvements that could be made to this project, so I'll just drop a list of them right here.</p>
@@ -422,8 +420,40 @@ y_phase: 1.57080e0
 
 </article>
 
-        </main>
 
-    </body>
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
 
+    </main>
+    
+    
+  </body>
 </html>
+

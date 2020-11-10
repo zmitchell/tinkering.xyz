@@ -1,58 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta http-equiv="content-type" content="text/html; charset=utf-8">
-
-      <!-- Enable responsiveness on mobile devices-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-
-      <title>Tinkering</title>
-
-      <!-- CSS -->
-      <link rel="stylesheet" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;hyde.css">
-
-      
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2f;&#x2f;tinkering.xyz&#x2f;rss.xml">
-      
-
-      
-      
-    </head>
-
-    <body class="theme-base-0d ">
-        
-            <div class="sidebar">
-                <div class="container ">
-                    <div class="sidebar-about">
-                        
-                            <a href="https:&#x2f;&#x2f;tinkering.xyz"><h1>Tinkering</h1></a>
-                            
-                            <p class="lead">Come for the Foo, stay for the Bar</p>
-                            
-                        
-                    </div>
-
-                    <ul class="sidebar-nav">
-                        
-                        
-                        <li><a href="&#x2f;">Home</a></li>
-                        
-                        <li><a href="https:&#x2f;&#x2f;github.com&#x2f;zmitchell">GitHub</a></li>
-                        
-                        <li><a href="&#x2f;about&#x2f;">About</a></li>
-                        
-                        
-                    </ul>
-                </div>
-            </div>
-        
-
-        <main class="content container">
-            
-<article class="post">
-  <h1 class="post-title">Bringing macros to Python by abusing type annotations</h1>
   
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Bringing macros to Python by abusing type annotations &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="shortcut icon"  href="https://tinkering.xyz/favicon.ico" />
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:38rem;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 38rem){.homepage-list li a{width:100%}}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="Bringing macros to Python by abusing type annotations">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/abusing-type-annotations/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2018-08-04T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/async-serial/" />
+      <link rel="next" href="https://tinkering.xyz/polsim/" />
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>Bringing macros to Python by abusing type annotations</h1>
+
+  
+    <p style="font-size:90%;">Posted on <time datetime="2018-08-04T00:00:00+00:00">August 04, 2018</time></p>
+  
+
   <h1 id="introduction">Introduction</h1>
 <p>The desire to bring macros to Python came from my experience with Rust's procedural macros, so we're going to talk about Rust for a second. If you'd like to skip ahead to the Python stuff, <a href="#skip">click here</a>. Rust is becoming more and more popular by the day for reasons that you've probably heard about:</p>
 <ul>
@@ -64,37 +62,37 @@
 <p>There are two types of macros in Rust: declarative and procedural. The real heavy hitters are the procedural macros. The compiler takes your program, parses it into a data structure called an abstract syntax tree (AST), then hands it to a procedural macro. The macro can then do whatever it wants to the AST as long as it hands a valid AST back to the compiler in the end. These are great for code generation. Let's see an example.</p>
 <p>Let's say I want to parse some command line arguments into this struct:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">Opt {
+<code><span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">Opt {
     </span><span style="color:#bf616a;">debug</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;">,
     </span><span style="color:#bf616a;">verbose</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">u8</span><span style="color:#c0c5ce;">,
     </span><span style="color:#bf616a;">output</span><span style="color:#c0c5ce;">: PathBuf,
 }
-</span></pre>
+</span></code></pre>
 <p>There's <s>an app</s> a crate for that: <code>structopt</code>. All we have to do is sprinkle some <code>#[...]</code> things (attributes) into our struct definition. I'm not teaching you Rust right now, so don't worry about the details.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(StructOpt, Debug)]
+<code><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(StructOpt, Debug)]
 #[</span><span style="color:#bf616a;">structopt</span><span style="color:#c0c5ce;">(name = &quot;</span><span style="color:#a3be8c;">basic</span><span style="color:#c0c5ce;">&quot;)]
 </span><span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">Opt {
     </span><span style="color:#65737e;">// Enable debug mode
-</span><span style="color:#c0c5ce;">    #[structopt(short = &quot;d&quot;, long = &quot;debug&quot;)]
+    </span><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">structopt</span><span style="color:#c0c5ce;">(short = &quot;</span><span style="color:#a3be8c;">d</span><span style="color:#c0c5ce;">&quot;, long = &quot;</span><span style="color:#a3be8c;">debug</span><span style="color:#c0c5ce;">&quot;)]
     </span><span style="color:#bf616a;">debug</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;">,
 
     </span><span style="color:#65737e;">// Set verbosity
-</span><span style="color:#c0c5ce;">    #[structopt(short = &quot;v&quot;, long = &quot;verbose&quot;, parse(from_occurrences))]
+    </span><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">structopt</span><span style="color:#c0c5ce;">(short = &quot;</span><span style="color:#a3be8c;">v</span><span style="color:#c0c5ce;">&quot;, long = &quot;</span><span style="color:#a3be8c;">verbose</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#bf616a;">parse</span><span style="color:#c0c5ce;">(from_occurrences))]
     </span><span style="color:#bf616a;">verbose</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">u8</span><span style="color:#c0c5ce;">,
 
     </span><span style="color:#65737e;">// Output file
-</span><span style="color:#c0c5ce;">    #[structopt(short = &quot;o&quot;, long = &quot;output&quot;, parse(from_os_str))]
+    </span><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">structopt</span><span style="color:#c0c5ce;">(short = &quot;</span><span style="color:#a3be8c;">o</span><span style="color:#c0c5ce;">&quot;, long = &quot;</span><span style="color:#a3be8c;">output</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#bf616a;">parse</span><span style="color:#c0c5ce;">(from_os_str))]
     </span><span style="color:#bf616a;">output</span><span style="color:#c0c5ce;">: PathBuf,
 }
-</span></pre>
+</span></code></pre>
 <p>The compiler will see the macro and generate all of the code needed to parse command line arguments into the struct <code>Opt</code>.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
+<code><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
     </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> opt = Opt::from_args();  </span><span style="color:#65737e;">// thank you structopt!
     </span><span style="color:#c0c5ce;">println!(&quot;</span><span style="color:#d08770;">{:?}</span><span style="color:#c0c5ce;">&quot;, opt);
 }
-</span></pre>
+</span></code></pre>
 <p>That's pretty handy, right? All you had to do was define which arguments you were expecting, and the macro took care of the rest!</p>
 <p>You can also do less useful things, like blow up your editor with error messages from The Wickerman.</p>
 <p><img src="/images/not-the-bees-editor.jpg" alt="error message saying &quot;not the bees&quot; pointing to a struct field named &quot;bees&quot;" /></p>
@@ -117,14 +115,14 @@
 <h1 id="research">Research</h1>
 <p>I set out to determine if it was even possible to do what I wanted to do. I knew that I could apply a decorator to a class, so that part was covered. The part that would be trickier is attaching information to individual class or instance attributes. Eventually something jumped out at me. Take a look:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
     </span><span style="color:#c0c5ce;">foo: int  </span><span style="color:#65737e;"># &lt;-- information attached to &quot;foo&quot;!
-</span></pre>
+</span></code></pre>
 <p>A type annotation looks like what I want to do, but what if I want to put something other than <code>int</code>, <code>str</code>, <code>List[int]</code>, etc in the annotation? I looked around and remembered that in some cases you put a string where you would normally put the annotation, like so:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
     </span><span style="color:#c0c5ce;">foo: &quot;</span><span style="color:#a3be8c;">MyClass</span><span style="color:#c0c5ce;">&quot;
-</span></pre>
+</span></code></pre>
 <p>This allows you to use types that haven't been defined yet as an annotation, like when you're defining a recursive data structure. So the type annotation doesn't have to be an actual class, it can also be a string. Well, what can go in this string? Anything, apparently!</p>
 <p>If you read PEP 484 (relevent section <a href="https://www.python.org/dev/peps/pep-0484/#acceptable-type-hints">here</a>) you'll see that the type annotation can actually be any valid Python expression. The implications of that didn't really sink in at first, so we'll come back to it later.</p>
 <p>At this point I realized that I could stick arbitrary information in a string and attach it to a variable. Sure, this wouldn't play well with type checkers, or really any sane use case for type annotations, but no one <em>really</em> uses type annotations, right? All the cool kids are doing it, no one will get hurt. Don't be such a square!</p>
@@ -132,50 +130,50 @@
 <p><img src="/images/cpython-pr.png" alt="a pull request changing a single letter in some documentation" /></p>
 <p>I'm still waiting for my core developer invitation. Anyway, I learned that annotations are stored in the <code>__annotations__</code> attribute. The <code>__annotations__</code> attribute is a dictionary where the keys are the attribute names, and the values are the annotations. Consider the following class:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
     </span><span style="color:#c0c5ce;">foo: int
     bar: &quot;</span><span style="color:#a3be8c;">anything</span><span style="color:#c0c5ce;">&quot;
-</span></pre>
+</span></code></pre>
 <p>The contents of <code>__annotations__</code> would look like this:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt;&gt;&gt; MyClass.__annotations__
+<code><span style="color:#c0c5ce;">&gt;&gt;&gt; MyClass.__annotations__
 {
     &#39;foo&#39;: &lt;class &#39;int&#39;&gt;,
     &#39;bar&#39;: &#39;anything&#39;,
 }
-</span></pre>
+</span></code></pre>
 <p>Now I know I can store information in type annotations, and I know how to retrieve that information. All that's left is messing with abstract syntax trees.</p>
 <h1 id="abstract-syntax-trees">Abstract syntax trees</h1>
 <p>Parsing code into an abstract syntax tree is something that Python does when it compiles your source code into bytecode. In fact, the <code>ast</code> module contains all of the data structures, or &quot;nodes&quot;, that your Python code can be parsed into. The <a href="https://docs.python.org/3/library/ast.html">module documentation</a> doesn't do a great job of making it clear which nodes exist or what their attributes are. Instead, I recommend <a href="https://greentreesnakes.readthedocs.io/en/latest/">this page</a> if you want to see what's at your disposal. For those of you that have never seen or heard of an abstract syntax tree, I'll show you the basics by building up the AST of a small code snippet.</p>
 <p>Let's start with a really basic code snippet: <code>10</code>. This is just the number 10. Exciting. To represent this you create an instance of <code>ast.Num</code>:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">num = ast.</span><span style="color:#bf616a;">Num</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">n</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">)
-</span></pre>
+<code><span style="color:#c0c5ce;">num = ast.</span><span style="color:#bf616a;">Num</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">n</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">)
+</span></code></pre>
 <p>What about <code>-10</code>? That's more complicated because <code>-</code> is an operator, so <code>-10</code> is <strong>not</strong> just <code>ast.Num(n=-10)</code>. Instead, it's this:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">num = ast.</span><span style="color:#bf616a;">UnaryOp</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">op</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">USub</span><span style="color:#c0c5ce;">(), </span><span style="color:#bf616a;">operand</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">Num</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">n</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">))
-</span></pre>
+<code><span style="color:#c0c5ce;">num = ast.</span><span style="color:#bf616a;">UnaryOp</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">op</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">USub</span><span style="color:#c0c5ce;">(), </span><span style="color:#bf616a;">operand</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">Num</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">n</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">))
+</span></code></pre>
 <p>What if I want to assign <code>-10</code> to a variable <code>x</code>? That's an assignment, so we'll need an <code>ast.Assign</code> node, but how do you handle <code>x</code>? Any time you reference a variable, you need an <code>ast.Name</code> node. Each <code>Name</code> has an <code>id</code>, which is the name of the variable, and a context, <code>ctx</code>, which indicates whether you're getting (<code>ast.Load()</code>) or setting (<code>ast.Store()</code>) the value of the variable. Putting all of that together, the assignment looks like this:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#65737e;"># x = -10
+<code><span style="color:#65737e;"># x = -10
 </span><span style="color:#c0c5ce;">num_node = ast.</span><span style="color:#bf616a;">UnaryOp</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">op</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">USub</span><span style="color:#c0c5ce;">(), </span><span style="color:#bf616a;">operand</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">Num</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">n</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">))
 x_node = ast.</span><span style="color:#bf616a;">Name</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">id</span><span style="color:#c0c5ce;">=&quot;</span><span style="color:#a3be8c;">x</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#bf616a;">ctx</span><span style="color:#c0c5ce;">=ast.</span><span style="color:#bf616a;">Store</span><span style="color:#c0c5ce;">())
 assign_node = ast.</span><span style="color:#bf616a;">Assign</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">targets</span><span style="color:#c0c5ce;">=[x_node], </span><span style="color:#bf616a;">value</span><span style="color:#c0c5ce;">=num_node)
-</span></pre>
+</span></code></pre>
 <p>That's really all there is to it, so hopefully you get the idea. Building up anything more complicated than that is just a matter of putting the right nodes together. If you want to play around with this, you can also do the reverse:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt;&gt;&gt; ast.parse(&quot;x = -10&quot;)
+<code><span style="color:#c0c5ce;">&gt;&gt;&gt; ast.parse(&quot;x = -10&quot;)
 &lt;_ast.Module object at 0x10f5f3208&gt;
-</span></pre>
+</span></code></pre>
 <p>Note that any time you use <code>ast.parse</code>, the result will be a module. The <code>Assign</code> node will be in the <code>body</code> of the <code>Module</code>.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt;&gt;&gt; module = ast.parse(&quot;x = -10&quot;)
+<code><span style="color:#c0c5ce;">&gt;&gt;&gt; module = ast.parse(&quot;x = -10&quot;)
 &gt;&gt;&gt; module.body[0]
 &lt;_ast.Assign object at 0x101ad4d68&gt;
-</span></pre>
+</span></code></pre>
 <p>As you can see, the string representation isn't super helpful. Some libraries that provide useful tools for dealing with ASTs in Python (and printing them in more useful ways) are <a href="https://github.com/berkerpeksag/astor">astor</a> and <a href="https://github.com/asottile/astpretty">astpretty</a>. Here's the same thing using <code>astpretty</code>:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt;&gt;&gt; import ast
+<code><span style="color:#c0c5ce;">&gt;&gt;&gt; import ast
 &gt;&gt;&gt; from astpretty import pprint
 &gt;&gt;&gt; pprint(ast.parse(&quot;x = -10&quot;))
 Module(
@@ -193,18 +191,18 @@ Module(
 		),
 	],
 )
-</span></pre>
+</span></code></pre>
 <p>Now that I have all of the pieces in place (decorators, type annotations, and ASTs), I can show you what you can do with all of this!</p>
 <h1 id="example-1-inrange">Example 1 - <code>@inrange</code></h1>
 <p>For my first trick, I've created a decorator, <code>@inrange</code>. If you place the annotation <code>&quot;0 &lt; foo &lt; 3&quot;</code> on a class variable named <code>foo</code>, the decorator will generate a class with a property named <code>foo</code> that only accepts values in the range (0, 3) exclusive. Consider the following class definition:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">@</span><span style="color:#bf616a;">inrange
+<code><span style="color:#c0c5ce;">@</span><span style="color:#bf616a;">inrange
 </span><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
     </span><span style="color:#c0c5ce;">var: &quot;</span><span style="color:#a3be8c;">0 &lt; var &lt; 10</span><span style="color:#c0c5ce;">&quot;
-</span></pre>
+</span></code></pre>
 <p>The decorator will generate a class equivalent to this:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
     </span><span style="color:#c0c5ce;">var: &quot;</span><span style="color:#a3be8c;">0 &lt; var &lt; 10</span><span style="color:#c0c5ce;">&quot;
 
     </span><span style="color:#b48ead;">def </span><span style="color:#96b5b4;">__init__</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">):
@@ -220,10 +218,10 @@ Module(
             </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">._var = new_value
         </span><span style="color:#b48ead;">else</span><span style="color:#c0c5ce;">:
             </span><span style="color:#b48ead;">raise </span><span style="color:#c0c5ce;">ValueError
-</span></pre>
+</span></code></pre>
 <p>Here's what it looks like in action:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt;&gt;&gt; @inrange
+<code><span style="color:#c0c5ce;">&gt;&gt;&gt; @inrange
 ... class MyClass:
 ...     foo: &quot;0 &lt; foo &lt; 5&quot;
 ...
@@ -237,7 +235,7 @@ Traceback (most recent call last):
   File &quot;/Users/zmitchell/Projects/annotation-abuse/annotation_abuse/asts.py&quot;, line 1, in foo_setter
     import ast
 ValueError: value outside of range 0 &lt; foo &lt; 5
-</span></pre>
+</span></code></pre>
 <p>There are some weird things here. Note that the line above the <code>ValueError</code> says <code>import ast</code>, even though I didn't import the <code>ast</code> module in the shell. I use the <code>ast</code> module to generate code, but I don't really know what that's about. The error message also says that the error occurs in <code>foo_setter</code>, even though you don't have a function called <code>foo_setter</code>. This is a result of the way that I make the properties. For a variable named <code>foo</code> I create the functions <code>foo_getter</code> and <code>foo_setter</code>, create a property with <code>property(foo_getter, foo_setter)</code>, then bind that to the attribute <code>foo</code>.</p>
 <p>Here are the broad strokes of how this works, assuming you have a class named <code>MyClass</code> and you've annotated a class variable named <code>var</code>:</p>
 <ul>
@@ -253,7 +251,7 @@ ValueError: value outside of range 0 &lt; foo &lt; 5
 </ul>
 <p>Each class variable with an annotation is represented by a <code>MacroItem</code>:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MacroItem</span><span style="color:#eff1f5;">:
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MacroItem</span><span style="color:#eff1f5;">:
     </span><span style="color:#b48ead;">def </span><span style="color:#96b5b4;">__init__</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">var_name</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">annotation</span><span style="color:#c0c5ce;">):
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.var = var_name
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.annotation = annotation
@@ -262,10 +260,10 @@ ValueError: value outside of range 0 &lt; foo &lt; 5
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.getter = </span><span style="color:#d08770;">None
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.setter = </span><span style="color:#d08770;">None
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.init_stmt = </span><span style="color:#d08770;">None
-</span></pre>
+</span></code></pre>
 <p>These <code>MacroItem</code>s get passed to the functions that extract information from the annotation, generate ASTs, etc. For example, here is the function that generates a getter from a <code>MacroItem</code>:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">getter</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">item</span><span style="color:#c0c5ce;">):
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">getter</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">item</span><span style="color:#c0c5ce;">):
     func_name = </span><span style="color:#b48ead;">f</span><span style="color:#c0c5ce;">&quot;{item.var}</span><span style="color:#a3be8c;">_getter</span><span style="color:#c0c5ce;">&quot;
     self_arg = </span><span style="color:#bf616a;">arg</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">arg</span><span style="color:#c0c5ce;">=&quot;</span><span style="color:#a3be8c;">self</span><span style="color:#c0c5ce;">&quot;, </span><span style="color:#bf616a;">annotation</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
     func_args = </span><span style="color:#bf616a;">arguments</span><span style="color:#c0c5ce;">(
@@ -289,31 +287,31 @@ ValueError: value outside of range 0 &lt; foo &lt; 5
     )
     mod_node = </span><span style="color:#bf616a;">Module</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">body</span><span style="color:#c0c5ce;">=[func_node])
     </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">_ast_to_func</span><span style="color:#c0c5ce;">(mod_node, func_name)
-</span></pre>
+</span></code></pre>
 <p>Note that you can't compile a <code>FunctionDef</code> node by itself, you have to wrap it in a <code>Module</code> node first. Here is the magic that compiles an AST into a function.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">ast_to_func</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">node</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">name</span><span style="color:#c0c5ce;">):
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">ast_to_func</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">node</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">name</span><span style="color:#c0c5ce;">):
     ast.</span><span style="color:#bf616a;">fix_missing_locations</span><span style="color:#c0c5ce;">(node)
     code = </span><span style="color:#96b5b4;">compile</span><span style="color:#c0c5ce;">(node, __file__, &quot;</span><span style="color:#a3be8c;">exec</span><span style="color:#c0c5ce;">&quot;)
     context = {}
     </span><span style="color:#96b5b4;">exec</span><span style="color:#c0c5ce;">(code, </span><span style="color:#96b5b4;">globals</span><span style="color:#c0c5ce;">(), context)
     </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">context[name]
-</span></pre>
+</span></code></pre>
 <p>This definitively shows that you can make Rust-like macros in Python. That's not to say that it's easy or recommended though. Constructing an AST is definitely (the AST for <code>-10</code> is ~4x as many characters as <code>10</code>), so it can be tedious. It was a fun exercise, but I'll show you a better way to make code-generating macros.</p>
 <h1 id="example-2-notify">Example 2 - <code>@notify</code></h1>
 <p>For my next trick, I've made a decorator <code>@notify</code> that will print a message to the terminal when you try to assign a new value to a class or instance variable marked with a specific annotation.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">@</span><span style="color:#bf616a;">notify
+<code><span style="color:#c0c5ce;">@</span><span style="color:#bf616a;">notify
 </span><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">MyClass</span><span style="color:#eff1f5;">:
     </span><span style="color:#c0c5ce;">var: &quot;</span><span style="color:#a3be8c;">this one</span><span style="color:#c0c5ce;">&quot; = </span><span style="color:#d08770;">5
 
     </span><span style="color:#b48ead;">def </span><span style="color:#96b5b4;">__init__</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">):
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.x = x
         </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.y: &quot;</span><span style="color:#a3be8c;">this one</span><span style="color:#c0c5ce;">&quot; = </span><span style="color:#d08770;">0
-</span></pre>
+</span></code></pre>
 <p>If you try typing that into the Python shell, it will crash. If you're working in the shell and you decorate a class with <code>@notify</code> that has an <code>__init__</code> method, it will crash. I have no idea what that's about. If you want to try this in the shell, put the annotation on a class variable. You can put whatever you want into a file though, and it will work just fine. Let's see what happens when you try to assign to a variable you've marked.</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">annotation_abuse.notify </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">notify
+<code><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">annotation_abuse.notify </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">notify
 
 
 @</span><span style="color:#bf616a;">notify
@@ -326,10 +324,10 @@ ValueError: value outside of range 0 &lt; foo &lt; 5
 </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
     foo = </span><span style="color:#bf616a;">MyClass</span><span style="color:#c0c5ce;">()
     foo.y = </span><span style="color:#d08770;">1
-</span></pre>
+</span></code></pre>
 <p>Run this, and you'll see a familiar face:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">   _________________________________________________
+<code><span style="color:#c0c5ce;">   _________________________________________________
   /                                                 \
   | It looks like you&#39;re trying to update MyClass.y |
   |                 from &quot;0&quot; to &quot;1&quot;.                |
@@ -348,10 +346,10 @@ ValueError: value outside of range 0 &lt; foo &lt; 5
        \___/
 
 Let Clippy update the value? (y/n):
-</span></pre>
+</span></code></pre>
 <p>If you say yes:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">Let Clippy update the value? (y/n): y
+<code><span style="color:#c0c5ce;">Let Clippy update the value? (y/n): y
    _____________
   /             \
   | No problem! |
@@ -367,10 +365,10 @@ Let Clippy update the value? (y/n):
        || ||
        |\_/|
        \___/
-</span></pre>
+</span></code></pre>
 <p>If you say no:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">Let Clippy update the value? (y/n): n
+<code><span style="color:#c0c5ce;">Let Clippy update the value? (y/n): n
    ______
   /      \
   | FINE |
@@ -387,13 +385,13 @@ Let Clippy update the value? (y/n):
        |\_/|
        \___/
 
-</span></pre>
+</span></code></pre>
 <p>This example was easier in some ways, but harder in others. I'm not constructing ASTs, so the code is much less verbose. On the other hand, I'm overriding <code>MyClass.__setattr__</code> in order to intercept writes to the marked variables. Boy oh boy was that a can of worms.</p>
 <p>Annotations on class variables can be pulled from <code>MyClass.__annotations__</code> (like the previous example), but annotations that appear inside <code>__init__</code> don't show up there. To find those annotations, I parse <code>__init__</code> into an AST (look, I'm sorry, I couldn't help myself), then traverse the tree looking for things that have the annotation <code>&quot;this one&quot;</code>.</p>
 <p>Once I've built a list of attributes to watch, I need to intercept writes to those attributes. I knew I could intercept writes to certain attributes by replacing them with properties, but I wondered if there was a different way to do it (just for kicks). I went back to the documentation for the <a href="https://docs.python.org/3/reference/datamodel.html">data model</a> and read up on <code>__setattr__</code>. The <code>__setattr__</code> method gets called when you try to set the value of an attribute, so overriding <code>__setattr__</code> will let me intercept writes to the attributes I care about.</p>
 <p>I generate a new <code>__setattr__</code> as a closure, as you can see below:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">make_setattr</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">cls</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">var_names</span><span style="color:#c0c5ce;">):
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">make_setattr</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">cls</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">var_names</span><span style="color:#c0c5ce;">):
 
     </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">new_setattr</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">attr_name</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">new_value</span><span style="color:#c0c5ce;">):
         </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">attr_name not in var_names:
@@ -415,10 +413,10 @@ Let Clippy update the value? (y/n):
             </span><span style="color:#bf616a;">angry_message</span><span style="color:#c0c5ce;">()
 
 </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">new_setattr
-</span></pre>
+</span></code></pre>
 <p>I model the user's response with an enum, storing the acceptable responses in the value of each enum variant to make it easier to validate the response. The <code>Response.INVALID</code> case is handled in the <code>prompt_user</code> function. Rust taught me how powerful enums can be, so now I want to use them everywhere!</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Response</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">Enum</span><span style="color:#eff1f5;">):
+<code><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">Response</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">Enum</span><span style="color:#eff1f5;">):
     </span><span style="color:#bf616a;">YES </span><span style="color:#c0c5ce;">= [&quot;</span><span style="color:#a3be8c;">y</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Y</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">yes</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">Yes</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">YES</span><span style="color:#c0c5ce;">&quot;]
     </span><span style="color:#bf616a;">NO </span><span style="color:#c0c5ce;">= [&quot;</span><span style="color:#a3be8c;">n</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">N</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">no</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">No</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">NO</span><span style="color:#c0c5ce;">&quot;]
     </span><span style="color:#bf616a;">INVALID </span><span style="color:#c0c5ce;">= &quot;&quot;
@@ -432,37 +430,69 @@ Let Clippy update the value? (y/n):
         </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">Response.</span><span style="color:#bf616a;">NO
     </span><span style="color:#b48ead;">else</span><span style="color:#c0c5ce;">:
         </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">Response.</span><span style="color:#bf616a;">INVALID
-</span></pre>
+</span></code></pre>
 <p>One thing I found confusing during this process is that lots of documentation surrounding <code>__setattr__</code> says that you should call the super class's <code>__setattr__</code> when you're overriding <code>__setattr__</code>, and most documentation just cites <code>object.__setattr__(self, name, value)</code>. I found the documentation around this to be sparse, at best, and I only accidentally stumbled onto a solution. Here's what happened.</p>
 <p>My working solution uses <code>setattr</code>, so let's replace <code>setattr(self, attr_name, new_value)</code> with <code>object.__setattr__(self, attr_name, new_value)</code>:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">TypeError: can&#39;t apply this __setattr__ to type object
-</span></pre>
+<code><span style="color:#c0c5ce;">TypeError: can&#39;t apply this __setattr__ to type object
+</span></code></pre>
 <p>Huh? I searched the internet for what this error message meant, and my understanding is that it's related to setting new attributes on built-in types. So, that tells me that I was accidentally trying to set a new attribute on <code>object</code>. Using <code>super(cls, self).__setattr__</code> gives you the same error.</p>
 <p>Let's try <code>super().__setattr__(self, attr_name, new_value)</code> and see if it just sorts itself out:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">RuntimeError: super(): __class__ cell not found
-</span></pre>
+<code><span style="color:#c0c5ce;">RuntimeError: super(): __class__ cell not found
+</span></code></pre>
 <p>Ok, this one actually makes sense (<a href="https://docs.python.org/3/reference/datamodel.html#creating-the-class-object">see here</a>). In short, I'm calling <code>super()</code> in a function that's not bound to a class when it's defined, so it doesn't know what class it belongs to. I think.</p>
 <p>Eventually I just tried <code>setattr</code> and it worked. I was pressed for time preparing this for a lightning talk, so I didn't have time to really dig into the issue. If someone knows what's going on, let me know!</p>
 <h1 id="taking-it-to-the-next-level">Taking it to the next level</h1>
 <p>I presented the two examples above in a lightning talk at PyOhio 2018. The reception was good, and I ended up talking to Dan Lindeman and Jace Browning in an open space about alternative uses for type annotations. As we were talking, we came to a realization.</p>
 <p>Remember earlier when I said that a type annotation can be any valid Python expression? Well, lots of things are valid Python expressions. Say, for instance, a <code>lambda</code>. Take a look:</p>
 <pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt;&gt;&gt; class MyClass:
+<code><span style="color:#c0c5ce;">&gt;&gt;&gt; class MyClass:
 ...     foo: lambda x: 0 &lt; x &lt; 5
 ...
 
 &gt;&gt;&gt; MyClass.__annotations__[&quot;foo&quot;](3)
 True
-</span></pre>
+</span></code></pre>
 <p>If you're not amazed that this is possible, check your pulse. This is saying that you can attach entire functions to an attribute, not just a string or a type! It's like every variable carries around a little suitcase that can hold (almost) anything you want!</p>
 <p>I think I'm done with this particular project for now, but I'm sure there's all kinds of <s>terrible</s> wonderful things you can do with this. If you have any ideas, I'd love to hear them! The code for all of this can be found on my GitHub at <a href="https://github.com/zmitchell/annotation-abuse">zmitchell/annotation-abuse</a>.</p>
 
 </article>
 
-        </main>
 
-    </body>
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
 
+    </main>
+    
+    
+  </body>
 </html>
+
