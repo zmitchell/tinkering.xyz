@@ -1,11 +1,9 @@
 +++
 title = "Bringing macros to Python by abusing type annotations"
 date = 2018-08-04
-draft = true
-description = "This post documents a journey that starts with the following question: Is it possible to bring Rust-like macros to Python? I have some realizations about Python's type annotations, then I descend into madness."
-
+draft = false
 [extra]
-show_date = false
+show_date = true
 +++
 
 # Introduction

@@ -1,11 +1,9 @@
 +++
 title = "Using Python's asyncio with serial devices"
-date = 2018-03-15T13:59:36-05:00
-draft = true
-description = "Serial I/O is a prime candidate for the non-blocking I/O treatment. Learn to use pyserial-asyncio with serial devices in your industrial, IoT, or scientific programs."
-
+date = 2018-03-15
+draft = false
 [extra]
-show_date = false
+show_date = true
 +++
 
 I'm an experimental physicist, so part of my job entails writing software that orchestrates equipment in my experiment. Most of the code that runs my experiment is written in a proprietary scripting language that I guarantee none of you have ever heard of. The old code is brittle, difficult to debug, and generally makes it too much of a pain to add features unless absolutely necessary. Lately I've been thinking about how I would do a modernized rewrite in Python.

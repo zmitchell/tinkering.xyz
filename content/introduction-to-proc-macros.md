@@ -1,12 +1,9 @@
 +++
 title = "Introduction to Procedural Macros in Rust"
-date = 2018-02-03T19:36:37-05:00
+date = 2018-02-03
 draft = false
-categories = []
-description = "...in which I teach you how to fill your editor with bees"
-
 [extra]
-show_date = false
+show_date = true
 +++
 
 As a newcomer to Rust, I heard the phrase "procedural macro" thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I'm working on the guts of [`relm`][relm], and a large chunk of it is procedural macros. I've learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.
