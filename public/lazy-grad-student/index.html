@@ -71,6 +71,7 @@ NOTIFIERS_TWILIO_FROM=&quot;my_twilio_number&quot;
 twilio.</span><span style="color:#bf616a;">notify</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">message</span><span style="color:#c0c5ce;">=&quot;</span><span style="color:#a3be8c;">Experiment complete</span><span style="color:#c0c5ce;">&quot;)
 </span></code></pre>
 <p>Now I can run experiments without having to monitor them and it took a whopping 3 lines of code (<code>import notifiers</code> is the third one). That's pretty awesome if you ask me. I could see myself adding period status updates, but I'm not sure how much I want to spam my phone. In the end I'm pretty happy with both <code>notifiers</code> and Twilio, and I'll probably find an excuse to use them in the future.</p>
+<p>You may be wondering why I'm using the entire <code>notifiers</code> package if I'm only using the Twilio provider. The answer is that there's not really a good reason, but the ability to scale from text messages with Twilio to entire email reports based on experiment results is an interesting possibility.</p>
 
 </article>
 

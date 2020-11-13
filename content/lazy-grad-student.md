@@ -35,6 +35,8 @@ twilio.notify(message="Experiment complete")
 
 Now I can run experiments without having to monitor them and it took a whopping 3 lines of code (`import notifiers` is the third one). That's pretty awesome if you ask me. I could see myself adding period status updates, but I'm not sure how much I want to spam my phone. In the end I'm pretty happy with both `notifiers` and Twilio, and I'll probably find an excuse to use them in the future.
 
+You may be wondering why I'm using the entire `notifiers` package if I'm only using the Twilio provider. The answer is that there's not really a good reason, but the ability to scale from text messages with Twilio to entire email reports based on experiment results is an interesting possibility.
+
 [click]: https://click.palletsprojects.com/en/7.x/
 [progressbar]: https://click.palletsprojects.com/en/7.x/utils/#showing-progress-bars
 [notifiers]: https://github.com/liiight/notifiers
