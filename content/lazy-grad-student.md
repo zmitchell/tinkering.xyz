@@ -10,7 +10,7 @@ In keeping with the title, this will be a short post.
 
 The experiments that I do take roughly 2 hours each. The program that runs the experiments is written in Python and uses the [click][click] module for the command line interface. `click` provides an easy to use [progress bar][progressbar], so I have some visual indicator of how the experiment is progressing and some estimate of when it will complete.
 
-If I know roughly how long the experiment is going to take, that means I can walk away while the experiment runs, right? Well, no. My samples degrade with increased laser exposure, so I'd like to minimize the time spent blasting my sample while not collectind data. However, I don't really want to sit in front of the computer the whole time or get up to check on the experiment every 5 minutes. What is a lazy grad student to do?
+If I know roughly how long the experiment is going to take, that means I can walk away while the experiment runs, right? Well, no. My samples degrade with increased laser exposure, so I'd like to minimize the time spent blasting my sample while not collecting data. However, I don't really want to sit in front of the computer the whole time or get up to check on the experiment every 5 minutes. What is a lazy grad student to do?
 
 Enter the [notifiers][notifiers] module.
 
