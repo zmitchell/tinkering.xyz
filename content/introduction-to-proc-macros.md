@@ -151,14 +151,14 @@ Let's talk about how and where you define procedural macros.
 Procedural macros must be defined in their own crates. It's customary to name a crate containing a custom derive macro with the `<crate>-derive` pattern, where `<crate>` is the name of the main crate i.e. `serde` and `serde-derive`.
 
 The `Cargo.toml` of your procedural macro crate must be defined as a crate of type `proc-macro`:
-```text
+```
 # in Cargo.toml
 [lib]
 proc-macro = true
 ```
 
 Procedural macros are still an unstable feature, so you must also put the following line at the root of your procedural macro crate and the crate using the procedural macro:
-```text
+```
 #![feature(proc_macro)]
 ```
 

@@ -191,7 +191,7 @@ Here I'm importing the requisite modules and setting all of the async stuff into
 
 If all goes well, you should see something like this in your terminal:
 
-```text
+```
 Reader scheduled
 Writer scheduled
 Reader connection created
