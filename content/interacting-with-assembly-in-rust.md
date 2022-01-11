@@ -52,7 +52,7 @@ Sections of the code in the left pane are color coded so that the assembly in th
 
 We can identify the assembly corresponding to the `println!("SOUND OFF")` macro by right-clicking that line and selecting “Reveal linked code” or by searching for the assembly that’s highlighted in the same color.
 
-![](/imags/roll-call-asm.png)
+![](/images/roll-call-asm.png)
 
 ### cargo-asm
 `cargo-asm` is a Cargo subcommand (found here) that displays the assembly for a single function at a time. The beauty of this tool is its ability to resolve symbol names and display the source code interleaved with the corresponding assembly. Note, however, that `cargo-asm` appears to only work with library crates. Put the `NAMES` array and `roll_call` function into a library crate called `asm_rust_lib` then call `cargo-asm` as follows (note: the `--rust` option interleaves the source code as this is not the default).
