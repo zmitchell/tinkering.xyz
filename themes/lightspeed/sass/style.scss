@@ -48,9 +48,13 @@ img {
 		width: 100%;
 	}
 }
-p > code {
-	padding: .15em .25em;
+// All code snippets
+code {
 	font-size: 90%;
+}
+// Inline code snippets
+p > code, li > code {
+	padding: .15em .25em;
 	color: #bf616a;
 	background-color: #e8e8e8;
 	border-radius: 3px;
