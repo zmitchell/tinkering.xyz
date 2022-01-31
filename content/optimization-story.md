@@ -7,25 +7,21 @@ toc = false
 show_date = true
 +++
 
-Buckle up, this is a long one.
-
-As part of my research I've been doing some modeling of absorption spectra from first principles i.e. start with the precise location of all the atoms in a protein and predict how much light it will absorb at any given wavelength. Luckily, the vast majority of this work is done by collaborators running simulations on supercomputers. That process goes like this:
+As part of my research I've been modeling absorption spectra from first principles i.e. computing how much light a protein absorbs at a given wavelength based on the locations and charges of all the atoms in the protein. Luckily, the vast majority of this work is done by collaborators running simulations on supercomputers. That process goes like this:
 - Grab the structure of the protein (the precise location of all of the atoms in the protein) from the [Protein Database](https://www.rcsb.org). People spend entire careers trying to obtain these structures. I'm studying the [Fenna-Matthews-Olson (FMO) complex](https://en.wikipedia.org/wiki/Fenna–Matthews–Olson_complex).
 - Put the protein in a box and fill the remaining space with water molecules.
-- Calculate the forces between the atoms to predict where they'll move. Apply some clever optimizations so that the simulation completes before the heat death of the universe. More careers are spent speeding up these calculations or making them more precise.
+- Calculate the forces between the atoms to predict where they'll move in the next time step. Apply some clever optimizations so that the simulation completes before the heat death of the universe.
 - The protein structure you grabbed from the database may not be the exact structure as you'd find in nature, so let the protein jiggle around like this for a while until the atoms in the protein find equilibrium positions to jiggle around.
 - Save snapshots of the protein structure during this equilibrium-jiggling for post-processing.
 
-Part of this post-processing is distilling the positions, charges, etc of all of these atoms (roughly 7000 in the case of FMO) into a few pieces of information about the parts of the protein that we care about. Many PhDs happen in this space.
+There's a variety of information you can extract from these snapshots, but the parts that are important to me are:
+- A [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics)), which is a matrix representing a quantum-mechanical description of the system and the interactions between parts of the system
+- [Transition dipole moments](https://en.wikipedia.org/wiki/Transition_dipole_moment) of certain molecules
+- Positions of certain molecules
 
-For instance, there are 8 bacteriochlorophyll molecules in FMO and they have some interesting spectroscopic properties. The relevant pieces of information to me are:
-- A [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics)), which is a matrix (8x8 in this case) representing a quantum-mechanical description of each molecule and its interactions with the other 7 molecules.
-- The [transition dipole moment](https://en.wikipedia.org/wiki/Transition_dipole_moment) of each molecule.
-- The position of each molecule.
+From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). We don't need to get into what CD is right now, just know that it's another spectrum I calculate. Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are.
 
-From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). We don't need to get into what CD is right now, just know that it's another spectrum I calculate. Once I have these spectra I compare them against experimentally measured spectra to see how our understanding is matching up against reality.
-
-As is common in physics, part of this research entails figuring out how many details we can ignore and still get an answer that looks mostly correct. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time.
+As is common in physics, part of this research entails figuring out how many details we can ignore and still get an answer that looks mostly correct. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. Woof.
 
 This brings us to my current task. I know that the simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.
 
@@ -33,33 +29,35 @@ Here's the problem, though, sometimes this fit takes 8 hours to complete. The go
 
 ## Problem description
 First let's describe the shape of my data. A complete configuration consists of:
-- a Hamiltonian (8x8 array)
-- the transition dipole moments (8x3 array, one row per molecule, one column each for x-, y-, and z-coordinates)
-- the positions (same layout as the dipole moments).
+- A Hamiltonian (8x8 array)
+- The transition dipole moments (8x3 array, one row per molecule, one column each for x-, y-, and z-coordinates)
+- The positions (same layout as the dipole moments).
 
 The number of configurations used to compute the spectrum can vary. Empirically determined configurations have been published and consist of a single configuration each. The simulations our collaborators are doing produce a single configuration per snapshot, and in this case I've been supplied with 100 snapshots.
 
-In order to calculate the absorption spectrum I first need to compute the [eigenvalues and eigenvectors](https://simple.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) of the Hamiltonian (this is also called [diagonalization](https://en.wikipedia.org/wiki/Diagonalizable_matrix#Diagonalization) of the Hamiltonian). Then I use those eigenvectors to compute *new* transition dipole moments that are weighted sums of the original dipole moments (the eigenvectors are essentially 1D arrays containing the weights). These are called "excitonic" transition dipole moments. From these excitonic transition dipole moments I calculate the "stick spectrum" for absorption and CD. We call this a stick spectrum because it just tells you the location and magnitude (and sign, in the case of CD) of each peak in the spectrum rather than the smooth continuous curve you would normally associate with a spectrum. From this stick spectrum we compute a "broadened" spectrum by placing a Gaussian (smooth bell curve) on top of each stick in the stick spectrum. If I have a single configuration, I'm done. If I have multiple configurations, I do this for each one and average them together.
+In order to calculate the absorption spectrum I first need to compute the [eigenvalues and eigenvectors](https://simple.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) of the Hamiltonian (this is also called [diagonalization](https://en.wikipedia.org/wiki/Diagonalizable_matrix#Diagonalization) of the Hamiltonian).
 
-Once I have spectra I compute the differences between the computed and measured spectra and try to minimize this error. The parameters being fit are the small tweaks (shifts) to the diagonal elements of the Hamiltonian (the same shifts are applied to all configurations if there are multiple configurations).
+Those eigenvectors are used to compute *new* transition dipole moments that are weighted sums of the original dipole moments (the eigenvectors are essentially 1D arrays containing the weights). These are called "excitonic" transition dipole moments.
+
+From these excitonic transition dipole moments I calculate the "stick spectrum" for absorption and CD. We call this a stick spectrum because it just tells you the location and magnitude (and sign, in the case of CD) of each peak in the spectrum rather than the smooth continuous curve you would normally associate with a spectrum.
+
+From this stick spectrum we compute a "broadened" spectrum by placing a Gaussian (smooth bell curve) on top of each stick in the stick spectrum. If I have a single configuration, I'm done. If I have multiple configurations, I do this for each one and average them. Once I've computed my spectra I minimize the error between the simulated and measured spectra.
 
 It's also worth going over my naming conventions. From looking at my code you'll see `ham` and `pigs` everywhere, and you may conclude from that that I have an unhealthy obsession with pork. This isn't true, in fact I'm a vegetarian. In reality `ham` is short for "Hamiltonian", and `pigs` is short for "pigments". A pigment is a light absorbing molecule (like a chlorophyll). Additionally, the mathematical symbol for a dipole moment is the Greek letter "mu", so `mus` is the array of dipole moments. The letter `r` is used to denote position, so `rs` is an array of positions. The snapshot files containing the Hamiltonian, dipole moments, and positions are named `conf*.csv`, so I call this collection of information a `conf`.
 
 The code I use to run these simulations can be found here: [savikhin-lab/fmo_analysis](https://github.com/savikhin-lab/fmo_analysis).
 
 ## Finding the bottleneck
-The first step when optimizing anything is finding out which part is slow. It was pretty obvious that the 100-conf fits were the ones taking a long time. Computing spectra for multiple confs just computes individual spectra in a loop, so I decided to profile a fit of a single conf.
+The first step in optimization is measuring to find out which part is slow. Computing spectra for multiple confs just computes individual spectra in a loop, so I decided to profile a fit of a single conf.
 
-When it comes to Python one of my go-to tools is [py-spy](https://github.com/benfred/py-spy). `py-spy` is a sampling profiler, meaning that it periodically pauses your program, records the call stack, then compiles the results into a [flamegraph](https://www.brendangregg.com/flamegraphs.html) so that you can see in which functions your program is spending the most time.
-
-I ran `py-spy` on my `fit_shifts.py` script and this what it looked like:
+When it comes to Python one of my go-to tools is [py-spy](https://github.com/benfred/py-spy), a sampling profiler for Python. I ran `py-spy` on my `fit_shifts.py` script and this what it looked like:
 ![flamegraph of the fitting program](/images/fmo_analysis_fitting_single_flamegraph.svg)
 
 This is the important part:
 - 87.5% `make_stick_spectrum`
 - 10% `make_broadened_spectrum`
 
-The takeaway here is that `make_stick_spectrum` dominates the execution time. Note that this is *after* I made some optimizations several weeks ago. 
+The takeaway here is that `make_stick_spectrum` dominates the execution time. Note that this is *after* I made some optimizations several weeks ago.
 
 {% details(summary="Aside: sometimes NumPy is slow!") %}
 It turns out that NumPy's cross product function `np.cross` is very slow for small arrays, 10x slower than computing it manually:
@@ -128,7 +126,7 @@ def make_stick_spectrum(config: Config, ham: np.ndarray, pigs: List[Pigment]) ->
     }
     return out
 ```
-Even to my eyes it's not immediately obvious where the bottleneck would be in this function. In order to continue looking for the bottleneck we'll use another tool: `line_profiler`. A flamegraph tells you which function is slow, but not *what about it* is slow. That's where `line_profiler` comes in as it annotates each line with its fraction of the runtime of the function. Running `line_profiler` on `make_stick_spectrum` generates this report:
+Even to my eyes it's not immediately obvious where the bottleneck would be in this function. In order to continue looking for the bottleneck we'll use another tool: `line_profiler`. A flamegraph tells you which function is slow, but not necessarily *what about it* is slow. `line_profiler` annotates each line with information about its execution time so you can get a better idea of why a particular function is slow. Running `line_profiler` on `make_stick_spectrum` generates this report:
 
 {% details(summary="Click here to expand the report") %}
 ```
