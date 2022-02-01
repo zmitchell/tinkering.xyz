@@ -19,13 +19,13 @@ There's a variety of information you can extract from these snapshots, but the p
 - [Transition dipole moments](https://en.wikipedia.org/wiki/Transition_dipole_moment) of certain molecules
 - Positions of certain molecules
 
-From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). We don't need to get into what CD is right now, just know that it's another spectrum I calculate. Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are.
+From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are.
 
-As is common in physics, part of this research entails figuring out how many details we can ignore and still get an answer that looks mostly correct. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. Woof.
+As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. Woof.
 
 This brings us to my current task. I know that the simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.
 
-Here's the problem, though, sometimes this fit takes 8 hours to complete. The goal is to run the simulations in about 5 minutes (\~100x speedup) while still being able to read the code. We've found our rabbit hole, let's dive in!
+Here's the problem, though, sometimes this fit takes 8 hours to complete. The goal is to run the simulations in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
 
 ## Problem description
 First let's describe the shape of my data. A complete configuration consists of:
@@ -41,7 +41,7 @@ Those eigenvectors are used to compute *new* transition dipole moments that are 
 
 From these excitonic transition dipole moments I calculate the "stick spectrum" for absorption and CD. We call this a stick spectrum because it just tells you the location and magnitude (and sign, in the case of CD) of each peak in the spectrum rather than the smooth continuous curve you would normally associate with a spectrum.
 
-From this stick spectrum we compute a "broadened" spectrum by placing a Gaussian (smooth bell curve) on top of each stick in the stick spectrum. If I have a single configuration, I'm done. If I have multiple configurations, I do this for each one and average them. Once I've computed my spectra I minimize the error between the simulated and measured spectra.
+From this stick spectrum we compute a "broadened" spectrum by placing a Gaussian (smooth bell curve) on top of each stick in the stick spectrum. If I have a single configuration, I'm done. If I have multiple configurations, I do this for each one and average them. I want to minimize the error between the computed and experimental spectra.
 
 It's also worth going over my naming conventions. From looking at my code you'll see `ham` and `pigs` everywhere, and you may conclude from that that I have an unhealthy obsession with pork. This isn't true, in fact I'm a vegetarian. In reality `ham` is short for "Hamiltonian", and `pigs` is short for "pigments". A pigment is a light absorbing molecule (like a chlorophyll). Additionally, the mathematical symbol for a dipole moment is the Greek letter "mu", so `mus` is the array of dipole moments. The letter `r` is used to denote position, so `rs` is an array of positions. The snapshot files containing the Hamiltonian, dipole moments, and positions are named `conf*.csv`, so I call this collection of information a `conf`.
 
@@ -57,9 +57,9 @@ This is the important part:
 - 87.5% `make_stick_spectrum`
 - 10% `make_broadened_spectrum`
 
-The takeaway here is that `make_stick_spectrum` dominates the execution time. Note that this is *after* I made some optimizations several weeks ago.
+The takeaway here is that `make_stick_spectrum` dominates the execution time. Note that this is *after* I made some optimizations several weeks ago, so imagine how much more skewed towards `make_stick_spectrum` it would be if I had done this weeks ago!
 
-{% details(summary="Aside: sometimes NumPy is slow!") %}
+{% details(summary="Aside: NumPy isn't always fast!") %}
 It turns out that NumPy's cross product function `np.cross` is very slow for small arrays, 10x slower than computing it manually:
 ```python
 m1 = np.array([1., 0., 0.])
@@ -72,7 +72,7 @@ mu_cross[0] = m1[1] * m2[2] - m1[2] * m2[1]
 mu_cross[1] = m1[2] * m2[0] - m1[0] * m2[2]
 mu_cross[2] = m1[0] * m2[1] - m1[1] * m2[0] 
 ```
-This isn't a knock against NumPy. NumPy tries to work well for a wide variety of cases, provide a consistent API, provide nice error messages, etc and it generally succeeds. However, there's going to be some overhead for any particular case and you may be able to squeeze out some extra performance by stripping out the pieces you don't need. Another area I've done this is `np.savetxt` because I always know the data I'm going to save will be a certain shape.
+This isn't a knock against NumPy. NumPy tries to work well for a wide variety of cases, provide a consistent API, provide nice error messages, etc and it generally succeeds. However, the tradeoff for all of that nice functionality appears to be significant overhead in some cases. You may be able to squeeze out some extra performance by stripping out the pieces you don't need. Another area I've done this is `np.savetxt` because I always know the data I'm going to save will be a certain shape.
 {% end %}
 
 This is what `make_stick_spectrum` looks like:
@@ -225,7 +225,7 @@ if __name__ == "__main__":
 The execution time varies from moment to moment depending on what else is running on my laptop, what's in cache, etc so the exact times should be taken with a grain of salt. Our starting point is 3.48ms per call to `make_stick_spectrum`.
 
 ### Avoiding superfluous lookups
-The first thing that jumped out at me is that we're repeatedly looking up the two pigments `pigs[j]` and `pigs[k]` in the inner loop. Looking these pigments up once at the beginning of the loop e.g. `pig_j = pigs[j]` takes us from 3.48ms to 2.78ms for a 20% speedup. The CD calculation now looks like this:
+The first thing that jumped out at me is that we're repeatedly looking up the two pigments `pigs[j]` and `pigs[k]` in the inner loop. Looking these pigments up once at the beginning of the loop e.g. `pig_j = pigs[j]` takes us from 3.48ms to 2.78ms for a 20% speedup. The CD calculation now looks like this for a single "stick":
 ```python
 for j in range(n_pigs):
     for k in range(n_pigs):
@@ -233,7 +233,7 @@ for j in range(n_pigs):
         pig_k = pigs[k]
         r = pig_j.pos - pig_k.pos
         # NumPy cross product function is super slow for small arrays
-        # so we do it by hand for >10x speedup. It makes a difference!
+        # so we do it by hand for >10x speedup.
         mu_cross = np.empty(3)
         mu_j = pig_j.mu
         mu_k = pig_k.mu
@@ -246,23 +246,11 @@ for j in range(n_pigs):
 ```
 
 ### Skipping half of the calculations
-It turns out that if you swap `j` and `k` nothing changes. Swapping `r_j` and `r_k` gives you a minus sign. Swapping `mu_j` and `mu_k` also gives you a minus sign. These two minus signs cancel out when you calculate `(r_j - r_k) * (mu_j x mu_k)`. This means we only need to calculate the CD contribution for each pair of pigments once and then double it (i.e. `2 * cd(j,k)`) rather than calculating it separately for `j,k` and `k,j` (i.e. `cd(j,k) + cd(k,j)`).
+It turns out that the computation for a pair of pigments `j` and `k` is identical to the computation for `k` and `j`. Put another way, if you swap `j` and `k` nothing changes. Swapping `r_j` and `r_k` gives you a minus sign. Swapping `mu_j` and `mu_k` also gives you a minus sign. These two minus signs cancel out when you calculate `(r_j - r_k) * (mu_j x mu_k)`. This means we only need to calculate the CD contribution for each pair of pigments once and then double it (i.e. `2 * cd(j,k)`) rather than calculating it separately for `j,k` and `k,j` (i.e. `cd(j,k) + cd(k,j)`).
 ```python
 for j in range(n_pigs):
     for k in range(j, n_pigs):  # Notice the "j" here now!
-        pig_j = pigs[j]
-        pig_k = pigs[k]
-        r = pig_j.pos - pig_k.pos
-        # NumPy cross product function is super slow for small arrays
-        # so we do it by hand for >10x speedup. It makes a difference!
-        mu_cross = np.empty(3)
-        mu_j = pig_j.mu
-        mu_k = pig_k.mu
-        mu_cross[0] = mu_j[1] * mu_k[2] - mu_j[2] * mu_k[1]
-        mu_cross[1] = mu_j[2] * mu_k[0] - mu_j[0] * mu_k[2]
-        mu_cross[2] = mu_j[0] * mu_k[1] - mu_j[1] * mu_k[0]
-        # Calculate the dot product by hand, 2x faster than np.dot()
-        r_mu_dot = r[0] * mu_cross[0] + r[1] * mu_cross[1] + r[2] * mu_cross[2]
+        ...
         # Notice the "2" here now!
         stick_cd[i] += 2 * e_vecs[j, i] * e_vecs[k, i] * r_mu_dot
 ```
@@ -325,17 +313,20 @@ def make_weight_matrix(e_vecs, col):
 This takes us from 1.41ms to 0.94ms for a 33% speedup.
 
 ### Letting NumPy take control
-The more you can keep execution in C and out of Python, the faster your program is going to run. In practice this means letting NumPy do iteration for you and apply functions to entire arrays since it can iterate and apply functions in C, which is much faster. Consider this example:
+The more you can keep execution in C and out of Python, the faster your program is going to run. In practice this means letting NumPy do iteration for you and apply functions to entire arrays since it can iterate and apply functions in C, which is much faster. Consider this example: I want to multiply two matrices together elementwise and sum the result.
+
+The naive version looks like this:
 ```python
 np.sum(e_vec_weights * r_mu_cross_cache)
 ```
-Both `e_vec_weights` and `r_mu_cross_cache` are matrices and what I'm doing here is multiplying them together elementwise, which creates a new array containing the product, then summing the elements of that new matrix. There's another operation similar to this called the "dot product" or "inner product", but in order to get a single number out of it you need two 1D arrays. Luckily there's a built-in method to do this (`flatten`), and since these two matrices are the same shape I know they'll be flattened such that corresponding elements line up, exactly how I need them such that I can compute the dot product:
+The product here creates a new array containing the product, and `np.sum` adds the elements of that new matrix.
+
+There's another operation similar to this called the "dot product" or "inner product", but in order to get a single number out of it you need two 1D arrays. Luckily there's a built-in method, `flatten`, which converts a multi-dimensional array into a 1D array. Since these two matrices are the same shape I know they'll be flattened such that corresponding elements line up properly for the dot product:
 ```python
 np.dot(e_vec_weights.flatten(), r_mu_cross_cache.flatten())
 ```
-This is roughly 3x faster than the previous method shown above. It's not a big speedup overall in this program, but I thought it would be instructive anyway!
 
-This small change takes us from 0.94ms to 0.91ms for a 3% speedup.
+This is roughly 3x faster than the naive method. It's not a big speedup overall in this program (0.94ms to 0.91ms for a 3% speedup) but it's instructive anyway.
 
 ## Calling LAPACK routines directly
 At this point the breakdown of execution time looks like this:
@@ -359,16 +350,16 @@ e_vecs = np.ascontiguousarray(e_vecs_fortran_order)
 
 This takes us from 0.91ms to 0.85ms for a 7% speedup.
 
-At this point we've managed to reduce the execution time from 3.48ms to 0.85ms for a 4x speedup. The goal is 100x, so we're missing our target by 25x. That's a lot of x's and I'm running out of NumPy-fu. It's time to call in the big guns.
+At this point we've managed to reduce the execution time from 3.48ms to 0.85ms for a 4x speedup. The goal is 100x, so we're missing our target by 25x. That's a lot of x's and I'm running out of NumPy tricks. It's time to call in the big guns.
 
 ## Rust rewrite
-I know it's a meme at this point, but I decided to rewrite it in Rust. I've taken a break from Rust for a while (nothing against the language, just haven't needed it), but I've used it on and off since 2015. I was already looking for a reason to write a Python-extension. I have a programming bucket-list and writing a Python-extension is on there (just for fun). There are four crates that make this possible:
+I know it's a meme at this point, but I decided to rewrite the number-crunching parts of this program in Rust. There are four crates that make this possible:
 - [PyO3](https://github.com/PyO3/pyo3), for Rust/Python interop
 - [maturin](https://github.com/PyO3/maturin), for interacting with your extension during development and eventually publishing it to PyPI
 - [ndarray](https://github.com/rust-ndarray/ndarray), Rust's equivalent to NumPy
 - [rust-numpy](https://github.com/PyO3/rust-numpy), for converting NumPy objects to ndarray arrays.
 
-Honestly, the Python interop was shockingly easy. I wouldn't even know how to begin doing this with C. It's not without friction, but that's mostly a documentation issue. For instance, I had trouble putting my Rust source alongside my Python source in my Python package and having it build properly when I use `poetry` to build my Python package. The documentation makes it sound like this is the preferred method, but I was short on time and ended up just making a separate package, [ham2spec](https://github.com/savikhin-lab/ham2spec), so that I could upload it to PyPI and have it downloaded and installed like any other dependency. I shouldn't have to build and upload my Rust extension to a server somewhere to get it picked up properly as a dependency of my local project, but here we are. I was rushed to get this working, so it's entirely possible I missed something simple.
+The Python interop was shockingly easy. I wouldn't even know how to begin doing this with C. It's not without friction, but that's mostly a documentation issue. For instance, I had trouble putting my Rust source alongside my Python source in my Python package and having it build properly when I use `poetry build` to build my Python package. The documentation makes it sound like this is the preferred method, but I was short on time and ended up just making a separate package, [ham2spec](https://github.com/savikhin-lab/ham2spec), so that I could upload it to PyPI and have it downloaded and installed like any other dependency. I shouldn't have to build and upload my Rust extension to a server somewhere to get it picked up properly as a dependency of my local project, but here we are. I was rushed to get this working, so it's entirely possible I missed something simple.
 
 That aside, this is what the development process looks like:
 - Create a new project with `maturin new`
@@ -378,19 +369,36 @@ That aside, this is what the development process looks like:
 - Repeat
 - Publish your module with `maturin publish`
 
-There was some trial and error around converting between Rust types and Python types, and I still don't have a good mental model for how the interop works. There's also some interior mutability magic happening. Take this for instance:
-```rust
-let dict = PyDict::new();
-let bar = 42;
-dict.set_item("foo", bar).unwrap();
-```
-Setting the value of `"foo"` is clearly a mutating operation, but we haven't declared `dict` as `mut`. Interior mutability isn't unheard of in Rust (see [this section](https://doc.rust-lang.org/book/ch15-05-interior-mutability.html) of The Book) but it makes it hard to understand the rules of the game when you're already fumbling around.
+There was some trial and error around converting between Rust types and Python types, and I still don't have a good mental model for how the interop works.
 
 I also decided to interface with LAPACK directly via the [lapack](https://github.com/blas-lapack-rs/blas-lapack-rs.github.io/wiki) crate. I have one use of `unsafe` in my crate and it's the call to `sgeev`. I'm ok with that.
 
-The Rust code just does the number crunching, so I've left all the glue code in Python for convenience. The Rust code is a pretty direct translation from the Python code. I had an inkling from the beginning that I would need to write the number crunching code in Rust, but the algorithmic optimizations were easier to implement in Python first so I tried those out before writing anything in Rust. The only real deviations are the use of all the nice iterators that Rust provides, especially the `Zip` iterator that ndarray provides for iterating over multiple arrays in lock-step. With Rust you also have more control over where memory allocations happen, so just by having that control I've probably unconsciously avoided some allocations in hotspots without trying too hard.
+The Rust code is a pretty direct translation from the Python code. I had an inkling from the beginning that I would need to write the number crunching code in Rust, but the algorithmic optimizations were easier to implement in Python first. The only real deviations are the use of all the nice iterators that Rust provides, especially the `Zip` iterator that ndarray provides for iterating over multiple arrays in lock-step. Here's `Zip` in action:
+```rust
+pub fn compute_stick_spectra(
+    hams: ArrayView3<f64>,
+    mus: ArrayView3<f64>,
+    rs: ArrayView3<f64>,
+) -> Vec<StickSpectrum> {
+    let dummy_stick = StickSpectrum {
+        e_vals: arr1(&[]),
+        e_vecs: arr2(&[[], []]),
+        mus: arr2(&[[], []]),
+        stick_abs: arr1(&[]),
+        stick_cd: arr1(&[]),
+    };
+    let mut sticks: Vec<StickSpectrum> = Vec::with_capacity(hams.dim().0);
+    sticks.resize(hams.dim().0, dummy_stick);
+    Zip::from(hams.axis_iter(Axis(0)))
+        .and(mus.axis_iter(Axis(0)))
+        .and(rs.axis_iter(Axis(0)))
+        .and(&mut sticks)
+        .for_each(|h, m, r, s| *s = compute_stick_spectrum(h, m, r));
+    sticks
+}
+```
 
-This direct translation executes in 35us for a total speedup of \~100x, but there's a bit of a catch. The Rust code takes 3 arrays as arguments (8x8 Hamiltonian, 8x3 dipole moments, 8x3 positions), whereas the previous Python function is called with an 8x8 array for the Hamiltonian and a list of `Pigment` objects, which are each just containers for a position and a dipole moment array. Doing the conversion to arrays brings the execution time to 45us. I'm still counting this as a win since I don't *have* to do this conversion, I'm just doing it to preserve backwards compatibility with a bunch of simulations I've already written.
+This direct translation executes in 35us for a total speedup of \~100x, but there's a bit of a catch. The Rust code takes 3 arrays as arguments (8x8 Hamiltonian, 8x3 dipole moments, 8x3 positions), whereas the previous Python function is called with an 8x8 array for the Hamiltonian and a list of `Pigment` objects, which are each just containers for a position and a dipole moment. Doing the conversion to arrays brings the execution time to 45us. I'm still counting this as a win since I don't *have* to do this conversion, I'm just doing it to preserve backwards compatibility with a bunch of simulations I've already written.
 
 Just for kicks I decided to profile `ham2spec` to see if there was any low-hanging fruit for optimization. In order to do this I had to create a crate example since my crate is a library, not a binary, and examples get compiled into their own binaries. I made this example and profiled it with `cargo-flamegraph`. The profiling output showed that the runtime of `compute_stick_spectrum` (my Rust equivalent of the `make_stick_spectrum` function from my Python code) looked like this:
 - 45% diagonalization
@@ -407,29 +415,21 @@ It's at this point that I must make a confession. I haven't been eating my veget
 I'm the last person you need to convince about writing tests. I've [given talks](https://www.youtube.com/watch?v=RdpHONoFsSs&list=PLgC1L0fKd7UkVwjVlOySfMnn80Qs5TOLb&index=9) about esoteric testing techniques. I've also [written about](https://tinkering.xyz/polsim/#testing) the need for better testing in scientific software. So, how did we get here?
 - Burnout. Graduate school is hard. Doing anything that doesn't directly move you towards graduation has a high activation energy.
 - I'm the only person on the planet using this software, so I'll just run into all the bugs myself and fix them. Right?
-- I was given the original simulation implementation as a single large script, so I wrote `fmo_analysis` partly to organize things for my own understanding of what the original code did.
 - This started as a small CLI that I threw together and it quickly grew beyond that scope.
 - My dog ate my test suite.
 
-Suffice to say that now I have test suites for both `fmo_analysis` and `ham2spec`, but let's talk about how I got there.
+Suffice to say that I now have test suites for both `fmo_analysis` and `ham2spec`.
 
-### The problem
-I ran my fitting script again and noticed that the `"function output"` value, which tells you the value of the function you're trying to minimize, was much worse than before. This means that the match between my fitted spectra and the experimental spectra was much worse. My fitting script spits out a plot for visual comparison, so I pulled that up and they didn't match at all. *Oh no*.
+The problem was multi-faceted:
+- I wasn't converting between memory orderings correctly
+- Eigenvectors are only defined up to a sign, so small differences in precision can cause sign flips
+- I had switched from double-precision to single-precision, which caused sign flips as mentioned above
+- The allegedly "known-good" data I was comparing against was saved incorrectly (when in doubt, test the test!)
 
-I decided I would compare three versions of `fmo_analysis`:
-- A known-good version before I started optimizing
-- The last pure-Python version
-- The current Rust/Python version
+Ultimately the sign flips don't change the results, but I had to change my test suite to allow for sign flips.
 
-I decided I would compare these using `git-worktree`, though in hindsight I could have also used something like `git-bisect`. I first learned about `git-worktree` from [a post by Hillel Wayne](https://www.hillelwayne.com/post/cross-branch-testing/). In short `git-worktree` lets you create an entire directory structure from a given commit, branch, etc via hard-links to objects in your git repository. I created a script to compute spectra using each version, saving both intermediate and final results so that I could compare outputs step-by-step. Then I created another script to compare the various outputs of the stick spectrum computation.
-
-### Diagonalization
-I first checked to make sure the eigenvalues and eigenvectors matched up, since that was a calculation I wasn't responsible for and thus was unlikely to mess up on my own. The eigenvalues matched up, which was reassuring. The eigenvectors, however, did not match up.
-
-The eigenvectors initially appeared totally jumbled, but eventually I realized that they were transposed, some rows had the opposite sign, and the absolute values were only the same up to a certain number of decimal places. The transposition wasn't entirely unexpected. I wasn't very confident that I had converted between F-ordering and C-ordering correctly.
-
-{% details(summary="Aside: converting between orderings") %}
-In both NumPy and ndarray the array consists of a few pieces of information:
+{% details(summary="Aside: Converting between orderings") %}
+An `n`-dimensional array in NumPy or ndarray consists of a few pieces of information:
 - The buffer containing the actual data
 - The dimensions of the array
 - The strides, or "how many elements do I have to traverse in the buffer to get to the next item along a particular axis"
@@ -448,7 +448,7 @@ pub fn reversed_axes(mut self) -> ArrayBase<S, D> {
     self
 }
 ```
-This is a good idea because the data structures for dimensions and strides are small and quickly modified, whereas copying the contents of the array into a new array in a different order is comparitively much slower. In order to actually transpose the data in the buffer you have to do this:
+This is a good idea because the data structures for dimensions and strides are small and quickly modified. Copying the contents of the array into a new array in a different order is much slower. In order to actually transpose the data in the buffer you have to do this:
 ```rust
 let transposed = my_arr
     .reversed_axes()
@@ -457,44 +457,19 @@ let transposed = my_arr
 ```
 {% end %}
 
-My dad is an electrical engineer and always told me "when in doubt, test the test." Eventually I remembered that and checked how I was saving the (allegedly "known-good") eigenvectors and discovered my mistake.
-
-Early on in the design of `fmo_analysis` I decided that I would add an option save all of the data spit out when I compute a stick spectrum in case I needed diagnostics at some point in the future (like right now). This includes the eigenvalues, eigenvectors, exciton dipole moments, stick absorption, and stick CD. The pigment positions, pigment dipole moments, and exciton dipole moments are stored one per row, so I thought I would be consistent and save the eigenvectors one per row as well. This is transposed relative to how the eigenvectors are returned by `np.eig`.
-
-Well, I forgot I did that because this is the first time I've ever had to look at this diagnostic data (usually it only exists long enough to use it to compute a broadened spectrum). This is akin to leaving your keys in a special spot so that you don't forget them, and then spending 20 minutes looking for your keys because they aren't where you normally leave them.
-
-This explains the transposition, but entire eigenvectors still have the wrong sign! I really went down a rabbit hole on this one. On top of that it was all three versions that had different signs! To save time I'll just list the things I investigated:
-- Am I actually passing the same matrix to each version?
-- Are the matrices all `float32`s?
-- Can I get the `np.eig` and `scipy.lapack.sgeev` versions to match?
-- Are NumPy and SciPy using the same LAPACK libraries?
-- Am I taking the "right-eigenvectors" i.e. not the "left-eigenvectors"
-
-After pulling out a sufficient amount of my own hair I finally [posted an issue](https://github.com/scipy/scipy/issues/15350) on the SciPy repository asking why I get different signs using `np.eig` and `scipy.lapack.sgeev` even though they use the same `_geev` routine under the hood.
-
-The answer, of course, is that they don't use the same routine under the hood. It turns out that `np.eig` automatically converts its input to `float64` before diagonalization, diagonalizes with `dgeev` (`sgeev` is 32-bit, `dgeev` is 64-bit) and then converts the result back to the original data type. Also, eigenvectors are only unique up to a sign, so a flipped sign isn't "wrong" and can be caused by small fluctations in intermediate calculations (such as differences in precision). It's been almost a decade (*woof*) since I took a linear algebra class, so this detail has lost to the sands of time in my memory. Furthermore, the sign flips don't change the spectra.
-
-Once I converted all three versions to 64-bit computations the absolute values all started matching. Signs may still flip, but now I account for this in my tests. 
-
-Had you asked me beforehand "what is the best way to migrate a calculation from an old version to a new version" I probably would have told you something like this (what I *didn't* do):
-- Verify that the existing version does what you expect
-- Make some validation data to compare the new version against
-- Work incrementally, validating each piece before continuing on to the next
-
-Why didn't I do that? Well, for much of this process I was just *in the zone*, cranking out code without much rigor. I also had a reference implementation that I was essentially translating, so I was confident that there wasn't much that could go wrong. That confidence was misplaced, obviously. Now that I have first hand experience with lost time doing things the sloppy way rest assured that it won't happen again.
-
 ## Broadened spectra
 Once everything was *correct*, I got back to work optimizing. My stick spectrum computations were 100x faster, so it was time to look at how that translated to computing a broadened spectrum. As a refresher, computing a broadened spectrum looks like this:
 - Compute the stick spectrum from a Hamiltonian
 - Compute a broadened spectrum from a stick spectrum
 
-I timed the execution of the `known_good` system computing a spectrum from 100 Hamiltonians and it took 381ms. It's no wonder that a fit takes forever when each iteration of the minimization routine takes almost 400ms.
+I timed the execution of the original system computing a spectrum from 100 Hamiltonians and it took 381ms. It's no wonder that a fit takes forever when each iteration of the minimization routine takes almost 400ms.
 
-Then I timed the execution of the new system doing the same computation and it took 40ms. That's only 10x faster! My stick spectrum computations were 100x faster than the old version, so why is this so much slower? As a reminder, this was the original breakdown of execution time:
+I timed the execution of the new system doing the same computation and it took 40ms. That's only 10x faster! My stick spectrum computations were 100x faster than the old version, so why is this so much slower? As a reminder, this was the original breakdown of execution time:
 - 87.5% `make_stick_spectrum`
 - 10% `make_broadened_spectrum`
 
-If you could somehow magically eliminate the execution time of everything except for `make_broadened_spectrum` you would get at best a 10x speedup. We effectively *did* elminate the execution time of everything else, so we're seeing exactly that 10x speedup we would expect. So, how do we make it faster?
+If you magically eliminate the runtime of everything but `make_broadened_spectrum` you would only expect a 10x speedup (100% -> 10%).
+We effectively *did* elminate the execution time of everything else, so we're seeing exactly that 10x speedup we would expect. So, how do we make it faster?
 
 ### Making it parallel
 The process of computing a broadened spectrum from each Hamiltonian falls into the category of [embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel), so we don't even need to do much work to make this parallel. I literally changed a `for_each` to a `par_for_each`:
@@ -561,12 +536,176 @@ pub fn add_cutoff_bands(
 }
 ```
 
-This takes us from 17.6ms to 10ms with a cutoff of 3 for a 176% speedup. Now we're sitting at 38x faster than the original.
+This takes us from 17.6ms to 8.1ms with a cutoff of 3 for a 217% speedup. Now we're sitting at 47x faster than the original.
 
-### Making it more efficient
-I'm reaching the end of my expertise, but I still had a couple of ideas:
-- Can I optimize the layout of the data to reduce cache misses?
-- Can I take advantage of instruction-level parallelism?
-- Does the assembly reveal anything weird?
+## Final attempts
+At this point I was running out of low-hanging fruit and turned to some heavier-duty tools and shots in the dark.
 
-Some of you are probably shouting "SIMD! Use SIMD!", and I hear you. The thing is I barely know how to use SIMD on x86 and I'm about to get an Apple Silicon (Arm-based) Macbook Pro, and I know next to nothing about NEON. Furthermore, I don't want to support functionality that depends on which architecture it's operating on, and I especially don't want to hand that maintenance off to the next graduate student to come along who may or may not even know how to program. 
+### Looking at the assembly
+I used `cargo-asm` to view the assembly (compiled with `--release`) of `add_cutoff_bands`:
+```asm
+ham2spec::add_cutoff_bands (src/lib.rs:337):
+ push    rbp
+ mov     rbp, rsp
+ push    r14
+ push    rbx
+ sub     rsp, 64
+ movsd   qword, ptr, [rbp, -, 24], xmm0
+ mov     rax, qword, ptr, [rsi, +, 8]
+ cmp     qword, ptr, [rdx, +, 8], rax
+ jne     LBB44_7
+ cmp     rax, r8
+ jne     LBB44_7
+ mov     r10, rdi
+ mov     r14, qword, ptr, [rsi]
+ mov     rsi, qword, ptr, [rsi, +, 16]
+ mov     r11, qword, ptr, [rdx]
+ mov     rdi, qword, ptr, [rdx, +, 16]
+ cmp     rsi, 1
+ sete    dl
+ cmp     r8, 2
+ setb    al
+ or      dl, al
+ cmp     rdi, 1
+ sete    bl
+ cmp     dl, 1
+ jne     LBB44_4
+ or      bl, al
+ je      LBB44_4
+ mov     qword, ptr, [rbp, -, 48], r14
+ mov     qword, ptr, [rbp, -, 40], r11
+ mov     qword, ptr, [rbp, -, 32], rcx
+ movaps  xmm0, xmmword, ptr, [rip, +, LCPI44_0]
+ movaps  xmmword, ptr, [rbp, -, 80], xmm0
+ jmp     LBB44_6
+LBB44_4:
+ mov     qword, ptr, [rbp, -, 48], r14
+ mov     qword, ptr, [rbp, -, 40], r11
+ mov     qword, ptr, [rbp, -, 32], rcx
+ mov     qword, ptr, [rbp, -, 80], rsi
+ mov     qword, ptr, [rbp, -, 72], rdi
+LBB44_6:
+ mov     qword, ptr, [rbp, -, 64], 1
+ lea     rdi, [rbp, -, 48]
+ lea     rsi, [rbp, -, 80]
+ lea     rcx, [rbp, -, 24]
+ mov     rdx, r8
+ mov     r8, r9
+ mov     r9, r10
+ call    ndarray::zip::Zip<P,D>::inner
+ add     rsp, 64
+ pop     rbx
+ pop     r14
+ pop     rbp
+ ret
+LBB44_7:
+ lea     rdi, [rip, +, l___unnamed_37]
+ lea     rdx, [rip, +, l___unnamed_38]
+ mov     esi, 43
+ call    core::panicking::panic
+```
+
+Well, all of the interesting stuff (the call to `for_each`) happens inside the call to `ndarray::zip::Zip<P, D>::inner` and I don't know how to get at that with `cargo asm`. I fired up a debugger and disassembled `add_cutoff_bands`, but this left me with the opposite problem (a sea of assembly). I wasn't able to glean much from this just because I can barely read assembly. Sorry.
+
+I was looking for signs one way or the other whether the computations were being vectorized. It's still unclear to me whether that's happening.
+
+### Instruction level parallelism
+I recently read a series of posts showing how a Rust program was progressively optimized and made to run in parallel ([Comparing Parallel Rust and C++](https://parallel-rust-cpp.github.io)) and one of the optimizations seemed relatively easy: loop unrolling.
+
+I decided to give it a try by operating on chunks of data at a time, like this:
+```rust
+/// The block size for doing chunked computations
+const BLOCK_SIZE: usize = 4;
+
+/// Compute the band cutoff indices aligned to the block size
+fn block_aligned_band_cutoff_indices(
+    bsize: usize,
+    center: f64,
+    bw: f64,
+    cutoff: f64,
+    xs: &[f64],
+) -> (usize, usize) {
+    let lower = xs.partition_point(|&x| x < (center - cutoff * bw));
+    let upper = xs.partition_point(|&x| x < (center + cutoff * bw));
+    let rem = (upper - lower) % bsize;
+    // The higher energy side tends to have less going on, so we can err
+    // on the side of computing fewer values there
+    return (lower, upper - rem);
+}
+
+/// Compute the cutoff bands using SIMD
+fn add_cutoff_bands_chunked(
+    mut spec: ArrayViewMut1<f64>,
+    energies: ArrayView1<f64>,
+    stick_strengths: ArrayView1<f64>,
+    bws: &[f64],
+    cutoff: f64,
+    x: ArrayView1<f64>,
+) {
+    let band_indices: Vec<(usize, usize)> = energies
+        .iter()
+        .zip(bws.iter())
+        .map(|(&e, &b)| {
+            block_aligned_band_cutoff_indices(BLOCK_SIZE, e, b, cutoff, x.as_slice().unwrap())
+        })
+        .collect();
+    let denoms: Vec<f64> = bws.iter().map(|&b| gauss_denom(b)).collect();
+    let x_slice = x.as_slice().unwrap();
+    let spec_slice = spec.as_slice_mut().unwrap();
+    for (&e, (&s, (&d, bi))) in energies
+        .iter()
+        .zip(stick_strengths.iter().zip(denoms.iter().zip(band_indices)))
+    {
+        x_slice[bi.0..bi.1]
+            .chunks_exact(BLOCK_SIZE)
+            .zip(spec_slice.chunks_exact_mut(BLOCK_SIZE))
+            .for_each(|(x_chunk, s_chunk)| {
+                s_chunk[0] += s * (-(x_chunk[0] - e).powi(2) / d).exp();
+                s_chunk[1] += s * (-(x_chunk[1] - e).powi(2) / d).exp();
+                s_chunk[2] += s * (-(x_chunk[2] - e).powi(2) / d).exp();
+                s_chunk[3] += s * (-(x_chunk[3] - e).powi(2) / d).exp();
+            });
+    }
+}
+```
+
+This was actually marginally *slower*, 8.4ms vs. 8.1ms. However, it's very clear from the assembly that the operations are being vectorized. Here's a snippet where it's clear that actual math is being done:
+```asm
+LBB44_100:
+ movupd  xmm1, xmmword, ptr, [r14, +, 8*rdi]
+ mulpd   xmm1, xmm1
+ divpd   xmm1, xmm0
+ movupd  xmmword, ptr, [rbx, +, 8*rdi], xmm1
+ movupd  xmm1, xmmword, ptr, [r14, +, 8*rdi, +, 16]
+ mulpd   xmm1, xmm1
+ divpd   xmm1, xmm0
+ movupd  xmmword, ptr, [rbx, +, 8*rdi, +, 16], xmm1
+ add     rdi, 4
+ add     rsi, 2
+ jne     LBB44_100
+ test    dl, 1
+ je      LBB44_103
+LBB44_102:
+ movupd  xmm0, xmmword, ptr, [r14, +, 8*rdi]
+ mulpd   xmm0, xmm0
+ divpd   xmm0, xmmword, ptr, [rip, +, LCPI44_0]
+ movupd  xmmword, ptr, [rbx, +, 8*rdi], xmm0
+```
+
+Unfortunately, I don't have much insight into why this is slower. If I had to guess, I would say that it's a combination of the following:
+- My laptop only has 128-bit floating point SIMD registers, so you're only operating on two `f64`s at a time
+- SIMD instructions have significantly higher latency than scalar instructions
+
+Perhaps the SIMD overhead outweighs the (at best) 2x speedup from using SIMD instructions?
+
+### Explicit SIMD
+Just for kicks I decided to try writing the SIMD code myself rather than relying on the compiler to do it for me. It's worth noting that it's not very clear to me what the current recommendation is when it comes to SIMD crates. These are the official options:
+- The [std::simd](https://doc.rust-lang.org/nightly/std/simd/index.html) module, only available with the Nightly compiler
+- Architecture specific implementations in the `std::arch` module, which comes from the [stdarch](https://github.com/rust-lang/stdarch) crate
+- The [packed_simd](https://github.com/rust-lang/packed_simd) crate
+
+In the end I decided to go with `packed_simd` because it looked the most ergonomic. It only took a slight modification of the `chunked` code to get it working with SIMD.
+
+This brought execution time from 8.1ms to 7.4ms for a 9% speedup (51x overall).
+
+I decided not to keep this implementation because it requires a Nightly compiler and it would require supporting different architectures (I have an Apple Silicon laptop on the way).
