@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>How to build a dice roller service in Rust &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:65ch;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 65ch){.homepage-list li a{width:100%}}code{font-size:90%}p>code,li>code{padding:.15em .25em;color:#bf616a;background-color:#e8e8e8;border-radius:3px}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="How to build a dice roller service in Rust">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/dicer-roller-service/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2020-04-29T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/polsim/" />
+      <link rel="next" href="https://tinkering.xyz/property-based-testing-with-proptest/" />
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>How to build a dice roller service in Rust</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2020-04-29T00:00:00+00:00">April 29, 2020</time></p>
+  
+
+  
+  <div style="font-size:90%;">
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/dicer-roller-service/#getting-started">Getting started</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/dicer-roller-service/#routes">Routes</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/dicer-roller-service/#parsing">Parsing</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/dicer-roller-service/#rolling-the-dice">Rolling the dice</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/dicer-roller-service/#responding">Responding</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/dicer-roller-service/#conclusion">Conclusion</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p>Note: I originally wrote this article for LogRocket. You can find the original <a href="https://blog.logrocket.com/how-to-build-a-dice-roller-in-rust/">here</a>.</p>
+<p>Let’s get this out of the way: I’m a huge Dungeons &amp; Dragons nerd. There’s something special about getting a bunch of adults in a room together to play pretend. </p>
+<p>Most of D&amp;D involves using your imagination to make choices for your character, but the outcomes of some actions are determined by dice rolls. For instance, if you want to take a mighty swing at a goblin with your longsword, first you need to roll to see if you hit. You roll a twenty-sided dice (d20), add some numbers to your roll, and the Dungeon Master tells you whether you hit. If you hit, you roll more dice to determine how much damage you do. If, for example, you roll a 20 on your d20 when trying to hit, that means you’ve landed a critical hit, which inflicts a bunch of extra damage.</p>
+<p>Where am I going with this? In this tutorial, I'll demonstrate how to create a web service to roll these dice for you when you visit a certain URL. This will be a relatively basic project suitable for experienced programmers who are new to Rust.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>We’ll use Rocket for our web service. Although it uses nightly Rust rather than stable Rust, it’s easy to use and should work just fine. </p>
+<p>To begin, make sure you have nightly Rust installed.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ rustup toolchain install nightly
+</span></code></pre>
+<p>Next, create a <code>cargo</code> project called <code>roll-server</code>.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cargo new roll-server
+</span></code></pre>
+<p>Make nightly Rust the default just for this project.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cd roll-server
+</span><span>$ rustup override set nightly
+</span></code></pre>
+<p>Add Rocket to your <code>Cargo.toml</code> and disable the default features. At the time of writing, there is a bug in one of its dependencies (<code>ring</code>) that prevents Rocket from building.</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[dependencies]
+</span><span style="color:#bf616a;">rocket </span><span>= { </span><span style="color:#bf616a;">version </span><span>= &quot;</span><span style="color:#a3be8c;">0.4.4</span><span>&quot;, </span><span style="color:#bf616a;">default-features </span><span>= </span><span style="color:#d08770;">false </span><span>}
+</span></code></pre>
+<p>Next, modify your <code>main.rs</code> to look like the example from Rocket’s “Getting Started” guide, just to make sure everything is working as intended.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#![</span><span style="color:#bf616a;">feature</span><span>(proc_macro_hygiene, decl_macro)]
+</span><span>#[</span><span style="color:#bf616a;">macro_use</span><span>] </span><span style="color:#b48ead;">extern crate</span><span> rocket;
+</span><span>
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>    rocket::ignite().</span><span style="color:#96b5b4;">mount</span><span>(&quot;</span><span style="color:#a3be8c;">/</span><span>&quot;, routes![index]).</span><span style="color:#96b5b4;">launch</span><span>();
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/</span><span>&quot;)]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">index</span><span>() -&gt; &amp;</span><span style="color:#b48ead;">&#39;static str </span><span>{
+</span><span>    &quot;</span><span style="color:#a3be8c;">Hello, world!</span><span>&quot;
+</span><span>}
+</span></code></pre>
+<p>Run the project with <code>cargo run</code>. If you visit <code>localhost:8000</code>, you should see <code>Hello, World!</code> in your browser. Now you’re ready to dig into the project.</p>
+<h2 id="routes">Routes</h2>
+<p>There are two main routes in our application: <code>/roll/&lt;dice&gt;</code> and <code>/roll/crit/&lt;dice&gt;</code>. The first rolls whatever dice you specify in the <code>&lt;dice&gt;</code> portion of the route. The second applies some special rules to the dice roll to calculate damage on a critical hit.</p>
+<p>In Rocket you handle requests to certain paths by creating a function and placing an attribute on top that describes the path. For instance, to respond to the path <code>/foo/bar</code>, you would create the following function.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/foo/bar</span><span>&quot;)]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">my_handler</span><span>() -&gt; &amp;</span><span style="color:#b48ead;">&#39;static str </span><span>{
+</span><span>    &quot;</span><span style="color:#a3be8c;">foo bar</span><span>&quot;
+</span><span>}
+</span></code></pre>
+<p>In our case, both the <code>/roll/&lt;dice&gt;</code> and <code>/roll/crit/&lt;dice&gt;</code> paths begin with <code>/roll</code>. Rather than explicitly write out <code>/roll</code> in each of our handlers, let’s mount the <code>/&lt;dice&gt;</code> and <code>/crit/&lt;dice&gt;</code> handlers under the <code>/roll</code> path. The skeleton of the application is as follows.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// main.rs
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>    rocket::ignite()
+</span><span>        .</span><span style="color:#96b5b4;">mount</span><span>(&quot;</span><span style="color:#a3be8c;">/roll</span><span>&quot;, routes![normal, critical])
+</span><span>        .</span><span style="color:#96b5b4;">launch</span><span>();
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/&lt;dice&gt;</span><span>&quot;)]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">normal</span><span>(</span><span style="color:#bf616a;">dice</span><span>: String) -&gt; String {
+</span><span>    format!(&quot;</span><span style="color:#a3be8c;">normal: </span><span style="color:#d08770;">{}</span><span>&quot;, dice)
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/crit/&lt;dice&gt;</span><span>&quot;)]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">critical</span><span>(</span><span style="color:#bf616a;">dice</span><span>: String) -&gt; String {
+</span><span>    format!(&quot;</span><span style="color:#a3be8c;">critical: </span><span style="color:#d08770;">{}</span><span>&quot;, dice)
+</span><span>}
+</span></code></pre>
+<p>If you run the application and visit <code>localhost:8000/roll/foo</code>, you should see <code>normal: foo</code>. Likewise, if you visit <code>localhost:8000/roll/critical/foo</code>, you should see <code>critical: foo</code>.</p>
+<h2 id="parsing">Parsing</h2>
+<p>Now that you can extract a string from the path, you need to do something with it. However, you can’t just accept any string as part of the path. What if the user visited <code>/roll/foo</code>? What dice would they roll? </p>
+<p>Instead, we’ll only accept strings that are valid dice notation. This is a compact way of representing the number and size of the dice to be rolled. The notation is of the form <code>&lt;number&gt;d&lt;size&gt;</code>, so <code>4d12</code> would represent four 12-sided dice.</p>
+<p>To determine which strings are valid dice notation with a regular expression, add the regex crate to your <code>Cargo.toml</code>.</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[dependencies]
+</span><span style="color:#bf616a;">rocket </span><span>= { </span><span style="color:#bf616a;">version </span><span>= &quot;</span><span style="color:#a3be8c;">0.4.4</span><span>&quot;, </span><span style="color:#bf616a;">default-features </span><span>= </span><span style="color:#d08770;">false</span><span>}
+</span><span style="color:#bf616a;">regex </span><span>= &quot;</span><span style="color:#a3be8c;">1</span><span>&quot;
+</span></code></pre>
+<p>Next, create the file <code>parse.rs</code>, which is where you’ll put all of your parsing logic. We’re going to parse a string like <code>4d6</code> into a struct <code>RollCmd</code> that represents the number of dice and the size of the dice.</p>
+<p>We’ll limit the number of dice to 255 because that’s already a ton of dice and it fits nicely into a <code>u8</code>. Taking that one step further, we can recognize that it doesn’t make sense to roll zero dice, so instead we’ll parse into a <code>NonZeroU8</code>. The dice sizes are fixed numbers, so we’ll use an enum to represent the available sizes. Finally, we need a type to represent the various ways in which things can go wrong. We’ll use an <code>enum</code> for that as well.</p>
+<p>Putting all of these pieces together, you should have the following type definitions.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// parse.rs
+</span><span style="color:#b48ead;">use </span><span>std::num::NonZeroU8;
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Debug, PartialEq)]
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">enum </span><span>ParseError {
+</span><span>    InvalidDiceNumber,
+</span><span>    InvalidDiceSize,
+</span><span>    UnableToParse,
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Debug, PartialEq, Copy, Clone)]
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">enum </span><span>DiceSize {
+</span><span>    </span><span style="color:#d08770;">D4</span><span>,
+</span><span>    </span><span style="color:#d08770;">D6</span><span>,
+</span><span>    </span><span style="color:#d08770;">D8</span><span>,
+</span><span>    </span><span style="color:#d08770;">D10</span><span>,
+</span><span>    </span><span style="color:#d08770;">D12</span><span>,
+</span><span>    </span><span style="color:#d08770;">D20</span><span>,
+</span><span>    </span><span style="color:#d08770;">D100</span><span>,
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Debug, PartialEq)]
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">struct </span><span>RollCmd {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">num</span><span>: NonZeroU8,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">size</span><span>: DiceSize,
+</span><span>}
+</span></code></pre>
+<p>The next piece of the puzzle is the regular expression. Use the regex <code>^([1-9]\d*)d(\d+)$</code>. Any simpler, and you’ll allow invalid input. Any stricter, and you’ll lose information about which parts didn’t parse properly.</p>
+<p>Let’s take a look at the finished product, then break it down into smaller pieces.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// parse.rs
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">parse_dice_str</span><span>(</span><span style="color:#bf616a;">dice_str</span><span>: &amp;</span><span style="color:#b48ead;">str</span><span>) -&gt; Result&lt;RollCmd, ParseError&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> dice_regex = Regex::new(</span><span style="color:#b48ead;">r</span><span>&quot;</span><span style="color:#a3be8c;">^([1-9]\d*)d(\d+)$</span><span>&quot;).</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> caps = dice_regex.</span><span style="color:#96b5b4;">captures</span><span>(dice_str).</span><span style="color:#96b5b4;">ok_or</span><span>(ParseError::UnableToParse)?;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> dice_num = caps.</span><span style="color:#96b5b4;">get</span><span>(</span><span style="color:#d08770;">1</span><span>)  </span><span style="color:#65737e;">// Option&lt;Match&gt;
+</span><span>        .</span><span style="color:#96b5b4;">ok_or</span><span>(ParseError::InvalidDiceNumber)?  </span><span style="color:#65737e;">// Match
+</span><span>        .</span><span style="color:#96b5b4;">as_str</span><span>().parse::&lt;NonZeroU8&gt;()  </span><span style="color:#65737e;">// Match -&gt; str -&gt; Result&lt;NonZeroU8, Err&gt;
+</span><span>        .</span><span style="color:#96b5b4;">map_err</span><span>(|_| {ParseError::InvalidDiceNumber})?;  </span><span style="color:#65737e;">// NonZeroU8
+</span><span>    </span><span style="color:#b48ead;">let</span><span> dice_size = caps.</span><span style="color:#96b5b4;">get</span><span>(</span><span style="color:#d08770;">2</span><span>)
+</span><span>        .</span><span style="color:#96b5b4;">ok_or</span><span>(ParseError::InvalidDiceSize)?
+</span><span>        .</span><span style="color:#96b5b4;">as_str</span><span>()
+</span><span>        .parse::&lt;DiceSize&gt;()?;
+</span><span>    Ok(RollCmd {
+</span><span>        num: dice_num,
+</span><span>        size: dice_size
+</span><span>    })
+</span><span>}
+</span></code></pre>
+<p>First, we compiled the regex with <code>Regex::new</code>, then we unwrapped it. This skips any error handling and is generally frowned upon. I know that this regex will compile properly, so it’s OK in this case. Next we applied the regex to the string supplied by the user. We then used the <code>?</code> operator to either get the matches or immediately return an error.</p>
+<p>The next piece is more complicated, so I annotated the types. We’ll do the same trick with the <code>?</code> operator, then try to parse the string into a <code>NonZeroU8</code>. If an error occurs, we’ll throw it away and return our own error.  Parsing the dice size is largely the same, but this time we’ll return a <code>ParseError</code> directly from <code>parse</code> by telling the compiler how to convert a string into a <code>DiceSize</code> and specifying the type of error to return if it goes wrong.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// parse.rs
+</span><span style="color:#b48ead;">use </span><span>std::str::FromStr;
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>FromStr </span><span style="color:#b48ead;">for </span><span>DiceSize {
+</span><span>    </span><span style="color:#b48ead;">type </span><span>Err = ParseError;
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">from_str</span><span>(</span><span style="color:#bf616a;">s</span><span>: &amp;</span><span style="color:#b48ead;">str</span><span>) -&gt; Result&lt;</span><span style="color:#b48ead;">Self</span><span>, </span><span style="color:#b48ead;">Self::</span><span>Err&gt; {
+</span><span>        </span><span style="color:#b48ead;">match</span><span> s {
+</span><span>            &quot;</span><span style="color:#a3be8c;">4</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D4</span><span>),
+</span><span>            &quot;</span><span style="color:#a3be8c;">6</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D6</span><span>),
+</span><span>            &quot;</span><span style="color:#a3be8c;">8</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D8</span><span>),
+</span><span>            &quot;</span><span style="color:#a3be8c;">10</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D10</span><span>),
+</span><span>            &quot;</span><span style="color:#a3be8c;">12</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D12</span><span>),
+</span><span>            &quot;</span><span style="color:#a3be8c;">20</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D20</span><span>),
+</span><span>            &quot;</span><span style="color:#a3be8c;">100</span><span>&quot; =&gt; Ok(DiceSize::</span><span style="color:#d08770;">D100</span><span>),
+</span><span>            _ =&gt; Err(ParseError::InvalidDiceSize)
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="rolling-the-dice">Rolling the dice</h2>
+<p>Now that we know what to roll, we can work on how to roll. We’ll use the <code>rand</code> crate to generate our random dice rolls. Go ahead and add it to your <code>Cargo.toml</code>.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>rand = &quot;0.7&quot;
+</span></code></pre>
+<p>Now create a file called <code>roll.rs</code>. This is where you’ll write the code that handles the dice rolls. The dice rolls are going to be <code>usize</code>s (<code>NonZeroUsize</code> would make more sense, but the math operations are defined for <code>usize</code>). </p>
+<p>Here is the struct that holds the dice rolls and the functions that will generate them:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// roll.rs
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Debug, PartialEq)]
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">struct </span><span>Rolls(pub Vec&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;);
+</span><span>
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">roll_normal</span><span>(</span><span style="color:#bf616a;">cmd</span><span>: &amp;RollCmd) -&gt; Rolls {
+</span><span>    todo!()
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">roll_critical</span><span>(</span><span style="color:#bf616a;">cmd</span><span>: &amp;RollCmd) -&gt; Rolls {
+</span><span>    todo!()
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#96b5b4;">generate_rolls</span><span>(cmd: &amp;RollCmd) -&gt; Vec&lt;</span><span style="color:#b48ead;">usize</span><span>&gt; {
+</span><span>    todo!()
+</span><span>}
+</span></code></pre>
+<p>The <code>generate_rolls</code> function handles all the common dice-rolling operations, then <code>roll_normal</code> and <code>roll_critical</code> do their own specific jobs. Let’s look at how the random numbers are generated.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// roll.rs
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">generate_rolls</span><span>(</span><span style="color:#bf616a;">cmd</span><span>: &amp;RollCmd) -&gt; Vec&lt;</span><span style="color:#b48ead;">usize</span><span>&gt; {
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> rng = </span><span style="color:#96b5b4;">thread_rng</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> distribution = Uniform::new_inclusive(</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#b48ead;">usize</span><span>::from(cmd.size));
+</span><span>    </span><span style="color:#b48ead;">let</span><span> rolls: Vec&lt;</span><span style="color:#b48ead;">usize</span><span>&gt; = (</span><span style="color:#d08770;">0</span><span>..cmd.num.</span><span style="color:#96b5b4;">get</span><span>())
+</span><span>        .</span><span style="color:#96b5b4;">map</span><span>(|_| {
+</span><span>            distribution.</span><span style="color:#96b5b4;">sample</span><span>(&amp;</span><span style="color:#b48ead;">mut</span><span> rng).</span><span style="color:#96b5b4;">into</span><span>()
+</span><span>        }).</span><span style="color:#96b5b4;">collect</span><span>();
+</span><span>    rolls
+</span><span>}
+</span></code></pre>
+<p>This makes a random roll <code>cmd.num</code> times. The rolls are taken from a uniform probability distribution from <code>[1, cmd.size]</code>, meaning that each number on the dice is equally likely to appear. We make the rolls, collect them in a <code>Vec</code>, and return them.</p>
+<p>If you’re paying close attention, you may have noticed the <code>usize::from(cmd.size)</code> on the third line. This operation converts a <code>DiceSize</code> into a <code>usize</code>. We tell the compiler how to do this by implementing the <code>From</code> trait.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// parse.rs
+</span><span style="color:#b48ead;">impl </span><span>From&lt;DiceSize&gt; </span><span style="color:#b48ead;">for </span><span>usize {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">from</span><span>(</span><span style="color:#bf616a;">d</span><span>: DiceSize) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">match</span><span> d {
+</span><span>            DiceSize::</span><span style="color:#d08770;">D4 </span><span>=&gt; </span><span style="color:#d08770;">4</span><span>,
+</span><span>            DiceSize::</span><span style="color:#d08770;">D6 </span><span>=&gt; </span><span style="color:#d08770;">6</span><span>,
+</span><span>            DiceSize::</span><span style="color:#d08770;">D8 </span><span>=&gt; </span><span style="color:#d08770;">8</span><span>,
+</span><span>            DiceSize::</span><span style="color:#d08770;">D10 </span><span>=&gt; </span><span style="color:#d08770;">10</span><span>,
+</span><span>            DiceSize::</span><span style="color:#d08770;">D12 </span><span>=&gt; </span><span style="color:#d08770;">12</span><span>,
+</span><span>            DiceSize::</span><span style="color:#d08770;">D20 </span><span>=&gt; </span><span style="color:#d08770;">20</span><span>,
+</span><span>            DiceSize::</span><span style="color:#d08770;">D100 </span><span>=&gt; </span><span style="color:#d08770;">100</span><span>,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Once we have dice rolls, we can pass them off to <code>roll_normal</code> and <code>roll_critical</code>. For <code>roll_normal</code>, we’ll just return the dice rolls. For <code>roll_critical</code>, we’ll add a full-damage dice roll to the dice that have already been rolled (e.g., <code>4d6</code> becomes <code>4d6 + 24</code>).</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// roll.rs
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">roll_normal</span><span>(</span><span style="color:#bf616a;">cmd</span><span>: &amp;RollCmd) -&gt; Rolls {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> rolls = </span><span style="color:#96b5b4;">generate_rolls</span><span>(cmd);
+</span><span>    Rolls(rolls)
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">pub</span><span>(</span><span style="color:#b48ead;">crate</span><span>) </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">roll_crit</span><span>(</span><span style="color:#bf616a;">cmd</span><span>: &amp;RollCmd) -&gt; Rolls {
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> rolls = </span><span style="color:#96b5b4;">generate_rolls</span><span>(cmd);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> num = </span><span style="color:#b48ead;">usize</span><span>::from(</span><span style="color:#b48ead;">u8</span><span>::from(cmd.num.</span><span style="color:#96b5b4;">get</span><span>()));
+</span><span>    </span><span style="color:#b48ead;">let</span><span> size = </span><span style="color:#b48ead;">usize</span><span>::from(cmd.size);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> crit = num.</span><span style="color:#96b5b4;">checked_mul</span><span>(size).</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>    rolls.</span><span style="color:#96b5b4;">push</span><span>(crit);
+</span><span>    Rolls(rolls)
+</span><span>}
+</span></code></pre>
+<p>When we multiply the number and size of the dice, we are given back a <code>Result</code> because the multiplication can overflow. We unwrap this <code>Result</code> because our maximum number of dice, 255, and our maximum dice size, 100, can never cause this overflow.</p>
+<h2 id="responding">Responding</h2>
+<p>At this point, we’ve done all of the computation and we need to respond to the request while taking parsing errors into account. In our route handlers, we’ll return a <code>Result</code> where the <code>Err</code> will be a type that sets the HTTP status to <code>400 Bad Request</code>. Rocket has a built-in type that does this for us: <code>rocket::response::status::BadRequest</code>.</p>
+<p>We’ll use the <code>?</code> operator again to handle errors, which means we need to tell the compiler how to convert a <code>ParseError</code> into a <code>BadRequest</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// parse.rs
+</span><span style="color:#b48ead;">use </span><span>rocket::response::status::BadRequest;
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>From&lt;ParseError&gt; </span><span style="color:#b48ead;">for </span><span>BadRequest&lt;String&gt; {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">from</span><span>(</span><span style="color:#bf616a;">p</span><span>: ParseError) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">match</span><span> p {
+</span><span>            ParseError::InvalidDiceNumber =&gt; {
+</span><span>                BadRequest(Some(String::from(&quot;</span><span style="color:#a3be8c;">Number of dice must be &lt;= 255</span><span>&quot;)))
+</span><span>            }
+</span><span>            ParseError::InvalidDiceSize =&gt; BadRequest(Some(String::from(
+</span><span>                &quot;</span><span style="color:#a3be8c;">Dice size must be 4, 6, 8, 10, 12, 20, or 100</span><span>&quot;,
+</span><span>            ))),
+</span><span>            ParseError::UnableToParse =&gt; BadRequest(Some(String::from(
+</span><span>                &quot;</span><span style="color:#a3be8c;">Unable to parse, must be of the form &lt;number&gt;d&lt;size&gt;</span><span>&quot;,
+</span><span>            ))),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>Some(foo)</code> in each branch sets the body of the response to <code>foo</code> so that the user has some idea what went wrong.</p>
+<p>Next, stitch the rolls together into a string of the form.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>1 + 2 + 3 + 4 = 10
+</span></code></pre>
+<p>You can do this with a new function called <code>assemble_response</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// main.rs
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">assemble_response</span><span>(</span><span style="color:#bf616a;">rolls</span><span>: &amp;Rolls) -&gt; String {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> roll_str: String = rolls
+</span><span>        .</span><span style="color:#d08770;">0
+</span><span>        .</span><span style="color:#96b5b4;">iter</span><span>()
+</span><span>        .</span><span style="color:#96b5b4;">map</span><span>(|</span><span style="color:#bf616a;">d</span><span>| d.</span><span style="color:#96b5b4;">to_string</span><span>())
+</span><span>        .collect::&lt;Vec&lt;String&gt;&gt;()
+</span><span>        .</span><span style="color:#96b5b4;">join</span><span>(&quot;</span><span style="color:#a3be8c;"> + </span><span>&quot;);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> sum_str = rolls.</span><span style="color:#d08770;">0.</span><span style="color:#96b5b4;">iter</span><span>().sum::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;().</span><span style="color:#96b5b4;">to_string</span><span>();
+</span><span>    [roll_str, sum_str].</span><span style="color:#96b5b4;">join</span><span>(&quot;</span><span style="color:#a3be8c;"> = </span><span>&quot;)
+</span><span>}
+</span></code></pre>
+<p>We’re almost done! All we have to do is put these pieces together in our <code>normal</code> and <code>critical</code> handlers that we made way back in the beginning of the project.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// main.rs
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/&lt;dice&gt;</span><span>&quot;)]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">normal</span><span>(</span><span style="color:#bf616a;">dice</span><span>: String) -&gt; Result&lt;String, BadRequest&lt;String&gt;&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cmd = </span><span style="color:#96b5b4;">parse_dice_str</span><span>(dice.</span><span style="color:#96b5b4;">as_ref</span><span>())?;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> rolls = </span><span style="color:#96b5b4;">roll_normal</span><span>(&amp;cmd);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> resp = </span><span style="color:#96b5b4;">assemble_response</span><span>(&amp;rolls);
+</span><span>    Ok(resp)
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/crit/&lt;dice&gt;</span><span>&quot;)]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">critical</span><span>(</span><span style="color:#bf616a;">dice</span><span>: String) -&gt; Result&lt;String, BadRequest&lt;String&gt;&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cmd = </span><span style="color:#96b5b4;">parse_dice_str</span><span>(dice.</span><span style="color:#96b5b4;">as_ref</span><span>())?;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> rolls = </span><span style="color:#96b5b4;">roll_crit</span><span>(&amp;cmd);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> resp = </span><span style="color:#96b5b4;">assemble_response</span><span>(&amp;rolls);
+</span><span>    Ok(resp)
+</span><span>}
+</span></code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>Hopefully you had as much fun building this dice rolling service as I did! There’s still plenty of work to do; if you want to dive a little deeper, here are some ideas to get you started:</p>
+<ul>
+<li>Roll character stats when the user visits <code>/stats</code>, which will entail rolling <code>4d6</code> six times and dropping the lowest number from each roll</li>
+<li>Keep a running total of the dice that have been rolled since the server started. To do this, you’ll need to explore Rocket’s State documentation.</li>
+</ul>
+<p>The code for this project is available on GitHub. If you have questions or want to submit either of the projects mentioned above, new contributors are always welcome!</p>
+
+</article>
+
+
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
+
+    </main>
+    
+    
+  </body>
+</html>
+
