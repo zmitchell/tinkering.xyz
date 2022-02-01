@@ -7,6 +7,10 @@ toc = false
 show_date = true
 +++
 
+{% details(summary="Click here for *tl;dr* and spoilers") %}
+I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. I'd probably get to 100x if I had more than 2 cores.
+{% end %}
+
 As part of my research I've been modeling absorption spectra from first principles i.e. computing how much light a protein absorbs at a given wavelength based on the locations and charges of all the atoms in the protein. Luckily, the vast majority of this work is done by collaborators running simulations on supercomputers. That process goes like this:
 - Grab the structure of the protein (the precise location of all of the atoms in the protein) from the [Protein Database](https://www.rcsb.org). People spend entire careers trying to obtain these structures. I'm studying the [Fenna-Matthews-Olson (FMO) complex](https://en.wikipedia.org/wiki/Fenna–Matthews–Olson_complex).
 - Put the protein in a box and fill the remaining space with water molecules.
@@ -19,13 +23,17 @@ There's a variety of information you can extract from these snapshots, but the p
 - [Transition dipole moments](https://en.wikipedia.org/wiki/Transition_dipole_moment) of certain molecules
 - Positions of certain molecules
 
-From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are.
+From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are. Here's how that's going:
 
-As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. Woof.
+![Comparison of simulated and experimental spectra](/images/sim_spectra.png)
+
+As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That's an 8TB matrix (assuming 64-bit floats), and it's not a sparse one either.
+
+Woof.
 
 This brings us to my current task. I know that the simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.
 
-Here's the problem, though, sometimes this fit takes 8 hours to complete. The goal is to run the simulations in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
+Here's the problem: sometimes this fit takes 8 hours to complete. That's a hell of a feedback cycle time. The goal is to run the simulations in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
 
 ## Problem description
 First let's describe the shape of my data. A complete configuration consists of:
@@ -339,9 +347,9 @@ At this point the breakdown of execution time looks like this:
 
 Calculating CD no longer dominates the execution time, so I moved my focus to diagonalization. I knew that my Hamiltonian matrix was [symmetric](https://en.wikipedia.org/wiki/Symmetric_matrix), so I wondered if there were diagonalization algorithms that could take advantage of this. Fortunately NumPy has one built in: `eigh`. Unfortunately it didn't seem to make much of a difference (within measurement error on my laptop). I suspect that there may be a bigger difference on a larger matrix.
 
-I wondered again whether NumPy was adding some overhead. One of the things that makes NumPy so fast is that parts of it are wrappers around [LAPACK](https://en.wikipedia.org/wiki/LAPACK) and [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms), which are industry standard libraries for efficient linear algebra algorithms and operations respectively. In order to test out this hypothesis I decided to call the LAPACK diagonalization routine directly as made available by the `scipy.lapack` module. The LAPACK routine used by `eig` is called SGEEV. Yeah, it's cryptic.
+I wondered again whether NumPy was adding some overhead. One of the things that makes NumPy so fast is that parts of it are wrappers around [LAPACK](https://en.wikipedia.org/wiki/LAPACK) and [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms), which are industry standard libraries for efficient linear algebra algorithms and operations. In order to test out this hypothesis I decided to call the LAPACK diagonalization routine directly as made available by the `scipy.lapack` module. The LAPACK routine used by `eig` is called DGEEV. Yeah, it's cryptic.
 
-A tricky detail here is that LAPACK is written in FORTRAN, so it consumes and returns arrays with FORTRAN-ordering (column-major) rather than C-ordering (row-major), so you need to handle conversion between the two. Fortunately my Hamiltonian is symmetric so the FORTRAN ordering is actually identical to the C-ordering. This isn't the case for the return values, though.
+A tricky detail here is that LAPACK is written in FORTRAN, so it expects and returns arrays with FORTRAN-ordering (column-major) rather than C-ordering (row-major), so you need to handle conversion between the two. Fortunately my Hamiltonian is symmetric so the FORTRAN ordering is actually identical to the C-ordering. This isn't the case for the return values, though.
 
 This is what the new diagonalization code looks like:
 ```python
@@ -359,11 +367,13 @@ I know it's a meme at this point, but I decided to rewrite the number-crunching 
 - [PyO3](https://github.com/PyO3/pyo3), for Rust/Python interop
 - [maturin](https://github.com/PyO3/maturin), for interacting with your extension during development and eventually publishing it to PyPI
 - [ndarray](https://github.com/rust-ndarray/ndarray), Rust's equivalent to NumPy
-- [rust-numpy](https://github.com/PyO3/rust-numpy), for converting NumPy objects to ndarray arrays.
+- [rust-numpy](https://github.com/PyO3/rust-numpy), for converting between NumPy and ndarray
 
-The Python interop was shockingly easy. I wouldn't even know how to begin doing this with C. It's not without friction, but that's mostly a documentation issue. For instance, I had trouble putting my Rust source alongside my Python source in my Python package and having it build properly when I use `poetry build` to build my Python package. The documentation makes it sound like this is the preferred method, but I was short on time and ended up just making a separate package, [ham2spec](https://github.com/savikhin-lab/ham2spec), so that I could upload it to PyPI and have it downloaded and installed like any other dependency. I shouldn't have to build and upload my Rust extension to a server somewhere to get it picked up properly as a dependency of my local project, but here we are. I was rushed to get this working, so it's entirely possible I missed something simple.
+The Python interop was shockingly easy. I wouldn't even know how to begin doing this with C. It's not without friction, but that's mostly a documentation issue. For instance, I had trouble putting my Rust source alongside my Python source in my Python package and having `poetry build` include the compiled Rust binary. The documentation makes it sound like this is the preferred method, but I couldn't figure it out in the moment and I was short on time. It's entirely possible I missed something simple, I've never done this before.
 
-That aside, this is what the development process looks like:
+I ended up just making a separate package, [ham2spec](https://github.com/savikhin-lab/ham2spec), so I could upload it to PyPI and have it downloaded and installed like any other dependency. I shouldn't have to build and upload my Rust extension to a server somewhere to get it picked up properly as a dependency of my local project, but here we are.
+
+This is what the development process looks like:
 - Create a new project with `maturin new`
 - Write your Rust code
 - Package it up and expose it to Python locally with `maturin develop`
@@ -371,11 +381,9 @@ That aside, this is what the development process looks like:
 - Repeat
 - Publish your module with `maturin publish`
 
-There was some trial and error around converting between Rust types and Python types, and I still don't have a good mental model for how the interop works.
+I also decided to interface with LAPACK directly via the [lapack](https://github.com/blas-lapack-rs/blas-lapack-rs.github.io/wiki) crate. I have one use of `unsafe` in my crate and it's the call to `dgeev`. I'm ok with that.
 
-I also decided to interface with LAPACK directly via the [lapack](https://github.com/blas-lapack-rs/blas-lapack-rs.github.io/wiki) crate. I have one use of `unsafe` in my crate and it's the call to `sgeev`. I'm ok with that.
-
-The Rust code is a pretty direct translation from the Python code. I had an inkling from the beginning that I would need to write the number crunching code in Rust, but the algorithmic optimizations were easier to implement in Python first. The only real deviations are the use of all the nice iterators that Rust provides, especially the `Zip` iterator that ndarray provides for iterating over multiple arrays in lock-step. Here's `Zip` in action:
+The Rust code is a pretty direct translation from the Python code. I had an inkling from the beginning that I would need to write the number crunching code in Rust, but it was easier to explore optimizations in Python first. The only real deviations are the use of all the nice iterators that Rust provides, especially the `Zip` iterator that ndarray provides for iterating over multiple arrays in lock-step. Here's `Zip` in action:
 ```rust
 pub fn compute_stick_spectra(
     hams: ArrayView3<f64>,
@@ -414,7 +422,7 @@ The only thing left to do is make sure the output of the new code and old code m
 ## Matching outputs
 It's at this point that I must make a confession. I haven't been eating my vegetables. Well, I have, like I said I'm a vegetarian. What I really mean is that I didn't have a test suite for either `fmo_analysis` or `ham2spec`. I know, blasphemy.
 
-I'm the last person you need to convince about writing tests. I've [given talks](https://www.youtube.com/watch?v=RdpHONoFsSs&list=PLgC1L0fKd7UkVwjVlOySfMnn80Qs5TOLb&index=9) about esoteric testing techniques. I've also [written about](https://tinkering.xyz/polsim/#testing) the need for better testing in scientific software. So, how did we get here?
+I'm the last person you need to convince about writing tests. I've [given talks](https://www.youtube.com/watch?v=RdpHONoFsSs&list=PLgC1L0fKd7UkVwjVlOySfMnn80Qs5TOLb&index=9) about esoteric testing techniques. I've also [written about](https://tinkering.xyz/polsim/#testing) the need for better testing in scientific software and [property-based testing specifically](https://tinkering.xyz/property-based-testing-with-proptest). So, how did we get here?
 - Burnout. Graduate school is hard. Doing anything that doesn't directly move you towards graduation has a high activation energy.
 - I'm the only person on the planet using this software, so I'll just run into all the bugs myself and fix them. Right?
 - This started as a small CLI that I threw together and it quickly grew beyond that scope.
