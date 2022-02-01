@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://tinkering.xyz/</loc>
+        <loc>https://drafts--tinkering.netlify.app/</loc>
     </url>
     <url>
-        <loc>https://tinkering.xyz/about/</loc>
+        <loc>https://drafts--tinkering.netlify.app/about/</loc>
         <lastmod>2018-02-03</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/abusing-type-annotations/</loc>
+        <loc>https://drafts--tinkering.netlify.app/abusing-type-annotations/</loc>
         <lastmod>2018-08-04</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/async-serial/</loc>
+        <loc>https://drafts--tinkering.netlify.app/async-serial/</loc>
         <lastmod>2018-03-15</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/clojure-lazy-sequences/</loc>
+        <loc>https://drafts--tinkering.netlify.app/clojure-lazy-sequences/</loc>
         <lastmod>2021-03-25</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/dicer-roller-service/</loc>
+        <loc>https://drafts--tinkering.netlify.app/dicer-roller-service/</loc>
         <lastmod>2020-04-29</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/interacting-with-assembly-in-rust/</loc>
+        <loc>https://drafts--tinkering.netlify.app/interacting-with-assembly-in-rust/</loc>
         <lastmod>2020-08-31</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/introduction-to-proc-macros/</loc>
+        <loc>https://drafts--tinkering.netlify.app/introduction-to-proc-macros/</loc>
         <lastmod>2018-02-03</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/lazy-grad-student/</loc>
+        <loc>https://drafts--tinkering.netlify.app/lazy-grad-student/</loc>
         <lastmod>2020-11-12</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/optimization-story/</loc>
+        <loc>https://drafts--tinkering.netlify.app/optimization-story/</loc>
         <lastmod>2022-01-09</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/polsim/</loc>
+        <loc>https://drafts--tinkering.netlify.app/polsim/</loc>
         <lastmod>2019-06-06</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/property-based-testing-with-proptest/</loc>
+        <loc>https://drafts--tinkering.netlify.app/property-based-testing-with-proptest/</loc>
         <lastmod>2020-06-19</lastmod>
     </url>
     <url>
-        <loc>https://tinkering.xyz/python-function-vs-method/</loc>
+        <loc>https://drafts--tinkering.netlify.app/python-function-vs-method/</loc>
         <lastmod>2020-11-15</lastmod>
     </url>
 </urlset>
