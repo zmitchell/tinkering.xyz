@@ -7,14 +7,22 @@ hidden = true
 show_date = false
 +++
 
-I _**love**_ the details. I'm the kind of person that watches YouTube videos about Unix syscalls in his free time 🤓.
+Hi, I'm Zach. I *love* building things and learning how things work. I also love disc golf and Dungeons & Dragons, but that's not what this blog is about.
 
-I'm finishing up the last year of my physics PhD at Purdue University, where I study the details of photosynthesis using ⚡️ultrafast spectroscopy⚡️. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I also write the software that glues together the equipment used in my experiments.
+I'm finishing up my physics PhD at Purdue University, where I study the details of photosynthesis using ultrafast spectroscopy. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I write the software that orchestrates the hardware in our experiments, and the software that analyzes our data. If something in our lab is automated, I did that, just don't ask how long it took.
 
-I've been writing Python for a little over 5 years. I decided to try Rust for a side project and it was love at first sight ❤️. I've been tinkering away at things in Rust ever since. From there I developed an interest in systems programming.
+## My story
+My first interaction with programming was a numerical techniques class using Matlab that was required for my physics degree. I didn't do much programming after that until I spent a summer on a research project that required more analysis than was comfortable to do in Excel. I wrote this analysis program in Matlab since that was what I knew. I only discovered afterwards that no one else in that lab had a Matlab license.
 
-This blog is made using [Zola](https://www.getzola.org/), a static site generator written in Rust ("Rewrite It In Rust" can apply to blogs too). The site is hosted on [Netlify](https://www.netlify.com), a service I can't believe is free.
+I never wanted that to happen again, so I picked up Python. Once I had a full programming language at my disposal I felt the need to make use of it. I started writing more and more programs, and started reading more and more about best practices.
 
+That was almost 10 years ago.
+
+At some point I picked up Rust, and through Rust I developed an interest in systems programming. I became very interested in correctness, and Rust's compiler is nothing if not interested in correctness.
+
+A few years later I stumbled upon generative art, and decided to learn Clojure as a means of trying my hand at it. As I learned about Clojure I realized that ~~fear~~ complexity is the mind-killer, and became more interestd in Clojure as a general purpose language. I'm still a baby when it comes to Clojure, but I'm eager to find excuses to use it.
+
+## Contact
 If you need to reach me, you can find me in the following places:
 
 * [GitHub](https://github.com/zmitchell)
