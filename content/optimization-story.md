@@ -126,7 +126,7 @@ def make_stick_spectrum(config: Config, ham: np.ndarray, pigs: List[Pigment]) ->
     }
     return out
 ```
-Even to my eyes it's not immediately obvious where the bottleneck would be in this function. In order to continue looking for the bottleneck we'll use another tool: `line_profiler`. A flamegraph tells you which function is slow, but not necessarily *what about it* is slow. `line_profiler` annotates each line with information about its execution time so you can get a better idea of why a particular function is slow. Running `line_profiler` on `make_stick_spectrum` generates this report:
+Even to my eyes it's not immediately obvious where the bottleneck would be in this function. In order to continue looking for the bottleneck we'll use another tool: `line_profiler`. A flamegraph tells you which function is slow, but not necessarily *what about it* is slow. `line_profiler` annotates each line with information about its execution time so you can immediately see where the time is going. Running `line_profiler` on `make_stick_spectrum` generates this report:
 
 {% details(summary="Click here to expand the report") %}
 ```
@@ -225,7 +225,9 @@ if __name__ == "__main__":
 The execution time varies from moment to moment depending on what else is running on my laptop, what's in cache, etc so the exact times should be taken with a grain of salt. Our starting point is 3.48ms per call to `make_stick_spectrum`.
 
 ### Avoiding superfluous lookups
-The first thing that jumped out at me is that we're repeatedly looking up the two pigments `pigs[j]` and `pigs[k]` in the inner loop. Looking these pigments up once at the beginning of the loop e.g. `pig_j = pigs[j]` takes us from 3.48ms to 2.78ms for a 20% speedup. The CD calculation now looks like this for a single "stick":
+The first thing that jumped out at me is that we're repeatedly looking up the two pigments `pigs[j]` and `pigs[k]` in the inner loop. Looking these pigments up once at the beginning of the loop e.g. `pig_j = pigs[j]` takes us from 3.48ms to 2.78ms for a 20% speedup.
+
+The CD calculation now looks like this for a single "stick":
 ```python
 for j in range(n_pigs):
     for k in range(n_pigs):
@@ -709,3 +711,46 @@ In the end I decided to go with `packed_simd` because it looked the most ergonom
 This brought execution time from 8.1ms to 7.4ms for a 9% speedup (51x overall).
 
 I decided not to keep this implementation because it requires a Nightly compiler and it would require supporting different architectures (I have an Apple Silicon laptop on the way).
+
+### Cachegrind
+I wondered if there was anything egregiously cache-inefficient, so I decided to try running a program under [Cachegrind](https://valgrind.org/docs/manual/cg-manual.html). Cachegrind essentially doesn't support macOS so I put together a Docker container for doing this analysis:
+```dockerfile
+FROM rust:latest
+
+# Install build-time dependencies, remove cruft afterwards
+RUN apt-get update && apt-get install -y valgrind libopenblas-dev gfortran python3 python3-pip && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install --user numpy
+
+# Cache the Rust dependencies so they don't download on every recompile
+WORKDIR /ham2spec
+COPY Cargo.toml .
+RUN mkdir src && touch src/lib.rs && cargo vendor
+
+# Copy the code over
+COPY src/ ./src/ 
+COPY examples/ ./examples/
+
+# Compile the example
+RUN RUSTFLAGS='-C force-frame-pointers=y' cargo build --example multiple_broadened_spectra --release
+```
+
+I build and run the container:
+```
+$ docker build -t rust-cachegrind:latest .
+$ docker run -it -v "$PWD/cgout":/out rust-cachegrind:latest
+```
+then run Cachegrind from inside the container:
+```
+$ valgrind --tool=cachegrind target/release/examples/multiple_broadened_spectra
+```
+
+Unfortunately this didn't reveal anything egregious, which is the only thing that would jump out at me since I've never used Cachegrind before.
+
+## Wrapping up
+I didn't get an overall speedup of 100x like I wanted, but I did get ~50x, and that's not nothing. Maybe I would get to 100x if I had more cores at my disposal. I'll post an update in 2025 when my laptop finally arrives.
+
+One thing that became abundantly clear to me is that being able to intuitively read assembly would help me take my understanding of my code to the next level. Another thing that became clear is that although I'm aware of a variety of tools at my disposal (Cachegrind, perf, lldb, etc), I'm not always sure how to get the most out of them. This will come with experience, so I'll keep looking for excuses to do this kind of thing.
+
+That's all for now. If you have hints, guidance, or feedback, feel free to chime in! You can find my email address in the About page.
+
+P.S. - I'll be looking for remote work in the coming months. I'm proficient in Python and Rust, and I'm a fledgling Clojure user, but I'm open to all kinds of opportunities. If you like what you read here, feel free to reach out!
