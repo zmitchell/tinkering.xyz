@@ -7,7 +7,7 @@ toc = false
 show_date = true
 +++
 
-{% details(summary="Click here for *tl;dr* and spoilers") %}
+{% details(summary="Click here for tl;dr and spoilers") %}
 I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. I'd probably get to 100x if I had more than 2 cores.
 {% end %}
 
@@ -23,7 +23,7 @@ There's a variety of information you can extract from these snapshots, but the p
 - [Transition dipole moments](https://en.wikipedia.org/wiki/Transition_dipole_moment) of certain molecules
 - Positions of certain molecules
 
-From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are. Here's how that's going:
+From this information I can calculate the [absorption spectrum](https://simple.wikipedia.org/wiki/Absorption_spectroscopy) (how much light is absorbed at each wavelength) and the [circular dichroism (CD) spectrum](https://en.wikipedia.org/wiki/Circular_dichroism). Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are. Sometimes it works well:
 
 ![Comparison of simulated and experimental spectra](/images/sim_spectra.png)
 
@@ -31,9 +31,9 @@ As is common in physics, part of this research entails figuring out how many det
 
 Woof.
 
-This brings us to my current task. I know that the simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.
+This brings us to my current task. I know that some simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian (among other things) in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.
 
-Here's the problem: sometimes this fit takes 8 hours to complete. That's a hell of a feedback cycle time. The goal is to run the simulations in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
+Here's the problem: some fits take 8 hours to complete. That's a hell of a feedback cycle time! The goal is to run the simulations in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
 
 ## Problem description
 First let's describe the shape of my data. A complete configuration consists of:
