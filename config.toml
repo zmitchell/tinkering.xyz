@@ -1,6 +1,5 @@
 # The URL the site will be built for
-# base_url = "https://tinkering.xyz"
-base_url = "https://drafts--tinkering.netlify.app"
+base_url = "https://tinkering.xyz"
 
 # Basic info
 title = "Tinkering"
