@@ -1,8 +1,7 @@
 +++
 title = "An optimization story"
 date = 2022-01-09
-draft = true
-toc = false
+draft = false
 [extra]
 show_date = true
 +++
