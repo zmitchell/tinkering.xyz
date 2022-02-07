@@ -4,7 +4,8 @@ base_url = "https://tinkering.xyz"
 # Basic info
 title = "Tinkering"
 default_language = "en"
-generate_rss = true
+generate_feed = true
+feed_filename = "rss.xml"
 description = "Come for the Foo, stay for the Bar"
 
 # Theming
