@@ -26,13 +26,13 @@ From this information I can calculate the [absorption spectrum](https://simple.w
 
 ![Comparison of simulated and experimental spectra](/images/sim_spectra.png)
 
-As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That's an 8TB matrix (assuming 64-bit floats), and it's not a sparse one either.
+As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, namely the effect of molecular vibrations and vibrations of the entire protein, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That's an 8TB matrix (assuming 64-bit floats), and it's not a sparse one either.
 
 Woof.
 
 This brings us to my current task. I know that some simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian (among other things) in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.
 
-Here's the problem: some fits take 8 hours to complete. That's a hell of a feedback cycle time! The goal is to run the simulations in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
+Here's the problem: some fits take 8 hours to complete on my 2-core laptop. That's a hell of a feedback cycle time! The goal is to run the simulations (locally) in about 5 minutes (\~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!
 
 ## Problem description
 First let's describe the shape of my data. A complete configuration consists of:
@@ -64,7 +64,7 @@ This is the important part:
 - 87.5% `make_stick_spectrum`
 - 10% `make_broadened_spectrum`
 
-The takeaway here is that `make_stick_spectrum` dominates the execution time. Note that this is *after* I made some optimizations several weeks ago, so imagine how much more skewed towards `make_stick_spectrum` it would be if I had done this weeks ago!
+The takeaway here is that `make_stick_spectrum` dominates the execution time. Note that this is *after* I made some optimizations several weeks ago, so imagine how much more skewed towards `make_stick_spectrum` it would be if I had done this back then!
 
 {% details(summary="Aside: NumPy isn't always fast!") %}
 It turns out that NumPy's cross product function `np.cross` is very slow for small arrays, 10x slower than computing it manually:

@@ -190,10 +190,10 @@
 </ul>
 <p>From this information I can calculate the <a href="https://simple.wikipedia.org/wiki/Absorption_spectroscopy">absorption spectrum</a> (how much light is absorbed at each wavelength) and the <a href="https://en.wikipedia.org/wiki/Circular_dichroism">circular dichroism (CD) spectrum</a>. Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are. Sometimes it works well:</p>
 <p><img src="/images/sim_spectra.png" alt="Comparison of simulated and experimental spectra" /></p>
-<p>As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That's an 8TB matrix (assuming 64-bit floats), and it's not a sparse one either.</p>
+<p>As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, namely the effect of molecular vibrations and vibrations of the entire protein, but they happen to be details that we can't calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That's an 8TB matrix (assuming 64-bit floats), and it's not a sparse one either.</p>
 <p>Woof.</p>
 <p>This brings us to my current task. I know that some simulations and experimental spectra don't match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian (among other things) in order to get them to match. If those tweaks are within the modeling error of the simulations, that's great and it means we're on the right track. If not, it means we're leaving out important details.</p>
-<p>Here's the problem: some fits take 8 hours to complete. That's a hell of a feedback cycle time! The goal is to run the simulations in about 5 minutes (~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!</p>
+<p>Here's the problem: some fits take 8 hours to complete on my 2-core laptop. That's a hell of a feedback cycle time! The goal is to run the simulations (locally) in about 5 minutes (~100x speedup) without doing anything too crazy. We've found our rabbit hole, let's dive in!</p>
 <h2 id="problem-description">Problem description</h2>
 <p>First let's describe the shape of my data. A complete configuration consists of:</p>
 <ul>
@@ -217,7 +217,7 @@
 <li>87.5% <code>make_stick_spectrum</code></li>
 <li>10% <code>make_broadened_spectrum</code></li>
 </ul>
-<p>The takeaway here is that <code>make_stick_spectrum</code> dominates the execution time. Note that this is <em>after</em> I made some optimizations several weeks ago, so imagine how much more skewed towards <code>make_stick_spectrum</code> it would be if I had done this weeks ago!</p>
+<p>The takeaway here is that <code>make_stick_spectrum</code> dominates the execution time. Note that this is <em>after</em> I made some optimizations several weeks ago, so imagine how much more skewed towards <code>make_stick_spectrum</code> it would be if I had done this back then!</p>
 <hr />
 <details>
     <summary>Aside: NumPy isn't always fast!</summary>

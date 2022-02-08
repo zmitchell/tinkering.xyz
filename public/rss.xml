@@ -36,10 +36,10 @@
 &lt;&#x2F;ul&gt;
 &lt;p&gt;From this information I can calculate the &lt;a href=&quot;https:&#x2F;&#x2F;simple.wikipedia.org&#x2F;wiki&#x2F;Absorption_spectroscopy&quot;&gt;absorption spectrum&lt;&#x2F;a&gt; (how much light is absorbed at each wavelength) and the &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Circular_dichroism&quot;&gt;circular dichroism (CD) spectrum&lt;&#x2F;a&gt;. Once I have these spectra I compare them against experimentally measured spectra to see how accurate our modeling techniques are. Sometimes it works well:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;sim_spectra.png&quot; alt=&quot;Comparison of simulated and experimental spectra&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
-&lt;p&gt;As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, but they happen to be details that we can&#x27;t calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That&#x27;s an 8TB matrix (assuming 64-bit floats), and it&#x27;s not a sparse one either.&lt;&#x2F;p&gt;
+&lt;p&gt;As is common in physics, part of this research entails figuring out how many details we can safely ignore. Reducing the FMO complex to an 8x8 matrix already throws away a huge number of details, namely the effect of molecular vibrations and vibrations of the entire protein, but they happen to be details that we can&#x27;t calculate in a reasonable amount of time. An exact calculation would require diagonalizing a 1,000,000x1,000,000 matrix. That&#x27;s an 8TB matrix (assuming 64-bit floats), and it&#x27;s not a sparse one either.&lt;&#x2F;p&gt;
 &lt;p&gt;Woof.&lt;&#x2F;p&gt;
 &lt;p&gt;This brings us to my current task. I know that some simulations and experimental spectra don&#x27;t match perfectly, so I wondered if I could fit small tweaks to the Hamiltonian (among other things) in order to get them to match. If those tweaks are within the modeling error of the simulations, that&#x27;s great and it means we&#x27;re on the right track. If not, it means we&#x27;re leaving out important details.&lt;&#x2F;p&gt;
-&lt;p&gt;Here&#x27;s the problem: some fits take 8 hours to complete. That&#x27;s a hell of a feedback cycle time! The goal is to run the simulations in about 5 minutes (~100x speedup) without doing anything too crazy. We&#x27;ve found our rabbit hole, let&#x27;s dive in!&lt;&#x2F;p&gt;
+&lt;p&gt;Here&#x27;s the problem: some fits take 8 hours to complete on my 2-core laptop. That&#x27;s a hell of a feedback cycle time! The goal is to run the simulations (locally) in about 5 minutes (~100x speedup) without doing anything too crazy. We&#x27;ve found our rabbit hole, let&#x27;s dive in!&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;problem-description&quot;&gt;Problem description&lt;&#x2F;h2&gt;
 &lt;p&gt;First let&#x27;s describe the shape of my data. A complete configuration consists of:&lt;&#x2F;p&gt;
 &lt;ul&gt;
@@ -63,7 +63,7 @@
 &lt;li&gt;87.5% &lt;code&gt;make_stick_spectrum&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;10% &lt;code&gt;make_broadened_spectrum&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
-&lt;p&gt;The takeaway here is that &lt;code&gt;make_stick_spectrum&lt;&#x2F;code&gt; dominates the execution time. Note that this is &lt;em&gt;after&lt;&#x2F;em&gt; I made some optimizations several weeks ago, so imagine how much more skewed towards &lt;code&gt;make_stick_spectrum&lt;&#x2F;code&gt; it would be if I had done this weeks ago!&lt;&#x2F;p&gt;
+&lt;p&gt;The takeaway here is that &lt;code&gt;make_stick_spectrum&lt;&#x2F;code&gt; dominates the execution time. Note that this is &lt;em&gt;after&lt;&#x2F;em&gt; I made some optimizations several weeks ago, so imagine how much more skewed towards &lt;code&gt;make_stick_spectrum&lt;&#x2F;code&gt; it would be if I had done this back then!&lt;&#x2F;p&gt;
 &lt;hr &#x2F;&gt;
 &lt;details&gt;
     &lt;summary&gt;Aside: NumPy isn&#x27;t always fast!&lt;&#x2F;summary&gt;
