@@ -228,7 +228,7 @@
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;The execution time varies from moment to moment depending on what else is running on my laptop, what&#x27;s in cache, etc so the exact times should be taken with a grain of salt. Our starting point is 3.48ms per call to &lt;code&gt;make_stick_spectrum&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;avoiding-superfluous-lookups&quot;&gt;Avoiding superfluous lookups&lt;&#x2F;h3&gt;
-&lt;p&gt;The first thing that jumped out at me is that we&#x27;re repeatedly looking up the two pigments &lt;code&gt;pigs[j]&lt;&#x2F;code&gt; and &lt;code&gt;pigs[k]&lt;&#x2F;code&gt; in the inner loop. Looking these pigments up once at the beginning of the loop e.g. &lt;code&gt;pig_j = pigs[j]&lt;&#x2F;code&gt; takes us from 3.48ms to 2.78ms for a 20% speedup.&lt;&#x2F;p&gt;
+&lt;p&gt;The first thing that jumped out at me is that we&#x27;re repeatedly looking up the two pigments &lt;code&gt;pigs[j]&lt;&#x2F;code&gt; and &lt;code&gt;pigs[k]&lt;&#x2F;code&gt; in the inner loop. Looking these pigments up once at the beginning of the loop e.g. &lt;code&gt;pig_j = pigs[j]&lt;&#x2F;code&gt; takes us from 3.48ms to 2.78ms for a 25% speedup.&lt;&#x2F;p&gt;
 &lt;p&gt;The CD calculation now looks like this for a single &amp;quot;stick&amp;quot;:&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;j &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n_pigs):
 &lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;k &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n_pigs):
@@ -255,13 +255,13 @@
 &lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;# Notice the &amp;quot;2&amp;quot; here now!
 &lt;&#x2F;span&gt;&lt;span&gt;        stick_cd[i] += &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;* e_vecs[j, i] * e_vecs[k, i] * r_mu_dot
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;This takes us from 2.78ms to 1.71ms for a 162% speedup.&lt;&#x2F;p&gt;
+&lt;p&gt;This takes us from 2.78ms to 1.71ms for a 63% speedup.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;skipping-the-diagonal&quot;&gt;Skipping the diagonal&lt;&#x2F;h3&gt;
 &lt;p&gt;The key calculation is this &lt;code&gt;(r_j - r_k) * (mu_j x mu_k)&lt;&#x2F;code&gt; piece. Both &lt;code&gt;(r_j - r_k)&lt;&#x2F;code&gt; and &lt;code&gt;(mu_j x mu_k)&lt;&#x2F;code&gt; are zero if &lt;code&gt;j = k&lt;&#x2F;code&gt;, so we can skip those calculations entirely. This is all we need to change:&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;j &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n_pigs):
 &lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;k &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(j+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, n_pigs):  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;# Notice the &amp;quot;+1&amp;quot; here!
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;This takes us from 1.71ms to 1.41ms for an 18% speedup.&lt;&#x2F;p&gt;
+&lt;p&gt;This takes us from 1.71ms to 1.41ms for an 21% speedup.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;caching-some-computations&quot;&gt;Caching some computations&lt;&#x2F;h3&gt;
 &lt;p&gt;If you look at the &lt;code&gt;(r_j - r_k) * (mu_j x mu_k)&lt;&#x2F;code&gt; piece, you&#x27;ll notice a distinct lack of &lt;code&gt;i&lt;&#x2F;code&gt;. This means we&#x27;re calculating it over and over again for no reason on every iteration of the outer loop. We can calculate this part once and reuse it. The outer loop looks like this now:&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;r_mu_cross_cache = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;make_r_dot_mu_cross_cache&lt;&#x2F;span&gt;&lt;span&gt;(pigs)
@@ -306,7 +306,7 @@
 &lt;&#x2F;span&gt;&lt;span&gt;            mat[i, j] = e_vecs[i, col] * e_vecs[j, col]
 &lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;mat
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;This takes us from 1.41ms to 0.94ms for a 33% speedup.&lt;&#x2F;p&gt;
+&lt;p&gt;This takes us from 1.41ms to 0.94ms for a 50% speedup.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;letting-numpy-take-control&quot;&gt;Letting NumPy take control&lt;&#x2F;h3&gt;
 &lt;p&gt;The more you can keep execution in C and out of Python, the faster your program is going to run. In practice this means letting NumPy do iteration for you and apply functions to entire arrays since it can iterate and apply functions in C, which is much faster. Consider this example: I want to multiply two matrices together elementwise and sum the result.&lt;&#x2F;p&gt;
 &lt;p&gt;The naive version looks like this:&lt;&#x2F;p&gt;
@@ -468,7 +468,7 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;&#x2F;span&gt;&lt;span&gt;    });
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;This brought the execution time from 40ms to 17.6ms for a 227% speedup. My puny laptop only has 2 cores (but it does have Hyper-threading), so this is in the ballpark of what I would expect. I do have a new 16&amp;quot; Macbook Pro on the way with many more cores to throw at this, so we&#x27;ll see if I get linear scaling with the number of cores or not.&lt;&#x2F;p&gt;
+&lt;p&gt;This brought the execution time from 40ms to 17.6ms for a 127% speedup. My puny laptop only has 2 cores (but it does have Hyper-threading), so this is in the ballpark of what I would expect. I do have a new 16&amp;quot; Macbook Pro on the way with many more cores to throw at this, so we&#x27;ll see if I get linear scaling with the number of cores or not.&lt;&#x2F;p&gt;
 &lt;p&gt;At this point we&#x27;re still only 22x faster than the original execution time of 381ms for computing a broadened spectrum from 100 Hamiltonians.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;doing-less-work&quot;&gt;Doing less work&lt;&#x2F;h3&gt;
 &lt;p&gt;I ran &lt;code&gt;cargo-flamegraph&lt;&#x2F;code&gt; on an example calculation and it showed that calls to &lt;code&gt;exp&lt;&#x2F;code&gt; account for 55% of the execution time. On one hand, that&#x27;s not a function I can make faster by modifying its code, so that&#x27;s discouraging. On the other hand it means that most of the execution time is spent doing calculations and nothing too weird.&lt;&#x2F;p&gt;
@@ -504,7 +504,7 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;&#x2F;span&gt;&lt;span&gt;        });
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;This takes us from 17.6ms to 8.1ms with a cutoff of 3 for a 217% speedup. Now we&#x27;re sitting at 47x faster than the original.&lt;&#x2F;p&gt;
+&lt;p&gt;This takes us from 17.6ms to 8.1ms with a cutoff of 3 for a 117% speedup. Now we&#x27;re sitting at 47x faster than the original.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;final-attempts&quot;&gt;Final attempts&lt;&#x2F;h2&gt;
 &lt;p&gt;At this point I was running out of low-hanging fruit and turned to some heavier-duty tools and shots in the dark.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;looking-at-the-assembly&quot;&gt;Looking at the assembly&lt;&#x2F;h3&gt;

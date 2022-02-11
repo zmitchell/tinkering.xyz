@@ -232,7 +232,7 @@ if __name__ == "__main__":
 The execution time varies from moment to moment depending on what else is running on my laptop, what's in cache, etc so the exact times should be taken with a grain of salt. Our starting point is 3.48ms per call to `make_stick_spectrum`.
 
 ### Avoiding superfluous lookups
-The first thing that jumped out at me is that we're repeatedly looking up the two pigments `pigs[j]` and `pigs[k]` in the inner loop. Looking these pigments up once at the beginning of the loop e.g. `pig_j = pigs[j]` takes us from 3.48ms to 2.78ms for a 20% speedup.
+The first thing that jumped out at me is that we're repeatedly looking up the two pigments `pigs[j]` and `pigs[k]` in the inner loop. Looking these pigments up once at the beginning of the loop e.g. `pig_j = pigs[j]` takes us from 3.48ms to 2.78ms for a 25% speedup.
 
 The CD calculation now looks like this for a single "stick":
 ```python
@@ -263,7 +263,7 @@ for j in range(n_pigs):
         # Notice the "2" here now!
         stick_cd[i] += 2 * e_vecs[j, i] * e_vecs[k, i] * r_mu_dot
 ```
-This takes us from 2.78ms to 1.71ms for a 162% speedup.
+This takes us from 2.78ms to 1.71ms for a 63% speedup.
 
 ### Skipping the diagonal
 The key calculation is this `(r_j - r_k) * (mu_j x mu_k)` piece. Both `(r_j - r_k)` and `(mu_j x mu_k)` are zero if `j = k`, so we can skip those calculations entirely. This is all we need to change:
@@ -271,7 +271,7 @@ The key calculation is this `(r_j - r_k) * (mu_j x mu_k)` piece. Both `(r_j - r_
 for j in range(n_pigs):
     for k in range(j+1, n_pigs):  # Notice the "+1" here!
 ```
-This takes us from 1.71ms to 1.41ms for an 18% speedup.
+This takes us from 1.71ms to 1.41ms for an 21% speedup.
 
 ### Caching some computations
 If you look at the `(r_j - r_k) * (mu_j x mu_k)` piece, you'll notice a distinct lack of `i`. This means we're calculating it over and over again for no reason on every iteration of the outer loop. We can calculate this part once and reuse it. The outer loop looks like this now:
@@ -319,7 +319,7 @@ def make_weight_matrix(e_vecs, col):
             mat[i, j] = e_vecs[i, col] * e_vecs[j, col]
     return mat
 ```
-This takes us from 1.41ms to 0.94ms for a 33% speedup.
+This takes us from 1.41ms to 0.94ms for a 50% speedup.
 
 ### Letting NumPy take control
 The more you can keep execution in C and out of Python, the faster your program is going to run. In practice this means letting NumPy do iteration for you and apply functions to entire arrays since it can iterate and apply functions in C, which is much faster. Consider this example: I want to multiply two matrices together elementwise and sum the result.
@@ -502,7 +502,7 @@ Zip::from(abs_arr.columns_mut())
 }
 ```
 
-This brought the execution time from 40ms to 17.6ms for a 227% speedup. My puny laptop only has 2 cores (but it does have Hyper-threading), so this is in the ballpark of what I would expect. I do have a new 16" Macbook Pro on the way with many more cores to throw at this, so we'll see if I get linear scaling with the number of cores or not.
+This brought the execution time from 40ms to 17.6ms for a 127% speedup. My puny laptop only has 2 cores (but it does have Hyper-threading), so this is in the ballpark of what I would expect. I do have a new 16" Macbook Pro on the way with many more cores to throw at this, so we'll see if I get linear scaling with the number of cores or not.
 
 At this point we're still only 22x faster than the original execution time of 381ms for computing a broadened spectrum from 100 Hamiltonians.
 
@@ -545,7 +545,7 @@ pub fn add_cutoff_bands(
 }
 ```
 
-This takes us from 17.6ms to 8.1ms with a cutoff of 3 for a 217% speedup. Now we're sitting at 47x faster than the original.
+This takes us from 17.6ms to 8.1ms with a cutoff of 3 for a 117% speedup. Now we're sitting at 47x faster than the original.
 
 ## Final attempts
 At this point I was running out of low-hanging fruit and turned to some heavier-duty tools and shots in the dark.
