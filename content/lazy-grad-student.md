@@ -1,5 +1,5 @@
 +++
-title = "Lazy grad student is lazy"
+title = "Using notifiers to give yourself the day off"
 date = 2020-11-12
 draft = false
 [extra]
