@@ -697,7 +697,6 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;p&gt;I didn&#x27;t get an overall speedup of 100x like I wanted, but I did get ~50x, and that&#x27;s not nothing. Maybe I would get to 100x if I had more cores at my disposal. I&#x27;ll post an update in 2025 when my laptop finally arrives.&lt;&#x2F;p&gt;
 &lt;p&gt;One thing that became abundantly clear to me is that being able to intuitively read assembly would help me take my understanding of my code to the next level. Another thing that became clear is that although I&#x27;m aware of a variety of tools at my disposal (Cachegrind, perf, lldb, etc), I&#x27;m not always sure how to get the most out of them. This will come with experience, so I&#x27;ll keep looking for excuses to do this kind of thing.&lt;&#x2F;p&gt;
 &lt;p&gt;That&#x27;s all for now. If you have hints, guidance, or feedback, feel free to chime in! You can find my email address in the About page.&lt;&#x2F;p&gt;
-&lt;p&gt;P.S. - I&#x27;ll be looking for remote work in the coming months. I&#x27;m proficient in Python and Rust, and I&#x27;m a fledgling Clojure user, but I&#x27;m open to all kinds of opportunities. If you like what you read here, feel free to reach out!&lt;&#x2F;p&gt;
 </description>
         </item>
         <item>

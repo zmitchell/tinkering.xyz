@@ -759,5 +759,3 @@ I didn't get an overall speedup of 100x like I wanted, but I did get ~50x, and t
 One thing that became abundantly clear to me is that being able to intuitively read assembly would help me take my understanding of my code to the next level. Another thing that became clear is that although I'm aware of a variety of tools at my disposal (Cachegrind, perf, lldb, etc), I'm not always sure how to get the most out of them. This will come with experience, so I'll keep looking for excuses to do this kind of thing.
 
 That's all for now. If you have hints, guidance, or feedback, feel free to chime in! You can find my email address in the About page.
-
-P.S. - I'll be looking for remote work in the coming months. I'm proficient in Python and Rust, and I'm a fledgling Clojure user, but I'm open to all kinds of opportunities. If you like what you read here, feel free to reach out!
