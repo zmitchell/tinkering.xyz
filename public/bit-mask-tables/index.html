@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Bit mask tables &middot; Tinkering</title>
+    <meta name="description" content="Come for the Foo, stay for the Bar" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="alternate" type="application/atom+xml" title="RSS" href="https://tinkering.xyz/atom.xml">
+
+    <style>html,body{background:#fffaf7;color:#2d2d2d;font:18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"}a,a:visited{color:darkred;text-decoration:none}a:hover{text-decoration:underline}main{margin:auto;max-width:65ch;padding:0.8rem}pre{background:white;overflow:scroll;padding:1rem}td{border:1px solid #2d2d2d;padding:10px}img{height:auto;max-width:100%}.homepage-list{list-style:none;padding:1rem 0}.homepage-list li{align-items:center;display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px}@media (max-width: 65ch){.homepage-list li a{width:100%}}code{font-size:90%}p>code,li>code{padding:.15em .25em;color:#bf616a;background-color:#e8e8e8;border-radius:3px}
+</style>
+
+    <meta property="og:site_name" content="Tinkering">
+      <meta name="author" content="Zach Mitchell" />
+      <meta property="og:title" content="Bit mask tables">
+      <meta property="og:description" content="">
+      <meta property="og:url" content="https://tinkering.xyz/bit-mask-tables/">
+      <meta property="og:image" content="">
+
+      <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2022-09-27T00:00:00+00:00" />
+
+      <link rel="prev" href="https://tinkering.xyz/fmo-optimization-story/" />
+      
+    
+
+  </head>
+  
+
+  <body>
+    <main id="main" role="main">
+
+      
+      <header role="banner">
+        <h3 style="margin-top:0;">
+          <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+          <br /><small>Come for the Foo, stay for the Bar</small>
+        </h3>
+      </header>
+      <hr />
+      
+
+      
+<article>
+  <h1>Bit mask tables</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2022-09-27T00:00:00+00:00">September 27, 2022</time></p>
+  
+
+  
+  <div style="font-size:90%;">
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/bit-mask-tables/#program">Program</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/bit-mask-tables/#table-format">Table format</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/bit-mask-tables/#1-bit">1 bit</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/bit-mask-tables/#8-bits">8 Bits</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/bit-mask-tables/#16-bits">16 bits</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/bit-mask-tables/#32-bits">32 bits</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p>At <code>$WORK</code> I have a need to create some masks over an unsigned 64-bit field. I've never done this before. I figured that, surely, tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables.</p>
+<h2 id="program">Program</h2>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>bit_sizes = [</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">8</span><span>, </span><span style="color:#d08770;">16</span><span>, </span><span style="color:#d08770;">32</span><span>]
+</span><span>total_bits = </span><span style="color:#d08770;">64
+</span><span>
+</span><span style="color:#b48ead;">for </span><span>bit_size </span><span style="color:#b48ead;">in </span><span>bit_sizes:
+</span><span>    positions = </span><span style="color:#bf616a;">int</span><span>(total_bits / bit_size)
+</span><span>    n = </span><span style="color:#d08770;">0
+</span><span>    </span><span style="color:#b48ead;">for </span><span style="color:#bf616a;">_ </span><span style="color:#b48ead;">in </span><span style="color:#96b5b4;">range</span><span>(bit_size):
+</span><span>        n = n &lt;&lt; </span><span style="color:#d08770;">1
+</span><span>        n += </span><span style="color:#d08770;">1
+</span><span>    </span><span style="color:#96b5b4;">print</span><span>(</span><span style="color:#b48ead;">f</span><span>&quot;</span><span style="color:#a3be8c;"># </span><span>{bit_size}</span><span style="color:#a3be8c;"> bits</span><span>&quot;)
+</span><span>    </span><span style="color:#b48ead;">for </span><span>pos </span><span style="color:#b48ead;">in </span><span style="color:#96b5b4;">range</span><span>(positions):
+</span><span>        </span><span style="color:#96b5b4;">print</span><span>(</span><span style="color:#b48ead;">f</span><span>&quot;{pos}</span><span style="color:#a3be8c;">, </span><span>{n}&quot;)
+</span><span>        n = n &lt;&lt; bit_size
+</span></code></pre>
+<h2 id="table-format">Table format</h2>
+<p>Each table has a &quot;position&quot; column and a &quot;decimal value&quot; column. The &quot;position&quot; refers to which <code>n</code> bits you're setting to 1. For a single bit the position is which individual bit is 1. For 8 bits the position is which 8 bits you're setting to 1. The decimal value is the decimal value when the bits at the given position are set to 1. For example, 8 bits in position 1 (the second byte) corresponds to the binary number <code>0b000....01111111100000000</code> and the decimal value 65280.</p>
+<p>To get the mask for an odd number of bits you can just add the decimal values in the table since the positions don't overlap for a given number of bits.</p>
+<h2 id="1-bit">1 bit</h2>
+<table><thead><tr><th>Position</th><th>Decimal Value</th></tr></thead><tbody>
+<tr><td>0</td><td>1</td></tr>
+<tr><td>1</td><td>2</td></tr>
+<tr><td>2</td><td>4</td></tr>
+<tr><td>3</td><td>8</td></tr>
+<tr><td>4</td><td>16</td></tr>
+<tr><td>5</td><td>32</td></tr>
+<tr><td>6</td><td>64</td></tr>
+<tr><td>7</td><td>128</td></tr>
+<tr><td>8</td><td>256</td></tr>
+<tr><td>9</td><td>512</td></tr>
+<tr><td>10</td><td>1024</td></tr>
+<tr><td>11</td><td>2048</td></tr>
+<tr><td>12</td><td>4096</td></tr>
+<tr><td>13</td><td>8192</td></tr>
+<tr><td>14</td><td>16384</td></tr>
+<tr><td>15</td><td>32768</td></tr>
+<tr><td>16</td><td>65536</td></tr>
+<tr><td>17</td><td>131072</td></tr>
+<tr><td>18</td><td>262144</td></tr>
+<tr><td>19</td><td>524288</td></tr>
+<tr><td>20</td><td>1048576</td></tr>
+<tr><td>21</td><td>2097152</td></tr>
+<tr><td>22</td><td>4194304</td></tr>
+<tr><td>23</td><td>8388608</td></tr>
+<tr><td>24</td><td>16777216</td></tr>
+<tr><td>25</td><td>33554432</td></tr>
+<tr><td>26</td><td>67108864</td></tr>
+<tr><td>27</td><td>134217728</td></tr>
+<tr><td>28</td><td>268435456</td></tr>
+<tr><td>29</td><td>536870912</td></tr>
+<tr><td>30</td><td>1073741824</td></tr>
+<tr><td>31</td><td>2147483648</td></tr>
+<tr><td>32</td><td>4294967296</td></tr>
+<tr><td>33</td><td>8589934592</td></tr>
+<tr><td>34</td><td>17179869184</td></tr>
+<tr><td>35</td><td>34359738368</td></tr>
+<tr><td>36</td><td>68719476736</td></tr>
+<tr><td>37</td><td>137438953472</td></tr>
+<tr><td>38</td><td>274877906944</td></tr>
+<tr><td>39</td><td>549755813888</td></tr>
+<tr><td>40</td><td>1099511627776</td></tr>
+<tr><td>41</td><td>2199023255552</td></tr>
+<tr><td>42</td><td>4398046511104</td></tr>
+<tr><td>43</td><td>8796093022208</td></tr>
+<tr><td>44</td><td>17592186044416</td></tr>
+<tr><td>45</td><td>35184372088832</td></tr>
+<tr><td>46</td><td>70368744177664</td></tr>
+<tr><td>47</td><td>140737488355328</td></tr>
+<tr><td>48</td><td>281474976710656</td></tr>
+<tr><td>49</td><td>562949953421312</td></tr>
+<tr><td>50</td><td>1125899906842624</td></tr>
+<tr><td>51</td><td>2251799813685248</td></tr>
+<tr><td>52</td><td>4503599627370496</td></tr>
+<tr><td>53</td><td>9007199254740992</td></tr>
+<tr><td>54</td><td>18014398509481984</td></tr>
+<tr><td>55</td><td>36028797018963968</td></tr>
+<tr><td>56</td><td>72057594037927936</td></tr>
+<tr><td>57</td><td>144115188075855872</td></tr>
+<tr><td>58</td><td>288230376151711744</td></tr>
+<tr><td>59</td><td>576460752303423488</td></tr>
+<tr><td>60</td><td>1152921504606846976</td></tr>
+<tr><td>61</td><td>2305843009213693952</td></tr>
+<tr><td>62</td><td>4611686018427387904</td></tr>
+<tr><td>63</td><td>9223372036854775808</td></tr>
+</tbody></table>
+<h2 id="8-bits">8 Bits</h2>
+<table><thead><tr><th>Position</th><th>Decimal Value</th></tr></thead><tbody>
+<tr><td>0</td><td>255</td></tr>
+<tr><td>1</td><td>65280</td></tr>
+<tr><td>2</td><td>16711680</td></tr>
+<tr><td>3</td><td>4278190080</td></tr>
+<tr><td>4</td><td>1095216660480</td></tr>
+<tr><td>5</td><td>280375465082880</td></tr>
+<tr><td>6</td><td>71776119061217280</td></tr>
+<tr><td>7</td><td>18374686479671623680</td></tr>
+</tbody></table>
+<h2 id="16-bits">16 bits</h2>
+<table><thead><tr><th>Position</th><th>Decimal Value</th></tr></thead><tbody>
+<tr><td>0</td><td>65535</td></tr>
+<tr><td>1</td><td>4294901760</td></tr>
+<tr><td>2</td><td>281470681743360</td></tr>
+<tr><td>3</td><td>18446462598732840960</td></tr>
+</tbody></table>
+<h2 id="32-bits">32 bits</h2>
+<table><thead><tr><th>Position</th><th>Decimal Value</th></tr></thead><tbody>
+<tr><td>0</td><td>4294967295</td></tr>
+<tr><td>1</td><td>18446744069414584320</td></tr>
+</tbody></table>
+
+</article>
+
+
+      
+      <footer role="contentinfo">
+        <hr />
+        
+        <nav style="margin-bottom:1rem;" role="navigation">
+          
+            <a href="/">Home</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="https://github.com/zmitchell">GitHub</a>
+            
+              <span>&middot;</span>
+            
+          
+            <a href="/about/">About</a>
+            
+          
+        </nav>
+        
+        
+        <small>
+          
+          
+        </small>
+        
+      </footer>
+      
+
+    </main>
+    
+    
+  </body>
+</html>
+

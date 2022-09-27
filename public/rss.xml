@@ -7,7 +7,123 @@
         <generator>Zola</generator>
         <language>en</language>
         <atom:link href="https://tinkering.xyz/rss.xml" rel="self" type="application/rss+xml"/>
-        <lastBuildDate>Sun, 09 Jan 2022 00:00:00 +0000</lastBuildDate>
+        <lastBuildDate>Tue, 27 Sep 2022 00:00:00 +0000</lastBuildDate>
+        <item>
+            <title>Bit mask tables</title>
+            <pubDate>Tue, 27 Sep 2022 00:00:00 +0000</pubDate>
+            <link>https://tinkering.xyz/bit-mask-tables/</link>
+            <guid>https://tinkering.xyz/bit-mask-tables/</guid>
+            <description>&lt;p&gt;At &lt;code&gt;$WORK&lt;&#x2F;code&gt; I have a need to create some masks over an unsigned 64-bit field. I&#x27;ve never done this before. I figured that, surely, tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;program&quot;&gt;Program&lt;&#x2F;h2&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;bit_sizes = [&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;8&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;16&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;32&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;total_bits = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;64
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;bit_size &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;bit_sizes:
+&lt;&#x2F;span&gt;&lt;span&gt;    positions = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;(total_bits &#x2F; bit_size)
+&lt;&#x2F;span&gt;&lt;span&gt;    n = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(bit_size):
+&lt;&#x2F;span&gt;&lt;span&gt;        n = n &amp;lt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;        n += &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;f&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;# &lt;&#x2F;span&gt;&lt;span&gt;{bit_size}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt; bits&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;pos &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(positions):
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;f&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;{pos}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span&gt;{n}&amp;quot;)
+&lt;&#x2F;span&gt;&lt;span&gt;        n = n &amp;lt;&amp;lt; bit_size
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;table-format&quot;&gt;Table format&lt;&#x2F;h2&gt;
+&lt;p&gt;Each table has a &amp;quot;position&amp;quot; column and a &amp;quot;decimal value&amp;quot; column. The &amp;quot;position&amp;quot; refers to which &lt;code&gt;n&lt;&#x2F;code&gt; bits you&#x27;re setting to 1. For a single bit the position is which individual bit is 1. For 8 bits the position is which 8 bits you&#x27;re setting to 1. The decimal value is the decimal value when the bits at the given position are set to 1. For example, 8 bits in position 1 (the second byte) corresponds to the binary number &lt;code&gt;0b000....01111111100000000&lt;&#x2F;code&gt; and the decimal value 65280.&lt;&#x2F;p&gt;
+&lt;p&gt;To get the mask for an odd number of bits you can just add the decimal values in the table since the positions don&#x27;t overlap for a given number of bits.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;1-bit&quot;&gt;1 bit&lt;&#x2F;h2&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Position&lt;&#x2F;th&gt;&lt;th&gt;Decimal Value&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;0&lt;&#x2F;td&gt;&lt;td&gt;1&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;1&lt;&#x2F;td&gt;&lt;td&gt;2&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;2&lt;&#x2F;td&gt;&lt;td&gt;4&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;3&lt;&#x2F;td&gt;&lt;td&gt;8&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;4&lt;&#x2F;td&gt;&lt;td&gt;16&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;5&lt;&#x2F;td&gt;&lt;td&gt;32&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;6&lt;&#x2F;td&gt;&lt;td&gt;64&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;7&lt;&#x2F;td&gt;&lt;td&gt;128&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;8&lt;&#x2F;td&gt;&lt;td&gt;256&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;9&lt;&#x2F;td&gt;&lt;td&gt;512&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;10&lt;&#x2F;td&gt;&lt;td&gt;1024&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;11&lt;&#x2F;td&gt;&lt;td&gt;2048&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;12&lt;&#x2F;td&gt;&lt;td&gt;4096&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;13&lt;&#x2F;td&gt;&lt;td&gt;8192&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;14&lt;&#x2F;td&gt;&lt;td&gt;16384&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;15&lt;&#x2F;td&gt;&lt;td&gt;32768&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;16&lt;&#x2F;td&gt;&lt;td&gt;65536&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;17&lt;&#x2F;td&gt;&lt;td&gt;131072&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;18&lt;&#x2F;td&gt;&lt;td&gt;262144&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;19&lt;&#x2F;td&gt;&lt;td&gt;524288&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;20&lt;&#x2F;td&gt;&lt;td&gt;1048576&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;21&lt;&#x2F;td&gt;&lt;td&gt;2097152&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;22&lt;&#x2F;td&gt;&lt;td&gt;4194304&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;23&lt;&#x2F;td&gt;&lt;td&gt;8388608&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;24&lt;&#x2F;td&gt;&lt;td&gt;16777216&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;25&lt;&#x2F;td&gt;&lt;td&gt;33554432&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;26&lt;&#x2F;td&gt;&lt;td&gt;67108864&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;27&lt;&#x2F;td&gt;&lt;td&gt;134217728&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;28&lt;&#x2F;td&gt;&lt;td&gt;268435456&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;29&lt;&#x2F;td&gt;&lt;td&gt;536870912&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;30&lt;&#x2F;td&gt;&lt;td&gt;1073741824&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;31&lt;&#x2F;td&gt;&lt;td&gt;2147483648&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;32&lt;&#x2F;td&gt;&lt;td&gt;4294967296&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;33&lt;&#x2F;td&gt;&lt;td&gt;8589934592&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;34&lt;&#x2F;td&gt;&lt;td&gt;17179869184&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;35&lt;&#x2F;td&gt;&lt;td&gt;34359738368&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;36&lt;&#x2F;td&gt;&lt;td&gt;68719476736&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;37&lt;&#x2F;td&gt;&lt;td&gt;137438953472&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;38&lt;&#x2F;td&gt;&lt;td&gt;274877906944&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;39&lt;&#x2F;td&gt;&lt;td&gt;549755813888&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;40&lt;&#x2F;td&gt;&lt;td&gt;1099511627776&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;41&lt;&#x2F;td&gt;&lt;td&gt;2199023255552&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;42&lt;&#x2F;td&gt;&lt;td&gt;4398046511104&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;43&lt;&#x2F;td&gt;&lt;td&gt;8796093022208&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;44&lt;&#x2F;td&gt;&lt;td&gt;17592186044416&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;45&lt;&#x2F;td&gt;&lt;td&gt;35184372088832&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;46&lt;&#x2F;td&gt;&lt;td&gt;70368744177664&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;47&lt;&#x2F;td&gt;&lt;td&gt;140737488355328&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;48&lt;&#x2F;td&gt;&lt;td&gt;281474976710656&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;49&lt;&#x2F;td&gt;&lt;td&gt;562949953421312&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;50&lt;&#x2F;td&gt;&lt;td&gt;1125899906842624&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;51&lt;&#x2F;td&gt;&lt;td&gt;2251799813685248&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;52&lt;&#x2F;td&gt;&lt;td&gt;4503599627370496&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;53&lt;&#x2F;td&gt;&lt;td&gt;9007199254740992&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;54&lt;&#x2F;td&gt;&lt;td&gt;18014398509481984&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;55&lt;&#x2F;td&gt;&lt;td&gt;36028797018963968&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;56&lt;&#x2F;td&gt;&lt;td&gt;72057594037927936&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;57&lt;&#x2F;td&gt;&lt;td&gt;144115188075855872&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;58&lt;&#x2F;td&gt;&lt;td&gt;288230376151711744&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;59&lt;&#x2F;td&gt;&lt;td&gt;576460752303423488&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;60&lt;&#x2F;td&gt;&lt;td&gt;1152921504606846976&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;61&lt;&#x2F;td&gt;&lt;td&gt;2305843009213693952&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;62&lt;&#x2F;td&gt;&lt;td&gt;4611686018427387904&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;63&lt;&#x2F;td&gt;&lt;td&gt;9223372036854775808&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;h2 id=&quot;8-bits&quot;&gt;8 Bits&lt;&#x2F;h2&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Position&lt;&#x2F;th&gt;&lt;th&gt;Decimal Value&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;0&lt;&#x2F;td&gt;&lt;td&gt;255&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;1&lt;&#x2F;td&gt;&lt;td&gt;65280&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;2&lt;&#x2F;td&gt;&lt;td&gt;16711680&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;3&lt;&#x2F;td&gt;&lt;td&gt;4278190080&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;4&lt;&#x2F;td&gt;&lt;td&gt;1095216660480&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;5&lt;&#x2F;td&gt;&lt;td&gt;280375465082880&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;6&lt;&#x2F;td&gt;&lt;td&gt;71776119061217280&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;7&lt;&#x2F;td&gt;&lt;td&gt;18374686479671623680&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;h2 id=&quot;16-bits&quot;&gt;16 bits&lt;&#x2F;h2&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Position&lt;&#x2F;th&gt;&lt;th&gt;Decimal Value&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;0&lt;&#x2F;td&gt;&lt;td&gt;65535&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;1&lt;&#x2F;td&gt;&lt;td&gt;4294901760&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;2&lt;&#x2F;td&gt;&lt;td&gt;281470681743360&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;3&lt;&#x2F;td&gt;&lt;td&gt;18446462598732840960&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;h2 id=&quot;32-bits&quot;&gt;32 bits&lt;&#x2F;h2&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Position&lt;&#x2F;th&gt;&lt;th&gt;Decimal Value&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;0&lt;&#x2F;td&gt;&lt;td&gt;4294967295&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;1&lt;&#x2F;td&gt;&lt;td&gt;18446744069414584320&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+</description>
+        </item>
         <item>
             <title>An optimization story</title>
             <pubDate>Sun, 09 Jan 2022 00:00:00 +0000</pubDate>
