@@ -96,7 +96,7 @@
   </div>
   
 
-  <p>At <code>$WORK</code> I have a need to create some masks over an unsigned 64-bit field. I've never done this before. I figured that, surely, tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables.</p>
+  <p>At <code>$WORK</code> I have a need to create some bitmasks over a 64-bit field. I've never done this before. I figured that <em>surely</em> tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. So, to scratch my own itch I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables. Here you go, now we both have a quick reference.</p>
 <h2 id="program">Program</h2>
 <pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>bit_sizes = [</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">8</span><span>, </span><span style="color:#d08770;">16</span><span>, </span><span style="color:#d08770;">32</span><span>]
 </span><span>total_bits = </span><span style="color:#d08770;">64

@@ -6,7 +6,7 @@ draft = false
 show_date = true
 +++
 
-At `$WORK` I have a need to create some masks over an unsigned 64-bit field. I've never done this before. I figured that, surely, tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables.
+At `$WORK` I have a need to create some bitmasks over a 64-bit field. I've never done this before. I figured that *surely* tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. So, to scratch my own itch I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables. Here you go, now we both have a quick reference.
 
 ## Program
 ```python
