@@ -1,5 +1,5 @@
 +++
-title = "An optimization story"
+title = "Optimization story - quantum mechanics simulation speedup"
 date = 2022-01-09
 draft = false
 [extra]
@@ -7,7 +7,7 @@ show_date = true
 +++
 
 {% details(summary="Click here for tl;dr and spoilers") %}
-I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. I'd probably get to 100x if I had more than 2 cores.
+I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. After getting a machine with more (and faster) cores this jumped to 250x.
 {% end %}
 
 As part of my research I've been modeling absorption spectra from first principles i.e. computing how much light a protein absorbs at a given wavelength based on the locations and charges of all the atoms in the protein. Luckily, the vast majority of this work is done by collaborators running simulations on supercomputers. That process goes like this:
@@ -754,8 +754,10 @@ $ valgrind --tool=cachegrind target/release/examples/multiple_broadened_spectra
 Unfortunately this didn't reveal anything egregious, which is the only thing that would jump out at me since I've never used Cachegrind before.
 
 ## Wrapping up
-I didn't get an overall speedup of 100x like I wanted, but I did get ~50x, and that's not nothing. Maybe I would get to 100x if I had more cores at my disposal. I'll post an update in 2025 when my laptop finally arrives.
+I didn't get an overall speedup of 100x like I wanted, but I did get ~50x, and that's not nothing.
 
 One thing that became abundantly clear to me is that being able to intuitively read assembly would help me take my understanding of my code to the next level. Another thing that became clear is that although I'm aware of a variety of tools at my disposal (Cachegrind, perf, lldb, etc), I'm not always sure how to get the most out of them. This will come with experience, so I'll keep looking for excuses to do this kind of thing.
 
 That's all for now. If you have hints, guidance, or feedback, feel free to chime in! You can find my email address in the About page.
+
+Update: After my laptop arrived my speedup jumped to 250x with no changes in the code. Thanks Moore's Law!

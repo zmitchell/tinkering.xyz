@@ -125,14 +125,14 @@
 </description>
         </item>
         <item>
-            <title>An optimization story</title>
+            <title>Optimization story - quantum mechanics simulation speedup</title>
             <pubDate>Sun, 09 Jan 2022 00:00:00 +0000</pubDate>
             <link>https://tinkering.xyz/fmo-optimization-story/</link>
             <guid>https://tinkering.xyz/fmo-optimization-story/</guid>
             <description>&lt;hr &#x2F;&gt;
 &lt;details&gt;
     &lt;summary&gt;Click here for tl;dr and spoilers&lt;&#x2F;summary&gt;
-    &lt;p&gt;I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. I&#x27;d probably get to 100x if I had more than 2 cores.&lt;&#x2F;p&gt;
+    &lt;p&gt;I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. After getting a machine with more (and faster) cores this jumped to 250x.&lt;&#x2F;p&gt;
 
 &lt;&#x2F;details&gt;
 &lt;hr &#x2F;&gt;
@@ -810,9 +810,10 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;Unfortunately this didn&#x27;t reveal anything egregious, which is the only thing that would jump out at me since I&#x27;ve never used Cachegrind before.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;wrapping-up&quot;&gt;Wrapping up&lt;&#x2F;h2&gt;
-&lt;p&gt;I didn&#x27;t get an overall speedup of 100x like I wanted, but I did get ~50x, and that&#x27;s not nothing. Maybe I would get to 100x if I had more cores at my disposal. I&#x27;ll post an update in 2025 when my laptop finally arrives.&lt;&#x2F;p&gt;
+&lt;p&gt;I didn&#x27;t get an overall speedup of 100x like I wanted, but I did get ~50x, and that&#x27;s not nothing.&lt;&#x2F;p&gt;
 &lt;p&gt;One thing that became abundantly clear to me is that being able to intuitively read assembly would help me take my understanding of my code to the next level. Another thing that became clear is that although I&#x27;m aware of a variety of tools at my disposal (Cachegrind, perf, lldb, etc), I&#x27;m not always sure how to get the most out of them. This will come with experience, so I&#x27;ll keep looking for excuses to do this kind of thing.&lt;&#x2F;p&gt;
 &lt;p&gt;That&#x27;s all for now. If you have hints, guidance, or feedback, feel free to chime in! You can find my email address in the About page.&lt;&#x2F;p&gt;
+&lt;p&gt;Update: After my laptop arrived my speedup jumped to 250x with no changes in the code. Thanks Moore&#x27;s Law!&lt;&#x2F;p&gt;
 </description>
         </item>
         <item>
