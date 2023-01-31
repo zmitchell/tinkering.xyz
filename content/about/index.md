@@ -7,9 +7,9 @@ hidden = true
 show_date = false
 +++
 
-Hi, I'm Zach. I *love* building things and learning how things work. I also love disc golf and Dungeons & Dragons, but that's not what this blog is about.
+Hi, I'm Zach. I *love* building things and learning how things work. I also love disc golf, Dungeons & Dragons, but that's not what this blog is about.
 
-I'm finishing up my physics PhD at Purdue University, where I study the details of photosynthesis using ultrafast spectroscopy. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I write the software that orchestrates the hardware in our experiments, and the software that analyzes our data. If something in our lab is automated, I did that, just don't ask how long it took.
+I recently completed a physics PhD at Purdue University where I studied the details of photosynthesis using ultrafast spectroscopy. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I wrote the software that orchestrated the hardware in our experiments, the software that analyzed our data. I also did computational modeling of quantum-biological systems on both commodity hardware (my laptop) and supercomputing clusters.
 
 ## My story
 My first interaction with programming was a numerical techniques class using Matlab that was required for my physics degree. I didn't do much programming after that until I spent a summer on a research project that required more analysis than was comfortable to do in Excel. I wrote this analysis program in Matlab since that was what I knew. I only discovered afterwards that no one else in that lab had a Matlab license.
@@ -27,5 +27,5 @@ If you need to reach me, you can find me in the following places:
 
 * [GitHub](https://github.com/zmitchell)
 * [LinkedIn](https://www.linkedin.com/in/zmitchell22)
-* [Twitter](https://www.twitter.com/gluons)
+* [Mastodon](https://hachyderm.io/@zmitchell)
 * Email: [zmitchell@fastmail.com](mailto:zmitchell@fastmail.com)

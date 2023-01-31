@@ -2675,8 +2675,8 @@ $$&lt;&#x2F;p&gt;
             <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
             <link>https://tinkering.xyz/about/</link>
             <guid>https://tinkering.xyz/about/</guid>
-            <description>&lt;p&gt;Hi, I&#x27;m Zach. I &lt;em&gt;love&lt;&#x2F;em&gt; building things and learning how things work. I also love disc golf and Dungeons &amp;amp; Dragons, but that&#x27;s not what this blog is about.&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;m finishing up my physics PhD at Purdue University, where I study the details of photosynthesis using ultrafast spectroscopy. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I write the software that orchestrates the hardware in our experiments, and the software that analyzes our data. If something in our lab is automated, I did that, just don&#x27;t ask how long it took.&lt;&#x2F;p&gt;
+            <description>&lt;p&gt;Hi, I&#x27;m Zach. I &lt;em&gt;love&lt;&#x2F;em&gt; building things and learning how things work. I also love disc golf, Dungeons &amp;amp; Dragons, but that&#x27;s not what this blog is about.&lt;&#x2F;p&gt;
+&lt;p&gt;I recently completed a physics PhD at Purdue University where I studied the details of photosynthesis using ultrafast spectroscopy. Have you burned holes in your business cards with 100 femotosecond laser pulses? I have! I wrote the software that orchestrated the hardware in our experiments, the software that analyzed our data. I also did computational modeling of quantum-biological systems on both commodity hardware (my laptop) and supercomputing clusters.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;my-story&quot;&gt;My story&lt;&#x2F;h2&gt;
 &lt;p&gt;My first interaction with programming was a numerical techniques class using Matlab that was required for my physics degree. I didn&#x27;t do much programming after that until I spent a summer on a research project that required more analysis than was comfortable to do in Excel. I wrote this analysis program in Matlab since that was what I knew. I only discovered afterwards that no one else in that lab had a Matlab license.&lt;&#x2F;p&gt;
 &lt;p&gt;I never wanted that to happen again, so I picked up Python. Once I had a full programming language at my disposal I felt the need to make use of it. I started writing more and more programs, and started reading more and more about best practices.&lt;&#x2F;p&gt;
@@ -2688,7 +2688,7 @@ $$&lt;&#x2F;p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&quot;&gt;GitHub&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;zmitchell22&quot;&gt;LinkedIn&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.twitter.com&#x2F;gluons&quot;&gt;Twitter&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;hachyderm.io&#x2F;@zmitchell&quot;&gt;Mastodon&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;Email: &lt;a href=&quot;mailto:zmitchell@fastmail.com&quot;&gt;zmitchell@fastmail.com&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 </description>
