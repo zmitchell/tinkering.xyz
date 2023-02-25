@@ -6,36 +6,45 @@ body {
 		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
 		"Segoe UI Symbol";
 }
-a,
-a:visited {
+
+// All links should be red, be we don't want underlines on the blog title or index page
+a {
 	color: darkred;
 	text-decoration: none;
 }
-a:hover {
+
+// We do want underlines of all links in the article, including headers
+article a {
 	text-decoration: underline;
 }
+
 main {
 	margin: auto;
 	max-width: 65ch;
 	padding: 0.8rem;
 }
+
 pre {
 	background: white;
 	overflow: scroll;
 	padding: 1rem;
 }
+
 td {
 	border: 1px solid #2d2d2d;
 	padding: 10px;
 }
+
 img {
 	height: auto;
 	max-width: 100%;
 }
+
 .homepage-list {
 	list-style: none;
 	padding: 1rem 0;
 }
+
 .homepage-list li {
 	align-items: center;
 	display: flex;
@@ -43,17 +52,23 @@ img {
 	justify-content: space-between;
 	margin-bottom: 10px;
 }
+
 @media (max-width: 65ch) {
 	.homepage-list li a {
 		width: 100%;
 	}
 }
-// All code snippets
+
+// Monospace fonts tend to be bigger than other fonts, make them smaller
+// so it doesn't disrupt the visual flow
 code {
 	font-size: 90%;
 }
+
 // Inline code snippets
-p > code, li > code {
+// FIXME: Try "article code" to fix the missing code styling
+p>code,
+li>code {
 	padding: .15em .25em;
 	color: #bf616a;
 	background-color: #e8e8e8;
