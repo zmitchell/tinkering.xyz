@@ -1,37 +1,62 @@
-html,
-body {
-	background: #fffaf7;
-	color: #2d2d2d;
-	font: 18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+*,
+:after,
+:before {
+	box-sizing: border-box
+}
+
+:root {
+	--color-bg: #f2f2f2;
+	--color-text: #222222;
+	--color-inline-code-bg: #dee2e6;
+	--color-secondary: #089ce7;
+	--text-width: 70ch;
+	--size-base: 18px;
+	--font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
 		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
 		"Segoe UI Symbol";
 }
 
-// All links should be red, be we don't want underlines on the blog title or index page
-a {
-	color: darkred;
-	text-decoration: none;
-}
-
-// We do want underlines of all links in the article, including headers
-article a {
-	text-decoration: underline;
+body {
+	background: var(--color-bg);
+	color: var(--color-text);
+	font-size: var(--size-base);
+	font-family: var(--font-face);
+	line-height: 1.6;
 }
 
 main {
 	margin: auto;
-	max-width: 65ch;
+	max-width: var(--text-width);
 	padding: 0.8rem;
 }
 
+a {
+	color: currentColor;
+	text-decoration-color: var(--color-secondary);
+	-webkit-text-decoration-color: var(--color-secondary);
+	text-decoration: underline;
+	text-decoration-thickness: 0.15em;
+	-webkit-text-decoration-thickness: 0.15em;
+	text-underline-offset: 0.15em;
+	-webkit-text-underline-offset: 0.15em;
+}
+
+blockquote {
+	border-left-color: var(--color-secondary);
+	border-left-width: 0.25em;
+	border-left-style: solid;
+	margin-left: 0em;
+	margin-right: 0em;
+	padding-left: 0.5em;
+}
+
 pre {
-	background: white;
 	overflow: scroll;
 	padding: 1rem;
 }
 
 td {
-	border: 1px solid #2d2d2d;
+	border: 1px solid var(--color-text);
 	padding: 10px;
 }
 
@@ -41,20 +66,62 @@ img {
 }
 
 .homepage-list {
-	list-style: none;
-	padding: 1rem 0;
-}
-
-.homepage-list li {
-	align-items: center;
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	margin-bottom: 10px;
+	flex-direction: column;
+	list-style: none;
+	padding: 0;
+	margin-top: 0em;
 }
 
-@media (max-width: 65ch) {
-	.homepage-list li a {
+// .homepage-list li {
+// 	display: flex;
+// 	flex-direction: column;
+// 	justify-content: flex-start;
+// 	align-items: flex-start;
+// }
+
+.homepage-list a {
+	text-decoration-thickness: 0.05em;
+	-webkit-text-decoration-thickness: 0.05em;
+}
+
+.pagination {
+	display: flex;
+	justify-content: space-between;
+}
+
+.pagination__onlynext {
+	justify-content: flex-end;
+}
+
+.post {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	margin-top: 0;
+}
+
+.post__title {
+	margin: 0;
+	line-height: 1.2em;
+	justify-content: flex-start;
+}
+
+.post__date {
+	display: block;
+	margin-top: 0;
+	margin-bottom: 0.5em;
+	font-style: italic;
+}
+
+.post__description {
+	margin-top: 0;
+	margin-bottom: 2em;
+}
+
+@media (max-width: var(--text-width)) {
+	.homepage-list a {
 		width: 100%;
 	}
 }
@@ -66,11 +133,9 @@ code {
 }
 
 // Inline code snippets
-// FIXME: Try "article code" to fix the missing code styling
-p>code,
-li>code {
+code:not(pre > code) {
 	padding: .15em .25em;
-	color: #bf616a;
-	background-color: #e8e8e8;
+	color: var(--color-text);
+	background-color: var(--color-inline-code-bg);
 	border-radius: 3px;
 }

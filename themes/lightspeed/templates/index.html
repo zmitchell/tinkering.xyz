@@ -2,105 +2,109 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  {% block head %}
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% block head %}
 
-    <title>{% block title %}{{ config.title }} &middot; {{ config.description }}{% endblock title %}</title>
-    <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="alternate" type="application/atom+xml" title="RSS" href="{{ get_url(path="atom.xml") | safe }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    {% set data = load_data(path="public/style.css", format="plain") -%}
-    <style>{{ data | safe }}</style>
+  <title>{% block title %}{{ config.title }} &middot; {{ config.description }}{% endblock title %}</title>
+  <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/atom+xml" title="RSS" href="{{ get_url(path=" atom.xml") | safe }}">
 
-    {% block seo -%}
-      <meta property="og:site_name" content="{% block ogsitename %}{{config.title}}{% endblock ogsitename %}">
-      {% if config.extra.author -%}
-        <meta name="author" content="{{ config.extra.author }}" />
-      {%- endif %}
-      <meta property="og:title" content="{% block ogtitle %}{{config.title}}{% endblock ogtitle %}">
-      <meta property="og:description" content="{% block ogdesc %}{{config.description}}{% endblock ogdesc %}">
-      <meta property="og:url" content="{% block ogurl %}{{config.base_url | safe }}{% endblock ogurl %}">
-      <meta property="og:image" content="{% block ogimage %}{% if config.extra.ogimage %}{{ get_url(path=config.extra.ogimage) | safe }}{% endif %}{% endblock ogimage %}">
+  {% set data = load_data(path="public/style.css", format="plain") -%}
+  <style>
+    {{ data | safe }}
+  </style>
 
-      {% if page.date -%}
-        <meta property="og:type" content="article" />
-        <meta property="article:published_time" content="{{ page.date | date(format="%+") }}" />
-      {%- endif %}
+  {% block seo -%}
+  <meta property="og:site_name" content="{% block ogsitename %}{{config.title}}{% endblock ogsitename %}">
+  {% if config.extra.author -%}
+  <meta name="author" content="{{ config.extra.author }}" />
+  {%- endif %}
+  <meta property="og:title" content="{% block ogtitle %}{{config.title}}{% endblock ogtitle %}">
+  <meta property="og:description" content="{% block ogdesc %}{{config.description}}{% endblock ogdesc %}">
+  <meta property="og:url" content="{% block ogurl %}{{config.base_url | safe }}{% endblock ogurl %}">
+  <meta property="og:image"
+    content="{% block ogimage %}{% if config.extra.ogimage %}{{ get_url(path=config.extra.ogimage) | safe }}{% endif %}{% endblock ogimage %}">
 
-      {% if page.earlier -%}
-        <link rel="prev" href="{{ page.earlier.permalink | safe }}" />
-      {%- endif %}
-      {% if page.later -%}
-        <link rel="next" href="{{ page.later.permalink | safe }}" />
-      {%- endif %}
-    {%- endblock seo -%}
+  {% if page.date -%}
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="{{ page.date | date(format=" %+") }}" />
+  {%- endif %}
 
-    {% block extra_head %}
-    {% endblock extra_head %}
+  {% if page.earlier -%}
+  <link rel="prev" href="{{ page.earlier.permalink | safe }}" />
+  {%- endif %}
+  {% if page.later -%}
+  <link rel="next" href="{{ page.later.permalink | safe }}" />
+  {%- endif %}
+  {%- endblock seo -%}
 
-  </head>
-  {% endblock head %}
+  {% block extra_head %}
+  {% endblock extra_head %}
 
-  <body>
-    <main id="main" role="main">
+</head>
+{% endblock head %}
 
-      {% block header %}
-      <header role="banner">
-        <h3 style="margin-top:0;">
-          <a href="{{ config.base_url | safe }}" title="Home">{{ config.title }}</a>
-          <br /><small>{{ config.description }}</small>
-        </h3>
-      </header>
-      <hr />
-      {% endblock header %}
+<body>
+  <main id="main" role="main">
 
-      {% block content %}
-      <ul class="homepage-list">
-        {% for post in section.pages %}
-          {% if not post.extra.hidden %}
-          {{ macros::post_in_list(post=post) }}
-          {% endif %}
-        {% endfor %}
-      </ul>
-      {% endblock content %}
+    {% block header %}
+    <header role="banner">
+      <h3 style="margin-top:0;">
+        <a href="{{ config.base_url | safe }}" title="Home">{{ config.title }}</a>
+        <br /><small>{{ config.description }}</small>
+      </h3>
+    </header>
+    <hr />
+    {% endblock header %}
 
-      {% block footer %}
-      <footer role="contentinfo">
-        <hr />
-        {% if config.extra.footer_links %}
-        <nav style="margin-bottom:1rem;" role="navigation">
-          {% for item in config.extra.footer_links %}
-            <a href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}">{{ item.name }}</a>
-            {% if loop.last %}{% else %}
-              <span>&middot;</span>
-            {% endif %}
-          {% endfor %}
-        </nav>
+    {% block content %}
+    <ul class="homepage-list">
+      {% for page in paginator.pages %}
+        {% if not page.extra.hidden %}
+          {{ macros::post_in_list(post=page)}}
         {% endif %}
-        {% block taglines %}
-        <small>
-          {%- if config.extra.zola or config.extra.zola is undefined -%}Built with <a href="https://www.getzola.org/">Zola</a>{%- endif -%}
-          {%- if config.extra.netlify %} & hosted on <a href="https://netlify.com">Netlify</a>{%- endif -%}
-          {%- if config.extra.zola or config.extra.zola is undefined -%}.<br />{%- endif %}
-          {% if config.extra.maintained_with_love or config.extra.maintained_with_love is undefined%}Maintained with &hearts; for the web.<br />{% endif %}
-          {% if config.extra.footer_tagline %}{{ config.extra.footer_tagline }}{% endif %}
-        </small>
-        {% endblock taglines %}
-      </footer>
-      {% endblock footer %}
+      {% endfor %}
+    </ul>
+    {% endblock content %}
 
-    </main>
-    {% block after_main %}
-    {% endblock after_main %}
-  </body>
+    {% block footer %}
+    <footer role="contentinfo">
+      <hr />
+      <nav class="pagination {% if not paginator.previous %}pagination__onlynext{% endif %}">
+        {% if paginator.previous %}
+            <a class="previous" href="{{ paginator.previous }}">‹ Newer Posts</a>
+        {% endif %}
+        {% if paginator.next %}
+            <a class="next" href="{{ paginator.next }}">Older Posts ›</a>
+        {% endif %}
+    </nav>
+      {% block taglines %}
+      <small>
+        {%- if config.extra.zola or config.extra.zola is undefined -%}Built with <a
+          href="https://www.getzola.org/">Zola</a>{%- endif -%}
+        {%- if config.extra.netlify %} & hosted on <a href="https://netlify.com">Netlify</a>{%- endif -%}
+        {%- if config.extra.zola or config.extra.zola is undefined -%}.<br />{%- endif %}
+        {% if config.extra.maintained_with_love or config.extra.maintained_with_love is undefined%}Maintained with
+        &hearts; for the web.<br />{% endif %}
+        {% if config.extra.footer_tagline %}{{ config.extra.footer_tagline }}{% endif %}
+      </small>
+      {% endblock taglines %}
+    </footer>
+    {% endblock footer %}
+
+  </main>
+  {% block after_main %}
+  {% endblock after_main %}
+</body>
+
 </html>
-
