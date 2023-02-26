@@ -63,6 +63,11 @@
         <a href="{{ config.base_url | safe }}" title="Home">{{ config.title }}</a>
         <br /><small>{{ config.description }}</small>
       </h3>
+      <nav role="navigation">
+        {% for item in config.extra.nav_links %}
+          <a class="nav__link" href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}">{{ item.name }}</a>
+        {% endfor %}
+      </nav>
     </header>
     <hr />
     {% endblock header %}
