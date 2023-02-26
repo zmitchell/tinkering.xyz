@@ -2,11 +2,10 @@
 title = "Python functions vs. methods deep dive"
 date = 2020-11-15
 draft = true
+description = "This post will dig into the real differences between a method and a function in Python. You may not have a use for some of this information, but it will help you understand Python. The better you understand your tools, the more effectively you can use them. Also it's just fun to learn how Python do what it do."
 [extra]
 show_date = true
 +++
-
-This post will dig into the real differences between a method and a function in Python. You may not have a use for some of this information, but it will help you understand Python. The better you understand your tools, the more effectively you can use them. Also it's just fun to learn "how Python do what it do."
 
 Most of the information I'll cover here comes from the [Python data model][data_model]. I'll be referring to that document frequently, so let's call it PDM for short. My goal here is to take the some of the information in that document and make it crystal clear through a few short examples.
 

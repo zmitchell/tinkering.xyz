@@ -2,6 +2,7 @@
 title = "How to build a dice roller service in Rust"
 date = 2020-04-29
 draft = false
+description = "Let's build a simply web service in Rust using Rocket."
 [extra]
 show_date = true
 +++

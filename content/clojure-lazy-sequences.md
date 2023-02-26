@@ -2,6 +2,7 @@
 title = "The elegance of lazy sequences in Clojure"
 date = 2021-03-25
 draft = true
+description = "Lazy sequences are everywhere in Clojure and they make a lot of the magic possible. Let's look at how they work!"
 [extra]
 show_date = true
 +++

@@ -2,6 +2,7 @@
 title = "Using Python's asyncio with serial devices"
 date = 2018-03-15
 draft = false
+description = "After learning about async/await in Python I wondered how I could apply it to software in my lab. Much of that involves talking to equipment via serial ports. Libraries for talking to serial ports exist, but I found the documentation for doing so via async/await sparse. Here's an example of how to use PySerial asynchronously."
 [extra]
 show_date = true
 +++

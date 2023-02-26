@@ -2,6 +2,7 @@
 title = "Optimization story - quantum mechanics simulation speedup"
 date = 2022-01-09
 draft = false
+description = "As part of my PhD I do computational modeling of quantum-biological systems. One of my simulations was misbehaving and in certain cases could take 8 hours to complete. That's really bad when you're trying to iterate quickly. This post describes how I made a series of optimizations to reduce the runtime by 250x via profiler driven algorithmic improvements, rewriting the core in Rust, and making use of parallelism."
 [extra]
 show_date = true
 +++

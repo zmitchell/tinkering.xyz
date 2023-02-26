@@ -1,7 +1,8 @@
 +++
-title = "Bit mask tables"
+title = "Bitmask tables"
 date = 2022-09-27
 draft = false
+description = "I found myself looking for a specific type of bitmask and couldn't find what I was looking for. These were easy to make, so I've put them on the internet for your benefit."
 [extra]
 show_date = true
 +++
