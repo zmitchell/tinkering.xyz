@@ -150,6 +150,11 @@ pre {
 	padding: 1rem;
 }
 
+// FIXME: How do I make scrollbars less ugly?
+// ::-webkit-scrollbar {
+// 	background-color: #f2f2f2;
+// }
+
 // Monospace fonts tend to be bigger than other fonts, make them smaller
 // so it doesn't disrupt the visual flow
 code {

@@ -1,12 +1,11 @@
 +++
-title = "Nix journey part 1: Basic Rust development flake from scratch"
-date = 2023-01-27
+title = "Nix journey part 1: A flake from scratch"
+date = 2023-03-01
 draft = true
-description = "Our goal here is to develop a Nix flake from scratch that will let us compile a Rust crate and that's it, and by \"compile a Rust crate\" I mean by both calling `nix build` and by dropping into a development shell and calling `cargo build`. You may not be confident enough to write a flake yourself after reading this, but at least you'll have some context for all the moving pieces."
+description = "Today we're to develop a Nix flake from scratch (no really, from an empty file) that will let us compile a Rust crate and that's it, and by \"compile a Rust crate\" I mean by both calling `nix build` and by dropping into a development shell and calling `cargo build`. You may not be confident enough to write a flake yourself after reading this, but at least you'll have some context for all the moving pieces."
 [extra]
 show_date = true
 +++
-
 
 
 ## Today's goal
