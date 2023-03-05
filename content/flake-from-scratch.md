@@ -2,7 +2,7 @@
 title = "Nix journey part 1: A flake from scratch"
 date = 2023-03-01
 draft = true
-description = "Today we're to develop a Nix flake from scratch (no really, from an empty file) that will let us compile a Rust crate and that's it, and by \"compile a Rust crate\" I mean by both calling `nix build` and by dropping into a development shell and calling `cargo build`. You may not be confident enough to write a flake yourself after reading this, but at least you'll have some context for all the moving pieces."
+description = "Today we're to develop a Nix flake from scratch (no really, from an empty file) that will let us compile a Rust crate, and that's it. \"Compile a Rust crate\" means both calling `nix build` and dropping into a development shell and calling `cargo build`. This is a pretty basic piece of functionality, but we'll build off of it in later posts"
 [extra]
 show_date = true
 +++
@@ -10,37 +10,58 @@ show_date = true
 
 ## Today's goal
 
-Our goal here is to develop a Nix flake from scratch that will let us compile a Rust crate and that's it, and by "compile a Rust crate" I mean by both calling `nix build` and by dropping into a development shell and calling `cargo build`.
-
-You may not be confident enough to write a flake yourself after reading this, but at least you'll have some context for all the moving pieces.
+Today we're going to build a flake from the ground up, starting with an empty file. This flake will allow us to compile a Rust crate either by calling `nix build` or by dropping into a development shell and calling `cargo build`. The reason that we're taking this route is that I struggle to use tools when I don't understand how they work, so I want to have an understanding of why every single character is present in a flake. There's no better way to understand that than by building one from scratch. Hopefully by the end of this post when you see a flake you'll see this:
+```
+<expression>
+    <function>
+        <inputs>
+            nixpkgs
+            <other tools>
+        <outputs>
+            <default package>
+            <default development shell>
+```
+rather than
+```
+withlet{}{}{}::{}inputs{pkgs.foo,buildInputs=[]}
+```
 
 ## Getting started
-You'll obviously need Nix to get started. I recommend the official Nix installation script as instructed by the [Nix Reference Manual](https://nixos.org/manual/nix/stable/installation/installing-binary.html). I'm on macOS and the official installer worked just fine for me, no having to mess with SIP or anything like that. You'll need to add the following line to `/etc/nix/nix.conf`:
+You'll obviously need Nix to get started. I recommend the official Nix installation script as instructed by the [Nix Reference Manual][installation]. I'm on macOS and the official installer worked just fine for me, no having to mess with SIP or anything like that. You'll need to add the following line to `/etc/nix/nix.conf`:
 ```
 experimental-features = nix-command flakes
 ```
 This line enables experimental features, like it says. The `nix-command` feature allows you to use the `nix` command with subcommands like `build`, `shell`, `develop`, etc rather than having to use separate commands like `nix-env`, `nix-shell`, etc. The `flake` feature enables us to write flakes. You can read more about the motivation for flakes in [this article][old_vs_flakes]. In short, a flake is a Nix expression that adheres to a specific schema, providing some structure to what exactly a Nix build is supposed to do while providing a single entry point to a project as opposed to a collection of separate Nix files e.g. `shell.nix`, `foo.nix`, etc.
 
+There's also a new, unofficial installation method from Determinate Systems called [`nix-installer`][nix_installer]. I used it about a month prior to writing this, ran into a bug, and filed an issue (issue [#212][installer_issue]). It was resolved quickly and the maintainers were very pleasant. The nice thing about this installation method is that it sets you up for flakes by default and also tries very hard to make sure that (1) uninstalling Nix is easy, and (2) if installation fails you aren't left in an unrecoverable state. The official installation method is lacking in both of these regards.
+
 Now that we have the Nix tools we can start building our flake. We could do `nix flake init` to build out a very basic flake, but we're going to build it from the ground up, so let's really start from the ground floor:
 ```
+$ mkdir rust_flake && cd rust_flake
 $ touch flake.nix
 $ nix develop
 error: syntax error, unexpected end of file
 
        at /nix/store/3yph0sq9h5nwxaw89wy0vxaalb4csmxw-source/flake.nix:1:1:
 ```
-You don't get much more "ground floor" than an error at line 1 column 1. I'm using `nix develop` here instead of `nix build` because I'm familiar with how to compile Rust crates using Cargo, but building with Nix is new to me. If I can get a development shell up and running that will feel closer to the workflow I'm used to. Once I can get that working I'll graduate to `nix build`.
+You don't get much more "ground floor" than an error at line 1 column 1.
+
+You might have noticed that I said we're going to build the crate with `nix build`, but here I've used `nix develop`. The reason we're going this route is that I know how to build a Rust crate with `cargo`, but I don't yet know how to build a Rust crate with Nix-native tooling. The `nix develop` command puts you into a Bash shell (by default, you can change that somehow) with certain packages in `$PATH`, so if we can get `cargo` and `rustc` into our shell then we can just do a good old `cargo build` to compile the crate. Once we can do that we'll circle back and learn how to compile the crate using `nix build`.
 
 ## Minimal compiling flake
-A Nix flake is basically just a big expression, and right now the expression has a syntax error. A Nix expression is surrounded in curly brackets, so let's just put a pair of those in the file and try to jump into a development shell:
+A flake is basically just an "attribute set" or "attrset", which is what you would call a "map" or "dictionary" in other languages. In other words it's just a collection of key-value pairs where the keys are called "attributes". Right now the syntax with which we've defined our attrset has an error (duh, it's empty). An attrset is defined with this syntax:
+```nix
+{
+    attributeName = expression;
+}
+```
+That means our flake needs to have curly brackets surrounding a list of `foo = bar;` statements. Let's just put an empty attrset in the flake and see if it works:
 ```
 $ echo "{}" >flake.nix
 $ nix develop
 error: flake 'path:/Users/zmitchell/code/rust_flake?lastModified=1675541093&narHash=sha256-wsCzRc01DrmsFcszMdKcgqZW1UGPS3Wrwo6oXM0XjVI=' lacks attribute 'outputs'
 ```
-This is telling us that a flake that was specified as a path (rather than a URL, git repository, etc) is missing an attribute called `outputs`. In Nix an "attribute set" or "attrset" is what you would call a key-value map or dictionary in other languages, so when this error tells us that our flake is missing an attribute `outputs` what it means is that the expression contained in our flake is supposed to evaluate to a map containing a key `outputs`, and our map is missing this key.
-
-So, if there's one required attribute, are there others? Let's consult the [flake schema][flake_schema] as described on the NixOS Wiki:
+A shortened error message is `error: flake <stuff> lacks attribute 'outputs'`. The `<stuff>` is a "flake reference" and is how you refer to flakes that can come from a variety of sources (elsewhere on your machine, the internet, etc). We'll come back to this later, it's not important to understand the error. This error tells us that our flake is missing an attribute `outputs`, meaning that our set of key-value pairs is missing one whose key is `outputs`. This means we need to create an attribute called `outputs`, but that's probably not the whole story. Besides, how were we supposed to know we needed this attribute? If there's one required attribute, are there others? Let's consult the [flake schema][flake_schema] as described on the NixOS Wiki since that was the first search result:
 
 >It has 4 top-level attributes:
 >
@@ -49,9 +70,18 @@ So, if there's one required attribute, are there others? Let's consult the [flak
 > - `outputs` is a function of one argument that takes an attribute set of all the realized inputs, and outputs another attribute set which schema is described below.
 > - `nixConfig` is an attribute set of values which reflect the values given to nix.conf. This can extend the normal behavior of a user's nix experience by adding flake-specific configuration, such as a binary cache.
 
-There's more detailed explanation in the [`nix flake` command reference][flake_command] in the Nix Reference Manual. After finding this page things started to make sense, so definitely go read that. It took me some time to find this page, I guess I didn't expect the description of the flake file schema to be under the reference for the `nix flake` command.
+But wait, `nix develop` didn't complain about a missing `description`. On top of that I've never seen someone's flake have a `nixConfig` attribute, so there's some nuance missing from this description.
 
-So, `description` is just a string, `inputs` is an attribute set of the flake's dependencies, and `outputs` is a function that takes an attribute set of all the inputs and returns an attribute set of the flake's outputs (shells, packages, etc). However, `nixConfig` is an attribute set that allows you to provide project-specific overrides to settings in `nix.conf`. This isn't what's described above, but it's how `nixConfig` is described in the `nix flake` reference. I don't want to provide any overrides so I'm going to leave that out. Now let's fill out a minimal flake:
+It was at this point that I discovered that the _actual_ flake schema is defined in the [`nix flake` command reference][flake_command] in the Nix Reference Manual, which is not where I would expect to find it. After finding this page things started to make sense, so definitely go read that. All of it. I trust that you've done that, but I'll just paraphrase what it says anyway (emphasis mine):
+> The following attributes are **supported** in `flake.nix`:
+> - `description`: A short, one-line description of the flake
+> - `inputs`: An attrset specifying the dependencies of the flake
+> - `outputs`: A function that takes inputs in an attrset and produces the outputs of this flake
+> - `nixConfig`: A set of `nix.conf` options to be overridden when evaluating this flake
+
+Ah, _supported_, not _required_. So these are the four keys that I suppose _can_ appear at the top level of a flake, but not all of them are required. A quick search of the `nix flake` command reference doesn't show that any of these attributes are required, so I suppose there's a gap in the documentation. This also tells us that you can't have **any** other attributes at the top level of the flake. If you had a working flake and added `foo = "bar";` to it you would get an error that looks like this `error: flake <stuff> has an unsupported attribute 'foo'`.
+
+With that out of the way let's fill out a minimal flake. We'll say that we have no inputs, and that our `outputs` function takes no inputs and produces no outputs:
 ```nix
 {
     description = "A flake for a Rust development environment";
@@ -71,11 +101,11 @@ error: 'outputs' at /nix/store/qfhahmkdi9d0yikf4ka21xhz7ffsivy4-source/flake.nix
              |                     ^
            46|
 ```
-This error is saying that our `outputs` function was called with an argument `self`, but we wrote a function that takes an empty attribute set `{}` as its argument. That's unexpected, didn't we say that our `inputs` were `{}`? If you consult the [Flake Inputs][flake_inputs] section of the `nix flake` reference, you'll see that `self` is _always_ passed as argument. The `self` input is described as representing the directory tree that contains your `flake.nix`:
+This error is saying that our `outputs` function was called with an argument `self`, but we wrote a function that takes an empty attribute set `{}` as its argument. That's unexpected, didn't we say that our `inputs` were `{}`? If you consult the [Flake Inputs][flake_inputs] section of the `nix flake` reference, you'll see that `self` is _always_ passed as argument. The `self` input is described like this:
 
 > The special input named `self` refers to the outputs and source tree of _this_ flake.
 
-What's this about it containing the outputs of this flake though, aren't we literally using `self` to define the outputs? Yes we are, but the Nix language is lazily evaluated (like a lot of other functional programming languages), so this kind of circular/recursive logic ends up working out (`outputs.A` won't be evaluated unless we specifically ask for it through a Nix command or by referencing it from `outputs.B`). By passing `self` as an input we allow one output to reference a different output. What happens if we add `self` to the arguments?
+So `self` contains the source tree of the flake that's being evaluated, but what's this about it containing the outputs of this flake? Aren't we literally using `self` to define the outputs? The Nix language is lazily evaluated, and that makes these kinds of circular references possible. By passing `self` as an input we allow one output to reference a different output. What happens if we add `self` to the arguments?
 ```nix
 {
     description = "A flake for a Rust development environment";
@@ -88,17 +118,17 @@ What's this about it containing the outputs of this flake though, aren't we lite
 $ nix develop
 error: flake 'path:/Users/zmitchell/code/rust_flake' does not provide attribute 'devShells.aarch64-darwin.default', 'devShell.aarch64-darwin', 'packages.aarch64-darwin.default' or 'defaultPackage.aarch64-darwin'
 ```
-Back to the "no devShell" error again. I guess it's time to learn what that's all about. The [`nix develop` reference][nix_develop_reqs] says that when you call `nix develop` it tries to find these output attributes
+That's a new error! Let's figure out what these `devShell.<something>.default` and `packages.<something>.default` things are about. The [`nix develop` reference][nix_develop_reqs] says that when you call `nix develop` it tries to find these output attributes
 - `devShells.<system>.default`
 - `packages.<system>.default`
 where `<system>` is something like `aarch64-darwin` or `x86_64-linux` and corresponds to your system architecture and operating system.
 
-Ok, I can get behind creating an attribute called `devShells.aarch64-darwin.default`, but what should its value be? Strangely I haven't been able to find a good reference on this. I was expecting to find something along the lines of "`devShells.${system}` expects an attribute set containing the attributes X, Y, and Z", but I never found anything like that.
+I can get behind creating an attribute called `devShells.aarch64-darwin.default`, but what should we assign to it? Strangely I haven't been able to find a good reference on this. I was expecting to find something along the lines of "`devShells.${system}` expects an attribute set containing the attributes X, Y, and Z", but I never found anything like that.
 
 ## Building a development shell
 From reading a bunch of blog posts and examples it seems like you create a shell using the `mkShell` built-in function. Looking for documentation on this led me down a rabbit hole. I found much of what follows at this [Nixpkgs Manual page][nixpkgs_manual_rehosted], which is as it turns out isn't the official page even though it comes up first in my search results. You can find the [official Nixpkgs Manual][nixpkgs_manual_official] without much trouble if you know that it exists. Anyway, back to business.
 
-In pre-flakes Nix, each Nix build is done in the context of the ["standard environment"][stdenv] or `stdenv`, which is the most basic requirements for building software packages plus whatever you bring into scope with your Nix package. The standard environment consists of a Bash shell, `make`, `gcc`, etc. The full list of tools is [here][stdenv_tools]. The `stdenv` package also provides some functions for performing builds, namely `mkDerivation`.
+Nix provides what it calls the ["standard environment"][stdenv] or `stdenv`, which is what Nix considers to be the bare minimum for building software. Whether this is _really_ the bare minimum for building software is debatable, it's certainly a very C-centric way of building software. The standard environment consists of a Bash shell, `make`, `gcc`, etc (full list [here][stdenv_tools]) and some Nix functions like `mkShell` and `mkDerivation`.
 
 It turns out that `mkShell` is a specialized version of `mkDerivation`, so the inputs to `mkShell` are the inputs to `mkDerivation` plus some shell-specific extras such as options to set the shell prompt, commands to execute before entering the shell, etc. You can read all about `mkShell` [here][mkshell] and its inputs [here][mkshell_attributes]. The `mkDerivation` function looks for an input called `buildInputs`, which contains a list of dependencies needed for building your package (this isn't the whole story regarding dependencies, but I'm reserving that story for another post). For the moment let's just say we have no dependencies.
 
@@ -286,12 +316,35 @@ We can also run the binary via `nix run`. Cool!
 
 ## Moving forward
 This is a pretty basic Nix workflow and there are some rough edges that we'll address in the future.
-- If you modify `main.rs` all of your crate's dependencies are recompiled. That's _worse_ than without using Nix.
+- If you modify `main.rs` all of your crate's dependencies are recompiled. That's _worse_ than without Nix.
 - Right now our flake only works for a single architecture (the one we hardcoded in as `system`). Surely there's a way to extend our flake to be more flexible in this regard (spoiler, of course there is).
-- You may want different dependencies available at development-time, build-time, and run-time. For example, say you need to generate code based on Protobuf schemas, you'll probably need `protoc` around for that. You need that at build time, but you don't need it at run-time and you probably don't need it around at development time. Right now all of our dependencies are around at build time and development time.
+- You may want different dependencies available at development-time, build-time, and run-time. For example, say you need to generate code based on Protobuf schemas, you'll probably need `protoc` around for that. You need that at build time, but you don't need it at run-time and you may or may not need it around at development time. Right now all of our dependencies are around at build time and development time.
 - How do you build a workspace instead of a single crate?
 
-<!-- Be explicit that you're building a crate called rust_flake -->
+## The SEO problem
+Before leaving off I'd like to point out an area of improvement for the Nix project. Very often I found myself searching for a topic and the official sources were not in the top few search results, if they were present at all. For example, let's say I vaguely remember that the documentation for `mkShell` was in a section about "builders" ([Special Builders](https://nixos.org/manual/nixpkgs/stable/#chap-special)) and I do a search for "nix builders". My default search engine is DuckDuckGo, and the first page of search results (in order) are:
+- A construction company
+- A different construction company
+- Nix builds as a service
+- A rehosted version of a related page ([Trivial Builders](https://ryantm.github.io/nixpkgs/builders/trivial-builders/)
+- The Facebook page of one of the above construction companies
+- A custom home builder
+- A different page from the site of one of the above construction companies
+- The Generic Builders page on Nix Pills
+- The Distributed Builds page on the NixOS Wiki
+- A review of one of the above construction companies
+
+If I do the same search on Google the results are better, but still not good:
+- A construction company
+- Remote Builds - Nix Reference Manual
+- Nix builds as a service
+- Construction company
+- Distributed builds - NixOS Wiki
+- `nixpkgs/trivial-builders.nix` on GitHub (so close Google, so close!)
+- Review of a construction company
+- How to Learn Nix, Part 32: Builders - Ian Henry
+
+The page I'm looking for is not in the first page of results on either search engine. Ok, maybe my search was too obscure, but I don't think I'm being unreasonable here. Even with more precise search terms it's very common for other resources to come up before the official Nix pages.
 
 ## Questions for the audience
 1. Doing a build to produce a package makes sense conceptually, but doing a build to provide a shell environment makes less sense. What are the attributes that `mkShell` produces and how are they turned into a running shell environment?
@@ -311,7 +364,7 @@ This is a pretty basic Nix workflow and there are some rough edges that we'll ad
 - [Nix Flakes - zimbatm.com](https://zimbatm.com/notes/nixflakes)
        - An overview of using flakes
 
-
+[installation]: https://nixos.org/manual/nix/stable/installation/installing-binary.html
 [old_vs_flakes]: https://zimbatm.com/notes/summary-of-nix-flakes-vs-original-nix
 [flake_schema]: https://nixos.wiki/wiki/Flakes#Flake_schema
 [flake_command]: https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html
@@ -330,3 +383,5 @@ This is a pretty basic Nix workflow and there are some rough edges that we'll ad
 [nix_search]: https://search.nixos.org/packages
 [nixpkgs_rustc]: https://search.nixos.org/packages?channel=unstable&show=rustc&from=0&size=50&sort=relevance&type=packages&query=rustc#
 [build_rust_package]: https://nixos.org/manual/nixpkgs/stable/#compiling-rust-applications-with-cargo
+[installer_issue]: https://github.com/DeterminateSystems/nix-installer/issues/212
+[nix_installer]: https://github.com/DeterminateSystems/nix-installer
