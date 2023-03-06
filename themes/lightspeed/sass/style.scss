@@ -168,3 +168,8 @@ code:not(pre > code) {
 	background-color: var(--color-light);
 	border-radius: 3px;
 }
+
+// Anchor links next to heading
+.zola-anchor {
+	padding-left: 0.25em;
+}
