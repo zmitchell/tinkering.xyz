@@ -1,7 +1,6 @@
 +++
 title = "Property-based testing in Rust with Proptest"
 date = 2020-06-19
-draft = false
 description = "Software testing is industry standard practice at this point, but there's a variety of ways to test your software ranging from the most basic of unit tests all the way up to mutation testing. Property-based testing is a testing technique in which you declare abstract properties of your system, feed it randomly generated inputs, then check whether your properties are upheld. In this post I'll discuss the benefits of property-based testing and how to do it in Rust."
 +++
 

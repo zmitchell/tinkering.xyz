@@ -1,7 +1,6 @@
 +++
 title = "Using notifiers to give yourself the day off"
 date = 2020-11-12
-draft = false
 description = "When you're running experiments that take ~8 hours wouldn't it be nice if the experiment told you when it was done rather than needing babysitting? In this post I'll show you how I used Twilio to do just that."
 +++
 
