@@ -1,8 +1,7 @@
 {% macro post_in_list(post) %}
 <li class="post">
-  <h2 class="post__title"><a href="{{ post.permalink | safe }}">{{ post.title }}</a></h2>
+  <h2 class="post__title"><a href="{{ post.permalink | replace(from="$BASE_URL", to=config.base_url)| safe }}">{{ post.title }}</a></h2>
   <p class="post__date"><time style="font-size:90%;" datetime="{{ post.date | date(format="%+") }}">{{ post.date | date(format="%B %d, %Y") }}</time></p>
   <p class="post__description">{{ post.description | markdown(inline=true) | safe }}</p>
 </li>
 {% endmacro post_in_list %}
-
