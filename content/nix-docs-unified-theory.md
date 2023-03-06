@@ -141,7 +141,5 @@ This section explains the how and why of Nix. Since this is most likely to be lo
 ## Conclusion
 So, obviously this looks very different from today's Nix documentation and it would require an enormous amount of work. However, I think having a vision for how things _should_ look is important before starting any major endeavors. Do you agree with this vision? Do you think things should look wildly different? I'd love to hear your thoughts.
 
-Foo
-
 [diataxis]: https://diataxis.fr
 [noogle]: https://noogle.dev
