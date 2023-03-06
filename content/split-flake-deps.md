@@ -3,8 +3,6 @@ title = "Nix journey part 2: Flake dev-time, build-time, and run-time dependenci
 date = 2023-12-31
 draft = true
 description = "You might need a different set of dependencies at dev-time, build-time, and run-time. In Docker you would handle this via multi-stage builds. How do you make this work with Nix flakes? Let's find out!"
-[extra]
-show_date = true
 +++
 
 <!-- What does buildInputs represent? -->

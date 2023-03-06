@@ -3,8 +3,6 @@ title = "Bitmask tables"
 date = 2022-09-27
 draft = false
 description = "I found myself looking for a specific type of bitmask and couldn't find what I was looking for. These were easy to make, so I've put them on the internet for your benefit."
-[extra]
-show_date = true
 +++
 
 At `$WORK` I have a need to create some bitmasks over a 64-bit field. I've never done this before. I figured that *surely* tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. So, to scratch my own itch I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables. Here you go, now we both have a quick reference.

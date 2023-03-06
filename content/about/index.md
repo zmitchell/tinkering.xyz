@@ -4,7 +4,6 @@ path = "about"
 date = 2018-02-03
 [extra]
 hidden = true
-show_date = false
 +++
 
 Hi, I'm Zach. I *love* building things and learning how things work. I also love disc golf, Dungeons & Dragons, but that's not what this blog is about.

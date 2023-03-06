@@ -2,8 +2,6 @@
 title = "Nix journey part 0: Learning and reference materials"
 date = 2023-02-28
 description = "In this series I'll be documenting my journey learning Nix and this first installment is more of a prequel. A common complaint when learning Nix is that the documentation \"is not good\", and I think what people mean by that is that the documentation is spread across several sources which may or may not be easy to find, or that there is no explanation at all in official documentation. This post is a collection of both official and unofficial resources."
-[extra]
-show_date = true
 +++
 
 ## The story before the recipe

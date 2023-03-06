@@ -3,8 +3,6 @@ title = "How to build a dice roller service in Rust"
 date = 2020-04-29
 draft = false
 description = "Let's build a simply web service in Rust using Rocket."
-[extra]
-show_date = true
 +++
 
 Note: I originally wrote this article for LogRocket. You can find the original [here](https://blog.logrocket.com/how-to-build-a-dice-roller-in-rust/).

@@ -3,8 +3,6 @@ title = "Polsim - a case study for small-scale scientific computing in Rust"
 date = 2019-06-06
 draft = false
 description = "As part of my research I found an excuse to use Rust. `polsim` is a commandn line utility for simulating the polarization of a laser beam as it interacts with a sequence of optical elements. In this post I'll describe `polsim` itself and my experience using Rust to write it rather than Python."
-[extra]
-show_date = true
 +++
 
 <!-- Math rendering -->

@@ -3,8 +3,6 @@ title = "Bringing macros to Python by abusing type annotations"
 date = 2018-08-04
 draft = false
 description = "By playing with the Python AST we can add functionality with making the user write any extra code. You may use this power for good or evil."
-[extra]
-show_date = true
 +++
 
 # Introduction

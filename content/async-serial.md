@@ -3,8 +3,6 @@ title = "Using Python's asyncio with serial devices"
 date = 2018-03-15
 draft = false
 description = "After learning about async/await in Python I wondered how I could apply it to software in my lab. Much of that involves talking to equipment via serial ports. Libraries for talking to serial ports exist, but I found the documentation for doing so via async/await sparse. Here's an example of how to use PySerial asynchronously."
-[extra]
-show_date = true
 +++
 
 I'm an experimental physicist, so part of my job entails writing software that orchestrates equipment in my experiment. Most of the code that runs my experiment is written in a proprietary scripting language that I guarantee none of you have ever heard of. The old code is brittle, difficult to debug, and generally makes it too much of a pain to add features unless absolutely necessary. Lately I've been thinking about how I would do a modernized rewrite in Python.

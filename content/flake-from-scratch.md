@@ -3,12 +3,11 @@ title = "Nix journey part 1: A flake from scratch"
 date = 2023-03-01
 draft = true
 description = "Today we're to develop a Nix flake from scratch (no really, from an empty file) that will let us compile a Rust crate, and that's it. \"Compile a Rust crate\" means both calling `nix build` and dropping into a development shell and calling `cargo build`. This is a pretty basic piece of functionality, but we'll build off of it in later posts"
-[extra]
-show_date = true
 +++
 
+I have a bit of a confession: I wrote this post before writing [Learning and reference materials](@/nix-docs.md). There's a [Resources](#resources) section at the bottom of this post that was getting pretty large so I decided to spin it off into it's own article.
 
-## Today's goal
+## Goal
 
 Today we're going to build a flake from the ground up, starting with an empty file. This flake will allow us to compile a Rust crate either by calling `nix build` or by dropping into a development shell and calling `cargo build`. The reason that we're taking this route is that I struggle to use tools when I don't understand how they work, so I want to have an understanding of why every single character is present in a flake. There's no better way to understand that than by building one from scratch. Hopefully by the end of this post when you see a flake you'll see this:
 ```
@@ -320,31 +319,6 @@ This is a pretty basic Nix workflow and there are some rough edges that we'll ad
 - Right now our flake only works for a single architecture (the one we hardcoded in as `system`). Surely there's a way to extend our flake to be more flexible in this regard (spoiler, of course there is).
 - You may want different dependencies available at development-time, build-time, and run-time. For example, say you need to generate code based on Protobuf schemas, you'll probably need `protoc` around for that. You need that at build time, but you don't need it at run-time and you may or may not need it around at development time. Right now all of our dependencies are around at build time and development time.
 - How do you build a workspace instead of a single crate?
-
-## The SEO problem
-Before leaving off I'd like to point out an area of improvement for the Nix project. Very often I found myself searching for a topic and the official sources were not in the top few search results, if they were present at all. For example, let's say I vaguely remember that the documentation for `mkShell` was in a section about "builders" ([Special Builders](https://nixos.org/manual/nixpkgs/stable/#chap-special)) and I do a search for "nix builders". My default search engine is DuckDuckGo, and the first page of search results (in order) are:
-- A construction company
-- A different construction company
-- Nix builds as a service
-- A rehosted version of a related page ([Trivial Builders](https://ryantm.github.io/nixpkgs/builders/trivial-builders/)
-- The Facebook page of one of the above construction companies
-- A custom home builder
-- A different page from the site of one of the above construction companies
-- The Generic Builders page on Nix Pills
-- The Distributed Builds page on the NixOS Wiki
-- A review of one of the above construction companies
-
-If I do the same search on Google the results are better, but still not good:
-- A construction company
-- Remote Builds - Nix Reference Manual
-- Nix builds as a service
-- Construction company
-- Distributed builds - NixOS Wiki
-- `nixpkgs/trivial-builders.nix` on GitHub (so close Google, so close!)
-- Review of a construction company
-- How to Learn Nix, Part 32: Builders - Ian Henry
-
-The page I'm looking for is not in the first page of results on either search engine. Ok, maybe my search was too obscure, but I don't think I'm being unreasonable here. Even with more precise search terms it's very common for other resources to come up before the official Nix pages.
 
 ## Questions for the audience
 1. Doing a build to produce a package makes sense conceptually, but doing a build to provide a shell environment makes less sense. What are the attributes that `mkShell` produces and how are they turned into a running shell environment?
