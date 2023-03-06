@@ -14,7 +14,7 @@ I've included below a list of other resources you might find helpful. Sometimes 
 
 * [Macros - The Rust Programming Language - First Edition][macros-first-ed]
 * [Procedural Macros (and custom derive) - The Rust Programming Language - First Edition][proc-macros-first-ed]
-* [proc_macro - The Unstable Book][proc-macro-unstable]
+* [Procedural Macros for Generating Code from Attributes 0 Rust Book][proc_macros_rust_book]
 * [Macros By Example - The Rust Reference][macros-rust-ref]
 * [Macros - Rust By Example][macros-rbe]
 * [Writing complex macros in Rust][complex-macros]
@@ -67,7 +67,7 @@ Before we get too deep into procedural macros, you'll want to have at least a va
 Let's say we want to parse the definition of a function. How would we represent the pieces of a function definition as a Rust struct? Well, there's obviously the characters `fn` somewhere, so we'll store that in our struct. There might also be a `pub` at the front of the definition, so we'll store that as an `Option<T>` of some kind. Then there are parentheses, so we'll store those too. What about the contents of the parentheses (the arguments)? There might be nothing there, and there might be a bunch of stuff there. The arguments have names, types, and potentially trait or lifetime bounds, so we'll store that as well. This goes on and on until you've built a collection of structs and enums that represent the various bits and pieces of Rust code. This is what the [`syn`][syn-docs] crate does for you. We'll come back to `syn` in a minute.
 
 ### Types of Procedural Macros
-There are three basic kinds of procedural macros: function-like, attribute-like, and custom derive. The procedural macros page in the [Unstable Book][proc-macro-unstable] contains really useful information about how these are different from one another, and how to define them.
+There are three basic kinds of procedural macros: function-like, attribute-like, and custom derive. The procedural macros page in the [Unstable Book][proc_macros_rust_book] contains really useful information about how these are different from one another, and how to define them.
 
 #### Attribute-like
 An attribute-like procedural macro can be used to create a custom attribute like this:
@@ -465,7 +465,7 @@ If you've read this far, you're a saint. Hopefully you got something out of it. 
 [relm]: https://github.com/antoyo/relm
 [macros-first-ed]: https://doc.rust-lang.org/book/first-edition/macros.html
 [proc-macros-first-ed]: https://doc.rust-lang.org/book/first-edition/procedural-macros.html
-[macros-rbe]: https://rustbyexample.com/macros.html
+[macros-rbe]: https://doc.rust-lang.org/stable/rust-by-example/macros.html
 [complex-macros]: https://rreverser.com/writing-complex-macros-in-rust/
 [macros-pt1]: https://www.ncameron.org/blog/macros-in-rust-pt1/
 [macros-pt2]: https://www.ncameron.org/blog/macros-in-rust-pt2/
@@ -474,9 +474,8 @@ If you've read this far, you're a saint. Hopefully you got something out of it. 
 [macros-rust-ref]: https://doc.rust-lang.org/reference/macros-by-example.html
 [proc-macro-rfc]: https://github.com/rust-lang/rfcs/blob/master/text/1566-proc-macros.md
 [macros-klabnik]: http://words.steveklabnik.com/an-overview-of-macros-in-rust
-[proc-macro-unstable]: https://doc.rust-lang.org/unstable-book/language-features/proc-macro.html
+[proc_macros_rust_book]: https://doc.rust-lang.org/book/ch19-06-macros.html#procedural-macros-for-generating-code-from-attributes
 [serde-attributes]: https://serde.rs/attributes.html
-[attribute-details]: https://doc.rust-lang.org/unstable-book/language-features/proc-macro.html#attribute-like-procedural-macros
 [proc-macro-docs]: https://doc.rust-lang.org/proc_macro/index.html
 [syn-expr]: https://docs.rs/syn/0.12.12/syn/enum.Expr.html
 [quote-docs]: https://docs.rs/quote/0.4.2/quote/

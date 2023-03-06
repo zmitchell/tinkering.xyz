@@ -25,6 +25,6 @@ A few years later I stumbled upon generative art, and decided to learn Clojure a
 If you need to reach me, you can find me in the following places:
 
 * [GitHub](https://github.com/zmitchell)
-* [LinkedIn](https://www.linkedin.com/in/zmitchell22)
+* [LinkedIn](https://linkedin.com/in/zmitchell22)
 * [Mastodon](https://hachyderm.io/@zmitchell)
 * Email: [zmitchell@fastmail.com](mailto:zmitchell@fastmail.com)
