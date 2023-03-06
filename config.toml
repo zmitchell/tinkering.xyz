@@ -17,6 +17,7 @@ theme = "lightspeed"
 highlight_code = true
 
 [extra]
+default_base_url = "https://tinkering.xyz"  # overridden during branch deploys
 nav_links = [
     {url = "/", name = "Home"},
     {url = "https://github.com/zmitchell", name = "GitHub"},

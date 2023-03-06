@@ -66,7 +66,7 @@
       </h3>
       <nav role="navigation">
         {% for item in config.extra.nav_links %}
-          <a class="nav__link" href="{{ item.url | replace(from="$BASE_URL", to=config.base_url) | safe }}">{{ item.name }}</a>
+          <a class="nav__link" href="{{ item.url | replace(from=config.extra.default_base_url, to=config.base_url) | safe }}">{{ item.name }}</a>
         {% endfor %}
       </nav>
     </header>
