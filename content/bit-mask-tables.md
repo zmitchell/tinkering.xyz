@@ -6,6 +6,8 @@ description = "I found myself looking for a specific type of bitmask and couldn'
 
 At `$WORK` I have a need to create some bitmasks over a 64-bit field. I've never done this before. I figured that *surely* tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. So, to scratch my own itch I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables. Here you go, now we both have a quick reference.
 
+Update 2023-04-04: Someone on Mastodon mentioned [bitwise](https://github.com/mellowcandle/bitwise), an interactive terminal program for bit manipulations. It looks pretty cool!
+
 ## Program
 ```python
 bit_sizes = [1, 8, 16, 32]
