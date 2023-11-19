@@ -17,13 +17,15 @@ theme = "lightspeed"
 highlight_code = true
 
 [extra]
-default_base_url = "https://tinkering.xyz"  # overridden during branch deploys
 nav_links = [
-    {url = "/", name = "Home"},
-    {url = "https://github.com/zmitchell", name = "GitHub"},
-    {url = "/about/", name = "About"}
+    { url = "/", name = "Home" },
+    { url = "https://github.com/zmitchell", name = "GitHub" },
+    { url = "/about/", name = "About" },
+    { url = "/talks/", name = "Talks" },
 ]
+default_base_url = "https://tinkering.xyz" # overridden during branch deploys
 author = "Zach Mitchell"
 zola = false
 netlify = false
 maintained_with_love = false
+ignore_post_dates = ["about", "talks"]

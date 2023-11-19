@@ -173,3 +173,10 @@ code:not(pre > code) {
 .zola-anchor {
 	padding-left: 0.25em;
 }
+
+// YouTube embeds
+.youtube>iframe {
+	aspect-ratio: 16 / 9;
+	height: auto;
+	width: 100%;
+}

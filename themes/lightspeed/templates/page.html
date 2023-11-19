@@ -19,7 +19,7 @@
 <article>
   <h1>{{ page.title }}</h1>
 
-  {% if page.slug != "about" %}
+  {% if config.extra.ignore_post_dates is not containing(page.slug) %}
   <p style="font-size:90%;">Posted on <time datetime="{{ page.date | date(format=" %+") }}">{{ page.date |
       date(format="%B %d, %Y") }}</time></p>
   {% endif %}
@@ -53,7 +53,7 @@
 {% block footer %}
 <hr/>
 <small>
-  <p>P.S. - You can follow me on Mastodon at <a href="https://hachyderm.io/@zmitchell">@zmitchell</a> for Rust, Nix, lukewarm takes, and cat photos.</p>
+  <p>P.S. - You can follow me on Mastodon at <a href="https://hachyderm.io/@zmitchell">@zmitchell</a> for Rust, Nix, and lukewarm takes.</p>
   <p>P.P.S. - If you notice that something could be more accessible, please reach out and I'll do my best to fix it!</p>
 </small>
 {% endblock footer %}
