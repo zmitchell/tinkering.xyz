@@ -4,6 +4,10 @@ date = 2023-03-05
 description = "Since the last post I've been in contact with some members of the Nix community with regards to joining the documentation team. From that discussion and my experience with other ecosystems I've had some ideas rolling around about what the ideal Nix documentation strategy/ecosystem would look like to me, so I'm putting those ideas in writing to start a discussion. These ideas aren't super concrete and I don't speak for anyone else, but they're my vision for how Nix documentation could better serve experienced users and onboard new ones."
 +++
 
+**Update 2023-11-19:** This series is effectively dead. Since publishing this post I've joined the Nix Documentation Team, started, lead, and left a working group (which is now dissolved) based on teaching Nix to new users, and joined a company making a product that uses Nix as an implementation detail, and [spoken at NixCon 2023](@/talks/index.md#nixcon-2023-rust-nix-more-than-the-sum-of-their-parts). That's left me pretty busy! Needless to say, with this much Nix involvement in my day job, there will be more Nix content to come on my site.
+
+<hr />
+
 Since the last post I've been in contact with some members of the Nix community with regards to joining the documentation team. From that discussion and my experience with other ecosystems I've had some ideas rolling around about what the ideal Nix documentation strategy/ecosystem would look like to me, so I'm putting those ideas in writing to start a discussion and generate ideas. These ideas aren't super concrete and I don't speak for anyone else, but they're my vision for how Nix documentation could better serve experienced users and onboard new ones.
 
 ## Planning the work
