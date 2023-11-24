@@ -61,7 +61,7 @@
     {% block header %}
     <header role="banner">
       <h3 style="margin-top:0;">
-        <a href="{{ config.base_url | safe }}" title="Home">{{ config.title }}</a>
+        <a href="{{ config.base_url | replace(from=config.extra.default_base_url, to=config.base_url) | safe }}" title="Home">{{ config.title }}</a>
         <br /><small>{{ config.description }}</small>
       </h3>
       <nav role="navigation">
