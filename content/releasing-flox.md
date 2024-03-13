@@ -2,7 +2,6 @@
 title = "Today we launched Flox 1.0"
 date = 2024-03-13
 description = "Today we released version 1.0 of Flox, a new tool that allows you to create declarative environments without containers. Let's talk about why we built it, how it works, and some of my favorite features."
-draft = true
 +++
 
 # Intro
@@ -10,14 +9,14 @@ draft = true
 A little over a year ago I was working full time as a software engineer while finishing my PhD in physics (you're probably already questioning my judgement, please keep reading).
 After I defended my thesis I had some free time to be a real human being again and decided to pick up Nix.
 I’ve always had a thing for documentation, and I noticed that the Nix documentation was notoriously hard to use.
-I wrote a [blog post about what my ideal formulation of the Nix documentation would look like](./nix-docs-unified-theory.md).
+I wrote a [blog post](./nix-docs-unified-theory.md) about what my ideal formulation of the Nix documentation would look like.
 Ron Efroni, [Flox](https://flox.dev/) CEO and NixOS Foundation Board member,
 reached out to talk about the docs and eventually asked if I would be interested in working at Flox.
 About a year later we've released our 1.0 and I'm excited to tell you about it.
 
 # What is Flox?
 
-Flox is a virtual environment and package manager all in one.
+[Flox](https://flox.dev) is a virtual environment and package manager all in one.
 What does that mean?
 When you activate a Flox environment you're put into a sub-shell
 (though you can also `eval` and stay in the current shell).
