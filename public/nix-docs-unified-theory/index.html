@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Nix journey part 1: My grand unified theory of Nix documentation &middot; Tinkering</title>
+  <meta name="description" content="Since the last post I&#x27;ve been in contact with some members of the Nix community with regards to joining the documentation team. From that discussion and my experience with other ecosystems I&#x27;ve had some ideas rolling around about what the ideal Nix documentation strategy&#x2F;ecosystem would look like to me, so I&#x27;m putting those ideas in writing to start a discussion. These ideas aren&#x27;t super concrete and I don&#x27;t speak for anyone else, but they&#x27;re my vision for how Nix documentation could better serve experienced users and onboard new ones." />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://tinkering.xyz/rss.xml">
+  <script defer data-domain="tinkering.xyz" src="/js/script.js"></script>
+
+  <style>
+    *,:after,:before{box-sizing:border-box}:root{--color-bg: #f2f2f2;--color-dark: #222222;--color-mid: #ced4da;--color-light: #dee2e6;--color-accent: #089ce7;--text-width: 70ch;--size-base: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);--size-step-0: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);--size-step-1: clamp(1.1875rem, 1.12rem + 0.33vw, 1.375rem);--size-step-2: clamp(1.4375rem, 1.33rem + 0.54vw, 1.75rem);--size-step-3: clamp(1.6875rem, 1.51rem + 0.87vw, 2.1875rem);--size-step-4: clamp(2.0625rem, 1.85rem + 1.09vw, 2.6875rem);--font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol"}body{background:var(--color-bg);color:var(--color-dark);font-size:var(--size-base);font-family:var(--font-face);line-height:1.6;text-rendering:optimizeSpeed}h1{font-size:var(--size-step-3)}h2{font-size:var(--size-step-2)}h3{font-size:var(--size-step-1);line-height:1.2}main{margin:auto;max-width:var(--text-width);padding:0.8rem}@media (max-width: var(--text-width)){.homepage-list a{width:100%}}a{color:currentColor;text-decoration-line:underline;text-decoration-color:var(--color-accent);text-decoration-thickness:0.15em;text-underline-offset:0.15em;text-decoration-skip-ink:none}a:hover{text-decoration-thickness:0.3em;text-underline-offset:0.05em}blockquote{border-left-color:var(--color-accent);border-left-width:0.25em;border-left-style:solid;margin-left:0em;margin-right:0em;padding:0.5em;background-color:var(--color-mid)}td{border:1px solid var(--color-dark);padding:10px}img{margin:auto;height:auto;display:block;max-width:100%}.nav__link{margin-left:0;margin-right:1em}.homepage-list{display:flex;flex-direction:column;list-style:none;padding:0;margin-top:0em}.homepage-list a{text-decoration-thickness:0.05em;-webkit-text-decoration-thickness:0.05em}.pagination{display:flex;justify-content:space-between}.pagination__onlynext{justify-content:flex-end}.post{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;margin-top:0}.post__title{margin:0;line-height:1.2em;justify-content:flex-start}.post__date{display:block;margin-top:0;margin-bottom:0.5em;font-style:italic}.post__description{margin-top:0;margin-bottom:2em}pre{overflow:scroll;padding:1rem}code{font-size:90%}code:not(pre>code){padding:.15em .25em;color:var(--color-dark);background-color:var(--color-light);border-radius:3px}.zola-anchor{padding-left:0.25em}.youtube>iframe{aspect-ratio:16 / 9;height:auto;width:100%}
+
+  </style>
+
+  <meta property="og:site_name" content="Tinkering">
+  <meta name="author" content="Zach Mitchell" />
+  <meta property="og:title" content="Nix journey part 1: My grand unified theory of Nix documentation">
+  <meta property="og:description" content="Since the last post I&#x27;ve been in contact with some members of the Nix community with regards to joining the documentation team. From that discussion and my experience with other ecosystems I&#x27;ve had some ideas rolling around about what the ideal Nix documentation strategy&#x2F;ecosystem would look like to me, so I&#x27;m putting those ideas in writing to start a discussion. These ideas aren&#x27;t super concrete and I don&#x27;t speak for anyone else, but they&#x27;re my vision for how Nix documentation could better serve experienced users and onboard new ones.">
+  <meta property="og:url" content="https://tinkering.xyz/nix-docs-unified-theory/">
+  <meta property="og:image"
+    content="">
+
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content=" 2023-03-05T00:00:00+00:00" />
+
+  
+  
+<link rel="canonical" href="https://tinkering.xyz/nix-docs-unified-theory/">
+
+
+</head>
+
+
+<body>
+  <main id="main" role="main">
+
+    
+    <header role="banner">
+      <h3 style="margin-top:0;">
+        <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+        <br /><small>Come for the Foo, stay for the Bar</small>
+      </h3>
+      <nav role="navigation">
+        
+          <a class="nav__link" href="/">Home</a>
+        
+          <a class="nav__link" href="https://github.com/zmitchell">GitHub</a>
+        
+          <a class="nav__link" href="/about/">About</a>
+        
+          <a class="nav__link" href="/talks/">Talks</a>
+        
+      </nav>
+    </header>
+    <hr />
+    
+
+    
+<article>
+  <h1>Nix journey part 1: My grand unified theory of Nix documentation</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2023-03-05T00:00:00+00:00">March 05, 2023</time></p>
+  
+
+  
+  <div>
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#planning-the-work">Planning the work</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#information-architecture">Information architecture</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#site-structure">Site structure</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#seo-and-analytics">SEO and analytics</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#open-progress">Open progress</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#section-breakdowns">Section breakdowns</a>
+        
+        <ul>
+          
+          <li>
+            <a href="https://tinkering.xyz/nix-docs-unified-theory/#tutorials">Tutorials</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/nix-docs-unified-theory/#how-to">How-to</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/nix-docs-unified-theory/#reference">Reference</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/nix-docs-unified-theory/#explanation">Explanation</a>
+          </li>
+          
+        </ul>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/nix-docs-unified-theory/#conclusion">Conclusion</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p><strong>Update 2023-11-19:</strong> This series is effectively dead. Since publishing this post I've joined the Nix Documentation Team, started, lead, and left a working group (which is now dissolved) based on teaching Nix to new users, and joined a company making a product that uses Nix as an implementation detail, and <a href="https://tinkering.xyz/talks/#nixcon-2023-rust-nix-more-than-the-sum-of-their-parts">spoken at NixCon 2023</a>. That's left me pretty busy! Needless to say, with this much Nix involvement in my day job, there will be more Nix content to come on my site.</p>
+<hr />
+<p>Since the last post I've been in contact with some members of the Nix community with regards to joining the documentation team. From that discussion and my experience with other ecosystems I've had some ideas rolling around about what the ideal Nix documentation strategy/ecosystem would look like to me, so I'm putting those ideas in writing to start a discussion and generate ideas. These ideas aren't super concrete and I don't speak for anyone else, but they're my vision for how Nix documentation could better serve experienced users and onboard new ones.</p>
+<h2 id="planning-the-work">Planning the work<a class="zola-anchor" href="#planning-the-work" aria-label="Anchor link for: planning-the-work"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I see this being a multi-stage process:</p>
+<ol>
+<li>Take stock of the existing documentation</li>
+<li>Decide on the new structure</li>
+<li>Migrate existing documentation</li>
+<li>Edit and improve</li>
+</ol>
+<p>I think if you can plan the work and break it into manageable chunks you make it more likely that the community can pitch in with small, low-effort contributions. The heavy lifting is taking stock of the existing documentation to determine the closure of ideas that it covers. Once you know <em>what</em> needs to be migrated, deciding <em>where</em> to migrate it will still require effort, but it can require less effort and doesn't require as much expertise.</p>
+<p>There's a large body of existing documentation that is underutilized because (1) people don't know that it exists and (2) some of it is impenetrable to someone who doesn't already know what it means. For that reason I believe the first priority should be reorganzing the existing documentation in a cohesive, discoverable way rather than generating new content (though there is a place for new content that I'll touch on later). During the migration each chunk of documentation can be evaluated in the context of improving the onboarding experience.</p>
+<h2 id="information-architecture">Information architecture<a class="zola-anchor" href="#information-architecture" aria-label="Anchor link for: information-architecture"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I'd like to see the new documentation follow the <a href="https://diataxis.fr">Diataxis</a> documentation framework. This framework breaks down documentation into four categories that serve different purposes:</p>
+<ul>
+<li>Tutorials
+<ul>
+<li>Learning oriented, takes the user by the hand</li>
+</ul>
+</li>
+<li>How-to guides
+<ul>
+<li>Task oriented, &quot;follow these steps to achieve XYZ&quot;</li>
+</ul>
+</li>
+<li>Explanation
+<ul>
+<li>Understanding oriented, explain how things work and why they were designed a particular way</li>
+</ul>
+</li>
+<li>Reference
+<ul>
+<li>Information oriented, factual information, specifications, CLI usage, etc</li>
+</ul>
+</li>
+</ul>
+<p>I'm not the one who came up with this idea, it's mentioned on the Documentation Team's site as well. I'm simply adding my support for moving in this direction.</p>
+<p>In my ideal documentation world each of these sections would link to each other i.e. pages would cite their sources. Maybe this is the former academic in me, but I think it's a good thing if a tutorial mentioning a particular topic can say &quot;learn more about how this works at this other page&quot; or when it asks a reader to run a particular command it then says &quot;you can see all of the command line options for this tool at this other page.&quot; I think this serves a few purposes:</p>
+<ul>
+<li>It deduplicates knowledge across the documentation, no need to repeat yourself when you can link to an explanation or reference page</li>
+<li>It provides a more cohesive learning experience i.e. &quot;you don't need to visit another site to learn about XYZ, we've got a page on that over here&quot;</li>
+<li>It backs up claims made in the documentation so there's less dogma and folk knowledge (e.g. &quot;do XYZ because this reference pages states that it's required in ABC context&quot; rather than &quot;do this because more experienced people in the community say this is how you should do it&quot;)</li>
+</ul>
+<h2 id="site-structure">Site structure<a class="zola-anchor" href="#site-structure" aria-label="Anchor link for: site-structure"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I think all of the documentation should be under one site. This deduplicates the work to make site-wide changes to page templates, styles, names, etc. I think a single static-site generator can meet the needs of the entire documentation site with maybe one exception which I'll mention later. Another benefit of having all of the documentation under a single site is that you can give the reader a visual indicator of which section they're in, providing context to what they're reading and where they are in the Nix documentation landscape. I'm imagining a sidebar with accordians/expandable links for the different major sections (tutorials, how-to guides, explanation, and reference) with the current section being expanded.</p>
+<p>Some of the documentation is built with <code>mdBook</code>, which is generally a good fit for reference materials (like the Nix Reference Manual), but I think it's less of a good fit when trying to integrate it into a larger site. The main benefit of <code>mdBook</code> is that it's very little effort to go from a directory of markdown files to some HTML with a navigable sidebar and everything. If you're already using a static-site generator for other things, you already have that ability.</p>
+<p>There are other practicalities that certain static-site generators provide. I use Zola and it's super fast and has a built-in link checker that checks both internal and external links (<code>zola check</code>). I just ran the link checker for the first time and (1) holy shit I have 108 external links and (2) 4 of them are broken so I guess I have homework. With something like <code>zola check</code> congrats you now have tests for your website.</p>
+<h2 id="seo-and-analytics">SEO and analytics<a class="zola-anchor" href="#seo-and-analytics" aria-label="Anchor link for: seo-and-analytics"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I know someone is already shitting their pants in anger at the word &quot;analytics&quot;, but I really, truly just want some data on which pages people find useful and which pages need work. People working on the documentation need to know where to focus their very limited (and mostly volunteered) time and effort. There are privacy-preserving options out there that collect so little information they don't even need a GDPR or cookie banner. We can have nice things, nuance being one of them.</p>
+<p>One of the problems I see with the current documentation is SEO. Information that people can't find might as well not exist. For example, let's say I vaguely remember that the documentation for <code>mkShell</code> was in a section about &quot;builders&quot; (<a href="https://nixos.org/manual/nixpkgs/stable/#chap-special">Special Builders</a>) and I do a search for &quot;nix builders&quot;. My default search engine is DuckDuckGo, and the first page of search results (in order) are:</p>
+<ul>
+<li>A construction company</li>
+<li>A different construction company</li>
+<li>Nix builds as a service</li>
+<li>A rehosted version of a related page (<a href="https://ryantm.github.io/nixpkgs/builders/trivial-builders/">Trivial Builders</a>)</li>
+<li>The Facebook page of one of the above construction companies</li>
+<li>A custom home builder</li>
+<li>A different page from the site of one of the above construction companies</li>
+<li>Generic Builders - Nix Pills</li>
+<li>Distributed Builds - NixOS Wiki</li>
+<li>A review of one of the above construction companies</li>
+</ul>
+<p>If I do the same search on Google the results are better, but still not good:</p>
+<ul>
+<li>A construction company</li>
+<li>Remote Builds - Nix Reference Manual</li>
+<li>Nix builds as a service</li>
+<li>Construction company</li>
+<li>Distributed Builds - NixOS Wiki</li>
+<li><code>nixpkgs/trivial-builders.nix</code> on GitHub (so close Google, so close!)</li>
+<li>Review of a construction company</li>
+<li>How to Learn Nix, Part 32: Builders - Ian Henry</li>
+</ul>
+<p>The page I'm looking for is not in the first page of results on either search engine. Ok, maybe my search was too obscure, but I don't think I'm being unreasonable here. Even with more precise search terms it's very common for other resources to come up before the official Nix pages. I've mentioned page templates a few times now, and I want to emphasize here that I don't mean just the appearance of the pages, but also information in <code>&lt;head&gt;</code> that can be used for SEO. Another benefit of all the documentation being under one site is that there's only one site to monitor for SEO.</p>
+<h2 id="open-progress">Open progress<a class="zola-anchor" href="#open-progress" aria-label="Anchor link for: open-progress"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I think another important aspect is to make progress visible, so the unified documentation site would start out with sections full of <code>WIP</code> pages. This serves a few purposes:</p>
+<ul>
+<li>The community can follow the progress</li>
+<li>The community can see that documentation is being actively worked on</li>
+<li>The community can see what the vision is for the structure of the documentation</li>
+</ul>
+<p>If someone sees a page with a <code>WIP</code> section and they happen to know something about it, they can decide to chip in and fill in some of the details.</p>
+<h2 id="section-breakdowns">Section breakdowns<a class="zola-anchor" href="#section-breakdowns" aria-label="Anchor link for: section-breakdowns"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>This is a rough outline of some of the content that I think should belong in each section. You'll notice that I've left out two things: NixOS and flakes. I've left out NixOS because I know even less about NixOS than I do about using Nix in general. I've left out flakes because I think the structure of the documentation is orthogonal to whether flakes are experimental or here to stay. For those of you like me who are new to the Nix community, apparently there's disagreement about whether flakes are good. They seem fine to me but I don't know much about the tradeoffs.</p>
+<h3 id="tutorials">Tutorials<a class="zola-anchor" href="#tutorials" aria-label="Anchor link for: tutorials"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
+<p>As mentioned above, this section is meant to take a reader by the hand and lead them through a learning experience. I also mentioned above that there's a certain place for new content. I think this is the place. Some of the material I think belongs here:</p>
+<ul>
+<li>Installation</li>
+<li>Walking a reader through their first build</li>
+<li>Taking a project that isn't packaged for Nix and walking through exactly how to package it</li>
+</ul>
+<h3 id="how-to">How-to<a class="zola-anchor" href="#how-to" aria-label="Anchor link for: how-to"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
+<p>This section is supposed to be a pragmatic, step-by-step resource for accomplishing specific tasks in practice. I think this section can draw inspiration from the NixOS Wiki. Some of the material I think belongs here:</p>
+<ul>
+<li>How to package for Nix
+<ul>
+<li>Guides for specific languages
+<ul>
+<li>Languages that have their own build systems
+<ul>
+<li>Those that generate lock files and how to leverage them</li>
+<li>Those that don't generate lock files</li>
+</ul>
+</li>
+<li>Languages without a build system (C/C++)</li>
+</ul>
+</li>
+<li>Guides for integrating with language-agnostic build systems
+<ul>
+<li>Meson, Bazel, etc</li>
+</ul>
+</li>
+<li>Packaging idioms
+<ul>
+<li><code>callPackage</code> vs alternatives</li>
+<li>&quot;import from derivation&quot;, &quot;fixed output derivation&quot;, and other terms I don't understand</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Day-to-day development and workflows using Nix
+<ul>
+<li>Setting up a development shell</li>
+<li>Hooking up an editor/IDE to a Nix environment</li>
+<li>Using Nix in CI</li>
+<li>Deployments using Nix</li>
+<li>Building containers with Nix</li>
+</ul>
+</li>
+<li>Contributing
+<ul>
+<li>Docs, Nixpkgs, etc</li>
+</ul>
+</li>
+</ul>
+<h3 id="reference">Reference<a class="zola-anchor" href="#reference" aria-label="Anchor link for: reference"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
+<p>This section is supposed to be very light on prose and heavy on detailed description of rules, specifications, requirements, and options. Basically this section is filled with facts that can be backed up by pointing at the implementation e.g. &quot;this command has these options&quot;. I think much of what's in the Nix Reference Manual should go here. Some of the materials I think should go here:</p>
+<ul>
+<li>Nix language reference</li>
+<li>How derivations work
+<ul>
+<li>Required inputs</li>
+<li>Build phases</li>
+<li>How attributes are turned into environment variables and paths in the store</li>
+</ul>
+</li>
+<li>Common modifications made to ensure purity
+<ul>
+<li><code>$PATH</code>, etc</li>
+</ul>
+</li>
+<li>Environment variables set in development shells</li>
+</ul>
+<p>I think this section would also contain browsable, searchable API docs. A few readers of my previous post pointed out that <a href="https://noogle.dev">noogle.dev</a> exists, which is a site where you can <em>search</em> the functions that are in <code>builtins</code>, <code>lib</code>, and <code>stdenv</code>. I think that's a step in the right direction, but the ability to browse is <em>crucial</em>. I'll often be looking up a particular method on Rust's <code>Iterator</code> trait only to find a new method I've never seen before. Discoverability is very, very valuable for the onboarding experience. I also think it's important for these docs to be generated from comments that live alongside the code so that they don't go stale. Some of the material I'd like to be browsable and searchable:</p>
+<ul>
+<li>API docs
+<ul>
+<li>Builtins</li>
+<li>Builders</li>
+<li>Fetchers</li>
+<li>Stdenv</li>
+<li>lib</li>
+</ul>
+</li>
+<li>Nixpkgs</li>
+</ul>
+<p>You might be saying &quot;you can already search Nixpkgs&quot;. Yes, you can, but I think we can take this further in how we present the results. When search results are presented to you there can be a short description and some metadata, but I think each result should get its own page. Right now you can't link to a particular package. The dedicates package page could show more detailed information like the history of changes to this particular package. It should be quick and easy to determine which Nixpkgs revision I want to get a particular version e.g. the current version of package X is v1.5, what is the latest Nixpkgs that has v1.2.3. Maybe this is a weird way to go about this or it's showing my lack of Nix knowledge since I'm still pretty new, but this is just one example of the kind of information we could surface in individual package pages. This is also the one area where I think server-side computation would need to happen.</p>
+<h3 id="explanation">Explanation<a class="zola-anchor" href="#explanation" aria-label="Anchor link for: explanation"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
+<p>This section explains the how and why of Nix. Since this is most likely to be low-level details of how Nix works I envison calling this section &quot;Nitty Gritty Nix&quot;. I think much of what's in Nix Pills would go here. I have less of an idea what should go here simply because I don't know many of the details of how Nix works, but here are some of the materials I think should go here:</p>
+<ul>
+<li>When and how are things added to the Nix store?</li>
+<li>We know everything is based on hashes, but how are the hashes computed? What are the inputs?</li>
+<li>Cross-compilation as a first class citizen and its impact on the language/ecosystem
+<ul>
+<li>buildInputs vs. nativeBuildInputs and propagation</li>
+</ul>
+</li>
+</ul>
+<h2 id="conclusion">Conclusion<a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>So, obviously this looks very different from today's Nix documentation and it would require an enormous amount of work. However, I think having a vision for how things <em>should</em> look is important before starting any major endeavors. Do you agree with this vision? Do you think things should look wildly different? I'd love to hear your thoughts.</p>
+
+</article>
+
+
+    
+<hr/>
+<small>
+  <p>P.S. - You can follow me on Mastodon at <a href="https://hachyderm.io/@zmitchell">@zmitchell</a> for Rust, Nix, and lukewarm takes.</p>
+  <p>P.P.S. - If you notice that something could be more accessible, please reach out and I'll do my best to fix it!</p>
+</small>
+
+
+  </main>
+  
+  
+</body>
+
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Using notifiers to give yourself the day off &middot; Tinkering</title>
+  <meta name="description" content="When you&#x27;re running experiments that take ~8 hours wouldn&#x27;t it be nice if the experiment told you when it was done rather than needing babysitting? In this post I&#x27;ll show you how I used Twilio to do just that." />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://tinkering.xyz/rss.xml">
+  <script defer data-domain="tinkering.xyz" src="/js/script.js"></script>
+
+  <style>
+    *,:after,:before{box-sizing:border-box}:root{--color-bg: #f2f2f2;--color-dark: #222222;--color-mid: #ced4da;--color-light: #dee2e6;--color-accent: #089ce7;--text-width: 70ch;--size-base: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);--size-step-0: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);--size-step-1: clamp(1.1875rem, 1.12rem + 0.33vw, 1.375rem);--size-step-2: clamp(1.4375rem, 1.33rem + 0.54vw, 1.75rem);--size-step-3: clamp(1.6875rem, 1.51rem + 0.87vw, 2.1875rem);--size-step-4: clamp(2.0625rem, 1.85rem + 1.09vw, 2.6875rem);--font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol"}body{background:var(--color-bg);color:var(--color-dark);font-size:var(--size-base);font-family:var(--font-face);line-height:1.6;text-rendering:optimizeSpeed}h1{font-size:var(--size-step-3)}h2{font-size:var(--size-step-2)}h3{font-size:var(--size-step-1);line-height:1.2}main{margin:auto;max-width:var(--text-width);padding:0.8rem}@media (max-width: var(--text-width)){.homepage-list a{width:100%}}a{color:currentColor;text-decoration-line:underline;text-decoration-color:var(--color-accent);text-decoration-thickness:0.15em;text-underline-offset:0.15em;text-decoration-skip-ink:none}a:hover{text-decoration-thickness:0.3em;text-underline-offset:0.05em}blockquote{border-left-color:var(--color-accent);border-left-width:0.25em;border-left-style:solid;margin-left:0em;margin-right:0em;padding:0.5em;background-color:var(--color-mid)}td{border:1px solid var(--color-dark);padding:10px}img{margin:auto;height:auto;display:block;max-width:100%}.nav__link{margin-left:0;margin-right:1em}.homepage-list{display:flex;flex-direction:column;list-style:none;padding:0;margin-top:0em}.homepage-list a{text-decoration-thickness:0.05em;-webkit-text-decoration-thickness:0.05em}.pagination{display:flex;justify-content:space-between}.pagination__onlynext{justify-content:flex-end}.post{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;margin-top:0}.post__title{margin:0;line-height:1.2em;justify-content:flex-start}.post__date{display:block;margin-top:0;margin-bottom:0.5em;font-style:italic}.post__description{margin-top:0;margin-bottom:2em}pre{overflow:scroll;padding:1rem}code{font-size:90%}code:not(pre>code){padding:.15em .25em;color:var(--color-dark);background-color:var(--color-light);border-radius:3px}.zola-anchor{padding-left:0.25em}.youtube>iframe{aspect-ratio:16 / 9;height:auto;width:100%}
+
+  </style>
+
+  <meta property="og:site_name" content="Tinkering">
+  <meta name="author" content="Zach Mitchell" />
+  <meta property="og:title" content="Using notifiers to give yourself the day off">
+  <meta property="og:description" content="When you&#x27;re running experiments that take ~8 hours wouldn&#x27;t it be nice if the experiment told you when it was done rather than needing babysitting? In this post I&#x27;ll show you how I used Twilio to do just that.">
+  <meta property="og:url" content="https://tinkering.xyz/lazy-grad-student/">
+  <meta property="og:image"
+    content="">
+
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content=" 2020-11-12T00:00:00+00:00" />
+
+  
+  
+<link rel="canonical" href="https://tinkering.xyz/lazy-grad-student/">
+
+
+</head>
+
+
+<body>
+  <main id="main" role="main">
+
+    
+    <header role="banner">
+      <h3 style="margin-top:0;">
+        <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+        <br /><small>Come for the Foo, stay for the Bar</small>
+      </h3>
+      <nav role="navigation">
+        
+          <a class="nav__link" href="/">Home</a>
+        
+          <a class="nav__link" href="https://github.com/zmitchell">GitHub</a>
+        
+          <a class="nav__link" href="/about/">About</a>
+        
+          <a class="nav__link" href="/talks/">Talks</a>
+        
+      </nav>
+    </header>
+    <hr />
+    
+
+    
+<article>
+  <h1>Using notifiers to give yourself the day off</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2020-11-12T00:00:00+00:00">November 12, 2020</time></p>
+  
+
+  
+  <div>
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/lazy-grad-student/#notifiers">Notifiers</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p>In keeping with the title, this will be a short post.</p>
+<p>The experiments that I do take roughly 2 hours each. The program that runs the experiments is written in Python and uses the <a href="https://click.palletsprojects.com/en/7.x/">click</a> module for the command line interface. <code>click</code> provides an easy to use <a href="https://click.palletsprojects.com/en/7.x/utils/#showing-progress-bars">progress bar</a>, so I have some visual indicator of how the experiment is progressing and some estimate of when it will complete.</p>
+<p>If I know roughly how long the experiment is going to take, that means I can walk away while the experiment runs, right? Well, no. My samples degrade with increased laser exposure, so I'd like to minimize the time spent blasting my sample while not collecting data. However, I don't really want to sit in front of the computer the whole time or get up to check on the experiment every 5 minutes. What is a lazy grad student to do?</p>
+<p>Enter the <a href="https://github.com/liiight/notifiers">notifiers</a> module.</p>
+<h2 id="notifiers">Notifiers<a class="zola-anchor" href="#notifiers" aria-label="Anchor link for: notifiers"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>The <code>notifiers</code> module is a front-end for providing alerts through a variety of channels e.g. email, chat services, sms, etc. I'm chronically attached to my phone, so a text message is likely to catch my attention. Fortunately, <code>notifiers</code> has a Twilio integration.</p>
+<p>Getting started with Twilio is pretty easy. After creating an account I was given a bunch of trial credit (~$15). Sending a text message with Twilio costs $0.0075, so you can send ~133 messages for $1. If I run enough experiments to blow through my trial credit, something has gone terribly wrong with my PhD. I also needed to create a Twilio number, which is the number that the text messages will be coming from. This costs $1/month, which is in my budget even as a grad student.</p>
+<p>Sending a notification (text message in this case) is as easy as calling the <code>notify()</code> function for whatever notification provider you're interested in. You can also set some of the arguments to the <code>notify()</code> call via environment variables so that you don't have to store your account details and phone numbers in git for the world to see.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>NOTIFIERS_TWILIO_ACCOUNT_SID=&quot;my_account_sid&quot;
+</span><span>NOTIFIERS_TWILIO_AUTH_TOKEN=&quot;my_auth_token&quot;
+</span><span>NOTIFIERS_TWILIO_TO=&quot;my_phone_number&quot;
+</span><span>NOTIFIERS_TWILIO_FROM=&quot;my_twilio_number&quot;
+</span></code></pre>
+<p>At this point sending a text message is trivial:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>twilio = notifiers.</span><span style="color:#bf616a;">get_notifier</span><span>(&quot;</span><span style="color:#a3be8c;">twilio</span><span>&quot;)
+</span><span>twilio.</span><span style="color:#bf616a;">notify</span><span>(</span><span style="color:#bf616a;">message</span><span>=&quot;</span><span style="color:#a3be8c;">Experiment complete</span><span>&quot;)
+</span></code></pre>
+<p>Now I can run experiments without having to monitor them and it took a whopping 3 lines of code (<code>import notifiers</code> is the third one). That's pretty awesome if you ask me. I could see myself adding period status updates, but I'm not sure how much I want to spam my phone. In the end I'm pretty happy with both <code>notifiers</code> and Twilio, and I'll probably find an excuse to use them in the future.</p>
+<p>You may be wondering why I'm using the entire <code>notifiers</code> package if I'm only using the Twilio provider. The answer is that there's not really a good reason, but the ability to scale from text messages with Twilio to entire email reports based on experiment results is an interesting possibility.</p>
+
+</article>
+
+
+    
+<hr/>
+<small>
+  <p>P.S. - You can follow me on Mastodon at <a href="https://hachyderm.io/@zmitchell">@zmitchell</a> for Rust, Nix, and lukewarm takes.</p>
+  <p>P.P.S. - If you notice that something could be more accessible, please reach out and I'll do my best to fix it!</p>
+</small>
+
+
+  </main>
+  
+  
+</body>
+
+</html>
