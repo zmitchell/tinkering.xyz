@@ -186,5 +186,5 @@ but I'm even more excited about what we're _going_ to build.
 If you have questions or feedback,
 you can reach me directly or in one of our community spaces:
 - [Flox Discourse](https://discourse.flox.dev)
-- [Flox Community Slack](https://floxcommunitygroup.slack.com/join/shared_invite/zt-2ef7qa1x3-LVL0v6i9MScPMOceyzB7BQ#/shared-invite/email)
+- [Flox Community Slack](https://floxcommunitygroup.slack.com)
 
