@@ -18,6 +18,7 @@ About a year later we've released our 1.0 and I'm excited to tell you about it.
 
 [Flox](https://flox.dev) is a virtual environment and package manager all in one.
 What does that mean?
+
 When you activate a Flox environment you're put into a sub-shell
 (though you can also `eval` and stay in the current shell).
 Inside this shell you have access to whatever packages you've requested and any environment variables you've specified.
@@ -65,10 +66,11 @@ How much time have you spent setting up your machine to feel like `$HOME`?
 How much time have you spent tweaking your artisanally handcrafted dotfiles,
 or installing nifty little utilities?
 
-Don't actually think about that, it's probably more than want to admit.
+Don't actually think about that, it's probably more than you want to admit.
 But we all do it.
 Why?
-Easy, when you set up your system to work how you want it to work you'll obviously be more productive.
+Easy, when you set up your system to work how you want it to work,
+you'll obviously feel more comfortable and be more productive.
 
 When you enter a container it's like someone walked in and cleared off your desk.
 It's isolated! Great! Isolated from all the stuff I set up for myself!
@@ -76,13 +78,13 @@ When you use a container for a development environment you also spend some time 
 
 You do all of this because the promise of working cross-platform in a reproducible environment is seductive.
 Unfortunately, there's a big asterisk on that promise.
-If you're bundling up a snapshot of a Linux system (e.g. a container), are you really working cross-platform?
+First, if you're bundling up a snapshot of a Linux system (e.g. a container), are you really working cross-platform?
 
 With containers your Dockerfile contains a `FROM` line that tells you the base system you’re building on top of.
 Depending on how you write this line, you’ll get a different system each time.
 - `ubuntu:latest` could give you two different releases of the OS.
 - `ubuntu:23.10` could still give you two different systems as security patches are applied, packages are upgraded, etc.
-- Every time you build the image, two different calls to `apt update && apt install foo` aren’t guaranteed to give you the same version of the package
+- Every time you build the image, two different calls to `apt update && apt install foo` aren’t guaranteed to give you the same versions of the package.
 
 So, every time you enter a container with a given digest you're getting the same system,
 but every build isn't guaranteed to give you the same container.
@@ -100,6 +102,8 @@ That's a vague answer, and there's two reasons for that:
 - Nix can do a lot of things. You can use Nix to do everything from creating a text file to configuring an operating system.
 
 Let's focus on the "building software" and "setting up development environments" parts of Nix.
+I'm going to use a couple of Rust analogies because you can draw _some_ parallels between them.
+
 One of the reasons that people use Rust is that it enforces correctness and memory safety while *writing* software.
 It does this via immutability, a strong type system, etc.
 Nix enforces correctness while *building* software.
@@ -109,7 +113,7 @@ Nix also does this through immutability and some other mechanisms.
 {% details(summary="Nix vs. nixpkgs vs. NixOS?") %}
 
 - "Nix" is two things:
-    - The name of the ecosystem
+    - The name of the ecosystem.
     - The name of the programming language you use to build software and set up development environments.
 - "nixpkgs" is also two things:
     - A software repository containing recipes for building a staggering amount of software (something like 80,000 packages).
@@ -133,11 +137,13 @@ Nix stores all of the software that it downloads, builds, installs, etc into one
 The Nix store is just the directory `/nix/store`, nothing fancy.
 Everything in the store has a hash in its filename, and that hash is computed from all the software that was used to build that particular artifact.
 The software used to build an artifact also contain hashes in their filenames in the Nix store, and so on.
-This means that the hash of your piece of software is essentially a hash computed from the entire dependency tree, all the way down to libc.
+This means that the hash of your piece of software is essentially a hash computed from the entire dependency tree, all the way down to `libc`.
 Since the path contains this hash, the path is essentially unique.
 Since this path is unique, you can use the absolute path to it and you’ll never depend on the wrong piece of software.
 
-When Nix builds software it hard-codes these absolute paths into the artifact so that it’s effectively impossible to link the wrong dynamic library, depend on the wrong Python interpreter, etc.
+When Nix builds software,
+it hard-codes these absolute paths into the artifact so that it’s effectively impossible to link the wrong dynamic library,
+depend on the wrong Python interpreter, etc.
 This is what makes software built with Nix so bulletproof.
 When you go to set up a development environment you get the same benefits.
 
@@ -177,4 +183,8 @@ Building up to a release feels like racing towards a finish line,
 but releasing a 1.0 is really more of a beginning.
 I'm excited about what we've built so far,
 but I'm even more excited about what we're _going_ to build.
-If you'd like to 
+If you have questions or feedback,
+you can reach me directly or in one of our community spaces:
+- [Flox Discourse](https://discourse.flox.dev)
+- [Flox Community Slack](https://floxcommunitygroup.slack.com/join/shared_invite/zt-2ef7qa1x3-LVL0v6i9MScPMOceyzB7BQ#/shared-invite/email)
+
