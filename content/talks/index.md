@@ -15,7 +15,7 @@ Abstract:
 
 [Slides](https://github.com/zmitchell/talks/tree/master/2023-09-14%20-%20rustconf)
 
-Video coming soon!
+{{ youtube(id="hU-lKbAdOUg")}}
 
 ## NixCon 2023 - Rust + Nix: More than the sum of their parts?
 
