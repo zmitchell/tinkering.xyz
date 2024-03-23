@@ -9,7 +9,7 @@ description = "Today we released version 1.0 of Flox, a new tool that allows you
 A little over a year ago I was working full time as a software engineer while finishing my PhD in physics (you're probably already questioning my judgement, please keep reading).
 After I defended my thesis I had some free time to be a real human being again and decided to pick up Nix.
 I’ve always had a thing for documentation, and I noticed that the Nix documentation was notoriously hard to use.
-I wrote a [blog post](./nix-docs-unified-theory.md) about what my ideal formulation of the Nix documentation would look like.
+I wrote a [blog post](/nix-docs-unified-theory) about what my ideal formulation of the Nix documentation would look like.
 Ron Efroni, [Flox](https://flox.dev/) CEO and NixOS Foundation Board member,
 reached out to talk about the docs and eventually asked if I would be interested in working at Flox.
 About a year later we've released our 1.0 and I'm excited to tell you about it.
