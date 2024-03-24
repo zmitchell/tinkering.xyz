@@ -26,9 +26,9 @@ These are the resources maintained by the Nix project itself. You should conside
 
 ### [Nix Reference Manual](https://nixos.org/manual/nix/stable/)
 The Nix Reference Manual covers a lot of ground ranging from installing Nix to man-pages for `nix` commands. I would say that the most useful pieces here are:
-- [Installation instructions](https://nixos.org/manual/nix/stable/installation/installation.html)
+- [Installation instructions](https://nixos.org/manual/nix/stable/installation/)
 - [Nix language reference](https://nixos.org/manual/nix/stable/language/index.html)
-- [Command reference](https://nixos.org/manual/nix/stable/command-ref/command-ref.html)
+- [Command reference](https://nixos.org/manual/nix/stable/command-ref/)
 
 Oddly enough, in the reference for the `nix flake` command you'll find a very thorough description of the schema for a Nix flake including which attributes are required, how to refer to other flakes, etc. In my mind this should live somewhere else, but I'm glad it exists somewhere.
 

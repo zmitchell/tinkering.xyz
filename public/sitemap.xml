@@ -28,6 +28,10 @@
         <lastmod>2022-01-09</lastmod>
     </url>
     <url>
+        <loc>https://tinkering.xyz/installing-nixos/</loc>
+        <lastmod>2024-03-24</lastmod>
+    </url>
+    <url>
         <loc>https://tinkering.xyz/interacting-with-assembly-in-rust/</loc>
         <lastmod>2020-08-31</lastmod>
     </url>
@@ -55,6 +59,9 @@
     </url>
     <url>
         <loc>https://tinkering.xyz/page/3/</loc>
+    </url>
+    <url>
+        <loc>https://tinkering.xyz/page/4/</loc>
     </url>
     <url>
         <loc>https://tinkering.xyz/polsim/</loc>

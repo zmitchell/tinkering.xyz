@@ -2,18 +2,200 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
       <title>Tinkering</title>
-        <link>https://tinkering.xyz</link>
-        <description>Come for the Foo, stay for the Bar</description>
-        <generator>Zola</generator>
-        <language>en</language>
-        <atom:link href="https://tinkering.xyz/rss.xml" rel="self" type="application/rss+xml"/>
-        <lastBuildDate>Wed, 13 Mar 2024 00:00:00 +0000</lastBuildDate>
-        <item>
-            <title>Today we launched Flox 1.0</title>
-            <pubDate>Wed, 13 Mar 2024 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/releasing-flox/</link>
-            <guid>https://tinkering.xyz/releasing-flox/</guid>
-            <description>&lt;h1 id=&quot;intro&quot;&gt;Intro&lt;a class=&quot;zola-anchor&quot; href=&quot;#intro&quot; aria-label=&quot;Anchor link for: intro&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+      <link>https://tinkering.xyz</link>
+      <description>Come for the Foo, stay for the Bar</description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://tinkering.xyz/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Sun, 24 Mar 2024 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>How I finally installed NixOS</title>
+          <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/installing-nixos/</link>
+          <guid>https://tinkering.xyz/installing-nixos/</guid>
+          <description xml:base="https://tinkering.xyz/installing-nixos/">&lt;p&gt;I&#x27;ve been in the &lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&quot;&gt;Nix&lt;&#x2F;a&gt; world for about a year now,
+I work &lt;a href=&quot;https:&#x2F;&#x2F;flox.dev&quot;&gt;at a company&lt;&#x2F;a&gt; that uses Nix daily,
+and it was only last week that I finally installed NixOS on the PC that I&#x27;ve
+been meaning to install it on for close to a year.
+Why? 
+What kept me from installing it for so long?
+What was the breakthrough?&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;the-motivation&quot;&gt;The motivation&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-motivation&quot; aria-label=&quot;Anchor link for: the-motivation&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;Every time I get a new machine there&#x27;s a feeling of dread that now I have to
+(try) to set it up from scratch.
+I have ADHD and this is the kind of tedious task that makes my brain melt.
+The process typically goes like this:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Run &lt;code&gt;brew list&lt;&#x2F;code&gt; or something like that in order to get a list of packages I
+have installed.&lt;&#x2F;li&gt;
+&lt;li&gt;Prune that list to remove things that I installed because I needed them for
+one time use and later forgot about.&lt;&#x2F;li&gt;
+&lt;li&gt;Run &lt;code&gt;brew install&lt;&#x2F;code&gt;, &lt;code&gt;apt install&lt;&#x2F;code&gt;, etc to install that list of packages.&lt;&#x2F;li&gt;
+&lt;li&gt;Discover that package names are different across OS, distribution, etc.&lt;&#x2F;li&gt;
+&lt;li&gt;Discover that some packages just don&#x27;t exist on the new OS, distribution, etc.&lt;&#x2F;li&gt;
+&lt;li&gt;A month later, discover that some application I need wasn&#x27;t in that original
+list because I installed it through some other mechanism.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Barf.&lt;&#x2F;p&gt;
+&lt;p&gt;Fast forward and Nix pops up on my radar.
+I can configure the entire operating system declaratively?
+Yes please.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;requirements&quot;&gt;Requirements&lt;a class=&quot;zola-anchor&quot; href=&quot;#requirements&quot; aria-label=&quot;Anchor link for: requirements&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;My main machine is an M1 Macbook Pro,
+and it&#x27;s a personal machine,
+so I&#x27;ve installed all kinds of stuff on it.
+I don&#x27;t see myself switching to Linux as my work machine any time soon,
+though I&#x27;ve been a Linux user in one form or another for over a decade.&lt;&#x2F;p&gt;
+&lt;p&gt;I have a desktop that&#x27;s a fire-breathing monster of a machine with 32GB of RAM,
+a 16-core&#x2F;32-thread CPU,
+an RTX 4090 GPU,
+and a full custom water cooling loop.
+It&#x27;s pretty nice.
+Right now it&#x27;s just my gaming PC,
+but there&#x27;s a second SSD in there that&#x27;s been empty since I built it because
+I intended to put NixOS on it.&lt;&#x2F;p&gt;
+&lt;p&gt;My one, major requirement was that I should be able to take my NixOS config
+and run one or two commands to set up the entire machine.
+I don&#x27;t want to be involved in the process, just do it automatically.&lt;&#x2F;p&gt;
+&lt;p&gt;In the spirit of &amp;quot;we can have nice things&amp;quot;,
+I also decided that I wanted this machine to use ZFS as the filesystem.
+But again, I didn&#x27;t want to manually type out the partitioning commands.
+This is NixOS, everything is supposed to be declarative, right?&lt;&#x2F;p&gt;
+&lt;p&gt;I learned about a Nix project called
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nix-community&#x2F;disko&quot;&gt;disko&lt;&#x2F;a&gt;
+that allows you to declaratively configure your filesystem.
+The docs were terse and not terribly beginner-to-Nix friendly,
+but there were example configurations that you could copy and modify,
+including one for ZFS.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;attempt-1&quot;&gt;Attempt #1&lt;a class=&quot;zola-anchor&quot; href=&quot;#attempt-1&quot; aria-label=&quot;Anchor link for: attempt-1&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;Ok, I lied a little bit,
+I wasn&#x27;t set on ZFS from the outset,
+so my first attempt was just running the &amp;quot;minimal&amp;quot; installer available from the
+NixOS website.
+I ran into a couple of problems.&lt;&#x2F;p&gt;
+&lt;p&gt;First, the installer at the time didn&#x27;t include drivers for my WiFi chip.
+I think those drivers have since been added to the Linux kernel,
+so they don&#x27;t need to be added separately.&lt;&#x2F;p&gt;
+&lt;p&gt;I followed the installation instructions meticulously because I already had the
+Windows side of the machine set up and didn&#x27;t want to accidentally nuke it.
+Fast forward, I&#x27;ve done the partitioning,
+I&#x27;ve done some minimal configuration so I have a few familiar programs after
+the install,
+and it&#x27;s finally time to run &lt;code&gt;nixos-install&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;The text scrolls by as the installer runs,
+and...&amp;quot;something something bad sector&amp;quot;.
+The fucking flash drive is corrupted.&lt;&#x2F;p&gt;
+&lt;p&gt;I was a little burnt out at the time
+(working on the Nix Docs Team, speaking at NixCon, speaking at RustConf),
+so finding the time and summoning the energy to spend on this was hard enough.
+This killed that energy, especially since I had a startup cost of running
+an ethernet cable across my house to even attempt it again.&lt;&#x2F;p&gt;
+&lt;p&gt;At that point I resolved to try things in a VM first.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;attempt-2&quot;&gt;Attempt #2&lt;a class=&quot;zola-anchor&quot; href=&quot;#attempt-2&quot; aria-label=&quot;Anchor link for: attempt-2&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;After talking with a &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;bryanhonof&quot;&gt;coworker&lt;&#x2F;a&gt;,
+I learned that you can make yourself a custom installer that includes all the
+software specified in your config.
+If I can include the options for my WiFi chip,
+I should be able to run the install without an ethernet cable.
+I used the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nix-community&#x2F;nixos-generators&quot;&gt;nixos-generators&lt;&#x2F;a&gt;
+tool to build an ISO image out of my config so that I could use that instead of
+the official &amp;quot;minimal&amp;quot; installer.&lt;&#x2F;p&gt;
+&lt;p&gt;Time found and energy summoned,
+I took my ISO image and ran the installation in a VM.
+I go to run the &lt;code&gt;disko&lt;&#x2F;code&gt; scripts to apply my filesystem config.
+The scripts aren&#x27;t there.
+wat?&lt;&#x2F;p&gt;
+&lt;p&gt;Digging through the &lt;code&gt;disko&lt;&#x2F;code&gt; source was a little bit above my pay grade at that
+point because I didn&#x27;t have any experience with the NixOS module system.
+I ask another &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomberek&quot;&gt;coworker&lt;&#x2F;a&gt;,
+he makes some suggestions and points out a couple of bugs in my config.
+Sure, I don&#x27;t know what I&#x27;m doing yet.&lt;&#x2F;p&gt;
+&lt;p&gt;I go to run the install again and I&#x27;m still getting these errors.
+At this point I give up on &lt;code&gt;disko&lt;&#x2F;code&gt; for the time being and just install NixOS
+on ext4 using the manual installation instructions.
+This reduces the surface area of what I possibly could have messed up.
+I&#x27;d rather get the rest of the config in a known working state,
+and then add on the &lt;code&gt;disko&lt;&#x2F;code&gt; stuff.&lt;&#x2F;p&gt;
+&lt;p&gt;I played around with this VM and got a basic config working.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;attempt-4&quot;&gt;Attempt #4&lt;a class=&quot;zola-anchor&quot; href=&quot;#attempt-4&quot; aria-label=&quot;Anchor link for: attempt-4&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;I had been wanting to get back into playing Elden Ring for a while,
+but when I&#x27;m constantly getting my ass kicked I&#x27;d like to slouch a little bit.
+This is my roundabout way of saying that I wanted to set up game streaming from
+my desktop to a small machine in my living room.&lt;&#x2F;p&gt;
+&lt;p&gt;I bought an Intel NUC and installed my NixOS config on it,
+again using the manual partitioning instructions for ext4.
+Life&#x27;s too short to let ZFS get in the way of Elden Ring.&lt;&#x2F;p&gt;
+&lt;p&gt;This went off without a hitch,
+so technically this is the first time I successfully install NixOS on hardware.
+However, I&#x27;m still running partitioning commands manually and I&#x27;m still not
+using ZFS.&lt;&#x2F;p&gt;
+&lt;p&gt;I did buy a new flash drive just for this.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;scale-21x-and-nixcon-north-america-2024&quot;&gt;SCaLE 21x and NixCon North America 2024&lt;a class=&quot;zola-anchor&quot; href=&quot;#scale-21x-and-nixcon-north-america-2024&quot; aria-label=&quot;Anchor link for: scale-21x-and-nixcon-north-america-2024&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;I was one of the organizers for
+&lt;a href=&quot;https:&#x2F;&#x2F;2024-na.nixcon.org&#x2F;&quot;&gt;NixCon North America 2024&lt;&#x2F;a&gt;,
+mainly in charge of creating the program.
+One of my &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;djacu&quot;&gt;co-organizers&lt;&#x2F;a&gt; submitted a workshop on
+essentially exactly what I was trying to do: NixOS on ZFS using &lt;code&gt;disko&lt;&#x2F;code&gt; for the
+filesystem config.
+We decided it would be better for the wider audience if he did a workshop on the
+NixOS module system instead.&lt;&#x2F;p&gt;
+&lt;p&gt;Fast forward to NixCon NA and we get to talking about the holy grail again:
+NixOS on ZFS without manual partitioning.&lt;&#x2F;p&gt;
+&lt;p&gt;I start looking at the &lt;code&gt;disko&lt;&#x2F;code&gt; docs again and notice that there&#x27;s a new command:
+&lt;code&gt;disko-install&lt;&#x2F;code&gt;.
+This was &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nix-community&#x2F;disko&#x2F;pull&#x2F;548&quot;&gt;added on March 1st&lt;&#x2F;a&gt;,
+and it claims to be a combination of &lt;code&gt;disko&lt;&#x2F;code&gt; and &lt;code&gt;nixos-install&lt;&#x2F;code&gt;.
+Could it be?
+The one that was promised?
+The chosen one?&lt;&#x2F;p&gt;
+&lt;p&gt;I ignore responsibilities to find some time, I dig deep to summon my courage,
+dash across the house with the ethernet cable,
+and fumble to get the flash drive plugged into my desktop.
+I run &lt;code&gt;disko-install&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;It works on the first try!
+We did it!&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;meet-chungus&quot;&gt;Meet &lt;code&gt;chungus&lt;&#x2F;code&gt;&lt;a class=&quot;zola-anchor&quot; href=&quot;#meet-chungus&quot; aria-label=&quot;Anchor link for: meet-chungus&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;My laptop is a 16&amp;quot; Macbook Pro M1 Max.
+It&#x27;s not a small laptop.
+For this reason I named it &lt;code&gt;chonker&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;At &lt;a href=&quot;https:&#x2F;&#x2F;flox.dev&quot;&gt;Flox&lt;&#x2F;a&gt; we do demo days on Thursday mornings.
+This is a fun way to show your coworkers what you&#x27;ve completed in the last
+sprint,
+or simply show something you&#x27;ve been working on at work or otherwise.&lt;&#x2F;p&gt;
+&lt;p&gt;My demos have become somewhat notorious for two reasons:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Given a captive audience I will talk indefinitely.&lt;&#x2F;li&gt;
+&lt;li&gt;Every demo starts with &lt;code&gt;chonker $&lt;&#x2F;code&gt;.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;We have an internal chat bot called Goldiflox that,
+among other things,
+keeps &amp;quot;karma&amp;quot; scores and &amp;quot;facts&amp;quot;.
+&lt;code&gt;chonker&lt;&#x2F;code&gt; and my demos have left their mark even in the company chat bot.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;installing-nixos&#x2F;chonker-demo-order.png&quot; alt=&quot;Demo day order showing chonker instead of my name&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;installing-nixos&#x2F;chonker-karma.png&quot; alt=&quot;Slack chat showing someone increasing chonker&#x27;s karma, and the chat bot telling someone else that a &amp;quot;Zach demo&amp;quot; is 20 minutes long&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;So, when it came time to name my desktop,
+I needed a name that invoked something even bigger than a chonk.&lt;&#x2F;p&gt;
+&lt;p&gt;Meet &lt;code&gt;chungus&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;installing-nixos&#x2F;chungus-neofetch.png&quot; alt=&quot;neofetch run on chungus&quot; &#x2F;&gt;
+&lt;img src=&quot;&#x2F;images&#x2F;installing-nixos&#x2F;chungus.jpeg&quot; alt=&quot;A photo of chungus&#x27;s hardware&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;what-s-next&quot;&gt;What&#x27;s next?&lt;a class=&quot;zola-anchor&quot; href=&quot;#what-s-next&quot; aria-label=&quot;Anchor link for: what-s-next&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;You&#x27;ll notice I didn&#x27;t post any screenshots of &lt;code&gt;chungus&lt;&#x2F;code&gt;&#x27;s desktop.
+That&#x27;s because I&#x27;ve decided I&#x27;m going to roll my own desktop environment using
+Hyprland and a variety of other Wayland applications.
+I did get a basic Gnome desktop set up just to make sure everything was working
+properly,
+but now that I have a NixOS machine I can tinker on,
+I&#x27;m going to &lt;em&gt;tinker&lt;&#x2F;em&gt;.&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Today we launched Flox 1.0</title>
+          <pubDate>Wed, 13 Mar 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/releasing-flox/</link>
+          <guid>https://tinkering.xyz/releasing-flox/</guid>
+          <description xml:base="https://tinkering.xyz/releasing-flox/">&lt;h1 id=&quot;intro&quot;&gt;Intro&lt;a class=&quot;zola-anchor&quot; href=&quot;#intro&quot; aria-label=&quot;Anchor link for: intro&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
 &lt;p&gt;A little over a year ago I was working full time as a software engineer while finishing my PhD in physics (you&#x27;re probably already questioning my judgement, please keep reading).
 After I defended my thesis I had some free time to be a real human being again and decided to pick up Nix.
 I’ve always had a thing for documentation, and I noticed that the Nix documentation was notoriously hard to use.
@@ -182,13 +364,14 @@ you can reach me directly or in one of our community spaces:&lt;&#x2F;p&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;floxcommunitygroup.slack.com&quot;&gt;Flox Community Slack&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 </description>
-        </item>
-        <item>
-            <title>Talks</title>
-            <pubDate>Sun, 19 Nov 2023 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/talks/</link>
-            <guid>https://tinkering.xyz/talks/</guid>
-            <description>&lt;h2 id=&quot;rustconf-2023-async-building-blocks-a-streaming-data-drama-in-three-acts&quot;&gt;RustConf 2023 - Async Building Blocks: A Streaming Data Drama in Three Acts&lt;a class=&quot;zola-anchor&quot; href=&quot;#rustconf-2023-async-building-blocks-a-streaming-data-drama-in-three-acts&quot; aria-label=&quot;Anchor link for: rustconf-2023-async-building-blocks-a-streaming-data-drama-in-three-acts&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+      </item>
+      <item>
+          <title>Talks</title>
+          <pubDate>Sun, 19 Nov 2023 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/talks/</link>
+          <guid>https://tinkering.xyz/talks/</guid>
+          <description xml:base="https://tinkering.xyz/talks/">&lt;h2 id=&quot;rustconf-2023-async-building-blocks-a-streaming-data-drama-in-three-acts&quot;&gt;RustConf 2023 - Async Building Blocks: A Streaming Data Drama in Three Acts&lt;a class=&quot;zola-anchor&quot; href=&quot;#rustconf-2023-async-building-blocks-a-streaming-data-drama-in-three-acts&quot; aria-label=&quot;Anchor link for: rustconf-2023-async-building-blocks-a-streaming-data-drama-in-three-acts&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;This talk is an intermediate level tour of some features of the async Rust ecosystem. &lt;&#x2F;p&gt;
 &lt;p&gt;Abstract:&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
@@ -229,13 +412,14 @@ you can reach me directly or in one of our community spaces:&lt;&#x2F;p&gt;
 &lt;p&gt;This was my first ever software talk, and probably only my seond time attending Indy.rs. Needless to say I was nervous.&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;talks&#x2F;tree&#x2F;master&#x2F;2018-04-04%20-%20indyrs%20-%20cache%20friendly%20rust&quot;&gt;Slides&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Nix journey part 1: My grand unified theory of Nix documentation</title>
-            <pubDate>Sun, 05 Mar 2023 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/nix-docs-unified-theory/</link>
-            <guid>https://tinkering.xyz/nix-docs-unified-theory/</guid>
-            <description>&lt;p&gt;&lt;strong&gt;Update 2023-11-19:&lt;&#x2F;strong&gt; This series is effectively dead. Since publishing this post I&#x27;ve joined the Nix Documentation Team, started, lead, and left a working group (which is now dissolved) based on teaching Nix to new users, and joined a company making a product that uses Nix as an implementation detail, and &lt;a href=&quot;https:&#x2F;&#x2F;tinkering.xyz&#x2F;talks&#x2F;#nixcon-2023-rust-nix-more-than-the-sum-of-their-parts&quot;&gt;spoken at NixCon 2023&lt;&#x2F;a&gt;. That&#x27;s left me pretty busy! Needless to say, with this much Nix involvement in my day job, there will be more Nix content to come on my site.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>Nix journey part 1: My grand unified theory of Nix documentation</title>
+          <pubDate>Sun, 05 Mar 2023 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/nix-docs-unified-theory/</link>
+          <guid>https://tinkering.xyz/nix-docs-unified-theory/</guid>
+          <description xml:base="https://tinkering.xyz/nix-docs-unified-theory/">&lt;p&gt;&lt;strong&gt;Update 2023-11-19:&lt;&#x2F;strong&gt; This series is effectively dead. Since publishing this post I&#x27;ve joined the Nix Documentation Team, started, lead, and left a working group (which is now dissolved) based on teaching Nix to new users, and joined a company making a product that uses Nix as an implementation detail, and &lt;a href=&quot;https:&#x2F;&#x2F;tinkering.xyz&#x2F;talks&#x2F;#nixcon-2023-rust-nix-more-than-the-sum-of-their-parts&quot;&gt;spoken at NixCon 2023&lt;&#x2F;a&gt;. That&#x27;s left me pretty busy! Needless to say, with this much Nix involvement in my day job, there will be more Nix content to come on my site.&lt;&#x2F;p&gt;
 &lt;hr &#x2F;&gt;
 &lt;p&gt;Since the last post I&#x27;ve been in contact with some members of the Nix community with regards to joining the documentation team. From that discussion and my experience with other ecosystems I&#x27;ve had some ideas rolling around about what the ideal Nix documentation strategy&#x2F;ecosystem would look like to me, so I&#x27;m putting those ideas in writing to start a discussion and generate ideas. These ideas aren&#x27;t super concrete and I don&#x27;t speak for anyone else, but they&#x27;re my vision for how Nix documentation could better serve experienced users and onboard new ones.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;planning-the-work&quot;&gt;Planning the work&lt;a class=&quot;zola-anchor&quot; href=&quot;#planning-the-work&quot; aria-label=&quot;Anchor link for: planning-the-work&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
@@ -417,13 +601,14 @@ you can reach me directly or in one of our community spaces:&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;zola-anchor&quot; href=&quot;#conclusion&quot; aria-label=&quot;Anchor link for: conclusion&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;So, obviously this looks very different from today&#x27;s Nix documentation and it would require an enormous amount of work. However, I think having a vision for how things &lt;em&gt;should&lt;&#x2F;em&gt; look is important before starting any major endeavors. Do you agree with this vision? Do you think things should look wildly different? I&#x27;d love to hear your thoughts.&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Nix journey part 0: Learning and reference materials</title>
-            <pubDate>Tue, 28 Feb 2023 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/nix-docs/</link>
-            <guid>https://tinkering.xyz/nix-docs/</guid>
-            <description>&lt;h2 id=&quot;the-story-before-the-recipe&quot;&gt;The story before the recipe&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-story-before-the-recipe&quot; aria-label=&quot;Anchor link for: the-story-before-the-recipe&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+      </item>
+      <item>
+          <title>Nix journey part 0: Learning and reference materials</title>
+          <pubDate>Tue, 28 Feb 2023 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/nix-docs/</link>
+          <guid>https://tinkering.xyz/nix-docs/</guid>
+          <description xml:base="https://tinkering.xyz/nix-docs/">&lt;h2 id=&quot;the-story-before-the-recipe&quot;&gt;The story before the recipe&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-story-before-the-recipe&quot; aria-label=&quot;Anchor link for: the-story-before-the-recipe&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;I&#x27;ve been following the Nix project for a while but now that I&#x27;m done with my PhD I finally have some free time and energy to try using it in earnest. This series is going to be me learning Nix by showing you how things work and how to put the pieces together.&lt;&#x2F;p&gt;
 &lt;p&gt;For those of you unaware, Nix takes reproducible builds to their logical conclusion by making package builds (mostly) pure functions of their dependencies. The binary artifacts of builds are stored in a content-addressed store (the Nix store) so you can be sure that you&#x27;re always getting the same package if you have its name and hash. Not only can you build programs this way, but you can also build development environments (&amp;quot;I want these libraries available in my build environment and nothing else&amp;quot;, for example), run commands in throw-away environments with specific packages installed without polluting your global environment. There&#x27;s even an operating system, NixOS, based on this packaging system that allows you to configure your whole system (installed packages, system settings, etc) from a single file.&lt;&#x2F;p&gt;
 &lt;p&gt;Now, with all of that said, Nix can be intimidating simply because it&#x27;s so different from other packaging systems. First off Nix packages are written in a purely functional language also called Nix. The terminology used in the Nix ecosystem is also pretty unique, so reading about Nix can often feel like this classic:&lt;&#x2F;p&gt;
@@ -437,9 +622,9 @@ you can reach me directly or in one of our community spaces:&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;nix-reference-manual&quot;&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;stable&#x2F;&quot;&gt;Nix Reference Manual&lt;&#x2F;a&gt;&lt;a class=&quot;zola-anchor&quot; href=&quot;#nix-reference-manual&quot; aria-label=&quot;Anchor link for: nix-reference-manual&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
 &lt;p&gt;The Nix Reference Manual covers a lot of ground ranging from installing Nix to man-pages for &lt;code&gt;nix&lt;&#x2F;code&gt; commands. I would say that the most useful pieces here are:&lt;&#x2F;p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;stable&#x2F;installation&#x2F;installation.html&quot;&gt;Installation instructions&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;stable&#x2F;installation&#x2F;&quot;&gt;Installation instructions&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;stable&#x2F;language&#x2F;index.html&quot;&gt;Nix language reference&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;stable&#x2F;command-ref&#x2F;command-ref.html&quot;&gt;Command reference&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;stable&#x2F;command-ref&#x2F;&quot;&gt;Command reference&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 &lt;p&gt;Oddly enough, in the reference for the &lt;code&gt;nix flake&lt;&#x2F;code&gt; command you&#x27;ll find a very thorough description of the schema for a Nix flake including which attributes are required, how to refer to other flakes, etc. In my mind this should live somewhere else, but I&#x27;m glad it exists somewhere.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;nixpkgs-manual&quot;&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nixpkgs&#x2F;stable&#x2F;&quot;&gt;Nixpkgs Manual&lt;&#x2F;a&gt;&lt;a class=&quot;zola-anchor&quot; href=&quot;#nixpkgs-manual&quot; aria-label=&quot;Anchor link for: nixpkgs-manual&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
@@ -477,13 +662,14 @@ you can reach me directly or in one of our community spaces:&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;zola-anchor&quot; href=&quot;#conclusion&quot; aria-label=&quot;Anchor link for: conclusion&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;So, hopefully you&#x27;ve found this useful. In the first real installment of this series we&#x27;ll look at how to create a flake from scratch (no really, starting from an empty file). Later installments will cover topics such as specifying separate sets of build-time, dev-time, and run-time dependencies, building Docker images from Nix flakes, setting up useful development shells, and a variety of other topics. Until next time, may cosmic rays never flip your bits.&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Bitmask tables</title>
-            <pubDate>Tue, 27 Sep 2022 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/bit-mask-tables/</link>
-            <guid>https://tinkering.xyz/bit-mask-tables/</guid>
-            <description>&lt;p&gt;At &lt;code&gt;$WORK&lt;&#x2F;code&gt; I have a need to create some bitmasks over a 64-bit field. I&#x27;ve never done this before. I figured that &lt;em&gt;surely&lt;&#x2F;em&gt; tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. So, to scratch my own itch I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables. Here you go, now we both have a quick reference.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>Bitmask tables</title>
+          <pubDate>Tue, 27 Sep 2022 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/bit-mask-tables/</link>
+          <guid>https://tinkering.xyz/bit-mask-tables/</guid>
+          <description xml:base="https://tinkering.xyz/bit-mask-tables/">&lt;p&gt;At &lt;code&gt;$WORK&lt;&#x2F;code&gt; I have a need to create some bitmasks over a 64-bit field. I&#x27;ve never done this before. I figured that &lt;em&gt;surely&lt;&#x2F;em&gt; tables exist for grabbing a certain number of bits from a certain position, but I never found those tables. So, to scratch my own itch I wrote a very simple Python program to generate the tables and used a CSV to Markdown converter to create the tables. Here you go, now we both have a quick reference.&lt;&#x2F;p&gt;
 &lt;p&gt;Update 2023-04-04: Someone on Mastodon mentioned &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mellowcandle&#x2F;bitwise&quot;&gt;bitwise&lt;&#x2F;a&gt;, an interactive terminal program for bit manipulations. It looks pretty cool!&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;program&quot;&gt;Program&lt;a class=&quot;zola-anchor&quot; href=&quot;#program&quot; aria-label=&quot;Anchor link for: program&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;bit_sizes = [&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;8&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;16&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;32&lt;&#x2F;span&gt;&lt;span&gt;]
@@ -594,13 +780,14 @@ you can reach me directly or in one of our community spaces:&lt;&#x2F;p&gt;
 &lt;tr&gt;&lt;td&gt;1&lt;&#x2F;td&gt;&lt;td&gt;18446744069414584320&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
 </description>
-        </item>
-        <item>
-            <title>Optimization story - quantum mechanics simulation speedup</title>
-            <pubDate>Sun, 09 Jan 2022 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/fmo-optimization-story/</link>
-            <guid>https://tinkering.xyz/fmo-optimization-story/</guid>
-            <description>&lt;hr &#x2F;&gt;
+      </item>
+      <item>
+          <title>Optimization story - quantum mechanics simulation speedup</title>
+          <pubDate>Sun, 09 Jan 2022 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/fmo-optimization-story/</link>
+          <guid>https://tinkering.xyz/fmo-optimization-story/</guid>
+          <description xml:base="https://tinkering.xyz/fmo-optimization-story/">&lt;hr &#x2F;&gt;
 &lt;details&gt;
     &lt;summary&gt;Click here for tl;dr and spoilers&lt;&#x2F;summary&gt;
     &lt;p&gt;I wanted to make a physics simulation 100x faster. I got it 4x faster exercising my best NumPy skills, and 50x faster after rewriting in Rust with a couple of other optimizations. After getting a machine with more (and faster) cores this jumped to 250x.&lt;&#x2F;p&gt;
@@ -1286,13 +1473,14 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;p&gt;That&#x27;s all for now. If you have hints, guidance, or feedback, feel free to chime in! You can find my email address in the About page.&lt;&#x2F;p&gt;
 &lt;p&gt;Update: After my laptop arrived my speedup jumped to 250x with no changes in the code. Thanks Moore&#x27;s Law!&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Using notifiers to give yourself the day off</title>
-            <pubDate>Thu, 12 Nov 2020 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/lazy-grad-student/</link>
-            <guid>https://tinkering.xyz/lazy-grad-student/</guid>
-            <description>&lt;p&gt;In keeping with the title, this will be a short post.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>Using notifiers to give yourself the day off</title>
+          <pubDate>Thu, 12 Nov 2020 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/lazy-grad-student/</link>
+          <guid>https://tinkering.xyz/lazy-grad-student/</guid>
+          <description xml:base="https://tinkering.xyz/lazy-grad-student/">&lt;p&gt;In keeping with the title, this will be a short post.&lt;&#x2F;p&gt;
 &lt;p&gt;The experiments that I do take roughly 2 hours each. The program that runs the experiments is written in Python and uses the &lt;a href=&quot;https:&#x2F;&#x2F;click.palletsprojects.com&#x2F;en&#x2F;7.x&#x2F;&quot;&gt;click&lt;&#x2F;a&gt; module for the command line interface. &lt;code&gt;click&lt;&#x2F;code&gt; provides an easy to use &lt;a href=&quot;https:&#x2F;&#x2F;click.palletsprojects.com&#x2F;en&#x2F;7.x&#x2F;utils&#x2F;#showing-progress-bars&quot;&gt;progress bar&lt;&#x2F;a&gt;, so I have some visual indicator of how the experiment is progressing and some estimate of when it will complete.&lt;&#x2F;p&gt;
 &lt;p&gt;If I know roughly how long the experiment is going to take, that means I can walk away while the experiment runs, right? Well, no. My samples degrade with increased laser exposure, so I&#x27;d like to minimize the time spent blasting my sample while not collecting data. However, I don&#x27;t really want to sit in front of the computer the whole time or get up to check on the experiment every 5 minutes. What is a lazy grad student to do?&lt;&#x2F;p&gt;
 &lt;p&gt;Enter the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;liiight&#x2F;notifiers&quot;&gt;notifiers&lt;&#x2F;a&gt; module.&lt;&#x2F;p&gt;
@@ -1312,13 +1500,14 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;p&gt;Now I can run experiments without having to monitor them and it took a whopping 3 lines of code (&lt;code&gt;import notifiers&lt;&#x2F;code&gt; is the third one). That&#x27;s pretty awesome if you ask me. I could see myself adding period status updates, but I&#x27;m not sure how much I want to spam my phone. In the end I&#x27;m pretty happy with both &lt;code&gt;notifiers&lt;&#x2F;code&gt; and Twilio, and I&#x27;ll probably find an excuse to use them in the future.&lt;&#x2F;p&gt;
 &lt;p&gt;You may be wondering why I&#x27;m using the entire &lt;code&gt;notifiers&lt;&#x2F;code&gt; package if I&#x27;m only using the Twilio provider. The answer is that there&#x27;s not really a good reason, but the ability to scale from text messages with Twilio to entire email reports based on experiment results is an interesting possibility.&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Interacting with Assembly in Rust</title>
-            <pubDate>Mon, 31 Aug 2020 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/interacting-with-assembly-in-rust/</link>
-            <guid>https://tinkering.xyz/interacting-with-assembly-in-rust/</guid>
-            <description>&lt;p&gt;Note: I originally wrote this article for LogRocket. You can find the original &lt;a href=&quot;https:&#x2F;&#x2F;blog.logrocket.com&#x2F;interacting-with-assembly-in-rust&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>Interacting with Assembly in Rust</title>
+          <pubDate>Mon, 31 Aug 2020 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/interacting-with-assembly-in-rust/</link>
+          <guid>https://tinkering.xyz/interacting-with-assembly-in-rust/</guid>
+          <description xml:base="https://tinkering.xyz/interacting-with-assembly-in-rust/">&lt;p&gt;Note: I originally wrote this article for LogRocket. You can find the original &lt;a href=&quot;https:&#x2F;&#x2F;blog.logrocket.com&#x2F;interacting-with-assembly-in-rust&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;For many Rust developers the process of producing a binary from their Rust code is a straightforward process which doesn’t require much thought. However, modern compilers are complicated programs in and of themselves, and may yield binaries that perform very differently in response to a minor change in the source code. In diagnosing performance issues like this, inspecting the output of the compiler can be helpful. The Rust compiler is able to emit various types of output, one of which is assembly. Rust also has facilities for embedding assembly. In this article you’ll learn about tools provided by the language and the community for extracting and embedding assembly.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;viewing-assembly&quot;&gt;Viewing assembly&lt;a class=&quot;zola-anchor&quot; href=&quot;#viewing-assembly&quot; aria-label=&quot;Anchor link for: viewing-assembly&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;To view the assembly output of various tools we’ll use the following example program:&lt;&#x2F;p&gt;
@@ -1383,13 +1572,14 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;zola-anchor&quot; href=&quot;#conclusion&quot; aria-label=&quot;Anchor link for: conclusion&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;Assembly is a language that many developers don’t use on a daily basis, but it can still be fun and educational to see how code manipulates the CPU directly. A debugger wasn’t mentioned above, but modern debuggers (GDB, LLDB) also allow you to disassemble code and step through it instruction by instruction. Armed with the tools above and a debugger, you should be able to explore the assembly that your code is translated into in a multitude of ways.&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Property-based testing in Rust with Proptest</title>
-            <pubDate>Fri, 19 Jun 2020 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/property-based-testing-with-proptest/</link>
-            <guid>https://tinkering.xyz/property-based-testing-with-proptest/</guid>
-            <description>&lt;p&gt;Note: I originally wrote this article for LogRocket. You can find the original &lt;a href=&quot;https:&#x2F;&#x2F;blog.logrocket.com&#x2F;property-based-testing-in-rust-with-proptest&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>Property-based testing in Rust with Proptest</title>
+          <pubDate>Fri, 19 Jun 2020 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/property-based-testing-with-proptest/</link>
+          <guid>https://tinkering.xyz/property-based-testing-with-proptest/</guid>
+          <description xml:base="https://tinkering.xyz/property-based-testing-with-proptest/">&lt;p&gt;Note: I originally wrote this article for LogRocket. You can find the original &lt;a href=&quot;https:&#x2F;&#x2F;blog.logrocket.com&#x2F;property-based-testing-in-rust-with-proptest&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;Software testing is an industry standard practice, but testing methodologies and techniques vary dramatically in their practicality and effectiveness. Today you’ll learn about property-based testing (PBT) including how it works, when it makes sense, and how to do it in Rust.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;what-is-property-based-testing&quot;&gt;What is property-based testing?&lt;a class=&quot;zola-anchor&quot; href=&quot;#what-is-property-based-testing&quot; aria-label=&quot;Anchor link for: what-is-property-based-testing&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;To illustrate how PBT works, let’s first look at a basic unit test. Let’s say that you’ve written a function &lt;code&gt;maybe_works&lt;&#x2F;code&gt; that you want to compare against a function that you know works properly, say &lt;code&gt;definitely_works&lt;&#x2F;code&gt;. A unit test comparing these two functions for some input &lt;code&gt;input&lt;&#x2F;code&gt; would look like the test below.&lt;&#x2F;p&gt;
@@ -1851,13 +2041,14 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;zola-anchor&quot; href=&quot;#conclusion&quot; aria-label=&quot;Anchor link for: conclusion&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;At this point you should have a passing understanding of how to write property-based tests. PBT isn’t always the answer, but the simple act of thinking about the abstract properties of your code can help you better understand it. The code used in this tutorial can be found on GitHub.&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>How to build a dice roller service in Rust</title>
-            <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/dicer-roller-service/</link>
-            <guid>https://tinkering.xyz/dicer-roller-service/</guid>
-            <description>&lt;p&gt;Note: I originally wrote this article for LogRocket. You can find the original &lt;a href=&quot;https:&#x2F;&#x2F;blog.logrocket.com&#x2F;how-to-build-a-dice-roller-in-rust&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>How to build a dice roller service in Rust</title>
+          <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/dicer-roller-service/</link>
+          <guid>https://tinkering.xyz/dicer-roller-service/</guid>
+          <description xml:base="https://tinkering.xyz/dicer-roller-service/">&lt;p&gt;Note: I originally wrote this article for LogRocket. You can find the original &lt;a href=&quot;https:&#x2F;&#x2F;blog.logrocket.com&#x2F;how-to-build-a-dice-roller-in-rust&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;Let’s get this out of the way: I’m a huge Dungeons &amp;amp; Dragons nerd. There’s something special about getting a bunch of adults in a room together to play pretend. &lt;&#x2F;p&gt;
 &lt;p&gt;Most of D&amp;amp;D involves using your imagination to make choices for your character, but the outcomes of some actions are determined by dice rolls. For instance, if you want to take a mighty swing at a goblin with your longsword, first you need to roll to see if you hit. You roll a twenty-sided dice (d20), add some numbers to your roll, and the Dungeon Master tells you whether you hit. If you hit, you roll more dice to determine how much damage you do. If, for example, you roll a 20 on your d20 when trying to hit, that means you’ve landed a critical hit, which inflicts a bunch of extra damage.&lt;&#x2F;p&gt;
 &lt;p&gt;Where am I going with this? In this tutorial, I&#x27;ll demonstrate how to create a web service to roll these dice for you when you visit a certain URL. This will be a relatively basic project suitable for experienced programmers who are new to Rust.&lt;&#x2F;p&gt;
@@ -2130,13 +2321,14 @@ We effectively &lt;em&gt;did&lt;&#x2F;em&gt; elminate the execution time of ever
 &lt;&#x2F;ul&gt;
 &lt;p&gt;The code for this project is available on GitHub. If you have questions or want to submit either of the projects mentioned above, new contributors are always welcome!&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Polsim - a case study for small-scale scientific computing in Rust</title>
-            <pubDate>Thu, 06 Jun 2019 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/polsim/</link>
-            <guid>https://tinkering.xyz/polsim/</guid>
-            <description>&lt;!-- Math rendering --&gt;
+      </item>
+      <item>
+          <title>Polsim - a case study for small-scale scientific computing in Rust</title>
+          <pubDate>Thu, 06 Jun 2019 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/polsim/</link>
+          <guid>https://tinkering.xyz/polsim/</guid>
+          <description xml:base="https://tinkering.xyz/polsim/">&lt;!-- Math rendering --&gt;
 &lt;script src=&#x27;https:&#x2F;&#x2F;cdnjs.cloudflare.com&#x2F;ajax&#x2F;libs&#x2F;mathjax&#x2F;2.7.5&#x2F;latest.js?config=TeX-MML-AM_CHTML&#x27; async&gt;&lt;&#x2F;script&gt;
 &lt;script type=&quot;text&#x2F;x-mathjax-config&quot;&gt;
 MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});
@@ -2488,13 +2680,14 @@ $$&lt;&#x2F;p&gt;
 &lt;p&gt;For you math-inclined folks, these matrices don&#x27;t commute.&lt;&#x2F;p&gt;
 &lt;&#x2F;div&gt;
 </description>
-        </item>
-        <item>
-            <title>Bringing macros to Python by abusing type annotations</title>
-            <pubDate>Sat, 04 Aug 2018 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/abusing-type-annotations/</link>
-            <guid>https://tinkering.xyz/abusing-type-annotations/</guid>
-            <description>&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;a class=&quot;zola-anchor&quot; href=&quot;#introduction&quot; aria-label=&quot;Anchor link for: introduction&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+      </item>
+      <item>
+          <title>Bringing macros to Python by abusing type annotations</title>
+          <pubDate>Sat, 04 Aug 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/abusing-type-annotations/</link>
+          <guid>https://tinkering.xyz/abusing-type-annotations/</guid>
+          <description xml:base="https://tinkering.xyz/abusing-type-annotations/">&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;a class=&quot;zola-anchor&quot; href=&quot;#introduction&quot; aria-label=&quot;Anchor link for: introduction&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
 &lt;p&gt;The desire to bring macros to Python came from my experience with Rust&#x27;s procedural macros, so we&#x27;re going to talk about Rust for a second. If you&#x27;d like to skip ahead to the Python stuff, &lt;a href=&quot;#skip&quot;&gt;click here&lt;&#x2F;a&gt;. Rust is becoming more and more popular by the day for reasons that you&#x27;ve probably heard about:&lt;&#x2F;p&gt;
 &lt;ul&gt;
 &lt;li&gt;It&#x27;s really fast.&lt;&#x2F;li&gt;
@@ -2871,13 +3064,14 @@ $$&lt;&#x2F;p&gt;
 &lt;p&gt;If you&#x27;re not amazed that this is possible, check your pulse. This is saying that you can attach entire functions to an attribute, not just a string or a type! It&#x27;s like every variable carries around a little suitcase that can hold (almost) anything you want!&lt;&#x2F;p&gt;
 &lt;p&gt;I think I&#x27;m done with this particular project for now, but I&#x27;m sure there&#x27;s all kinds of &lt;s&gt;terrible&lt;&#x2F;s&gt; wonderful things you can do with this. If you have any ideas, I&#x27;d love to hear them! The code for all of this can be found on my GitHub at &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;annotation-abuse&quot;&gt;zmitchell&#x2F;annotation-abuse&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 </description>
-        </item>
-        <item>
-            <title>Using Python&#x27;s asyncio with serial devices</title>
-            <pubDate>Thu, 15 Mar 2018 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/async-serial/</link>
-            <guid>https://tinkering.xyz/async-serial/</guid>
-            <description>&lt;p&gt;I&#x27;m an experimental physicist, so part of my job entails writing software that orchestrates equipment in my experiment. Most of the code that runs my experiment is written in a proprietary scripting language that I guarantee none of you have ever heard of. The old code is brittle, difficult to debug, and generally makes it too much of a pain to add features unless absolutely necessary. Lately I&#x27;ve been thinking about how I would do a modernized rewrite in Python.
+      </item>
+      <item>
+          <title>Using Python&#x27;s asyncio with serial devices</title>
+          <pubDate>Thu, 15 Mar 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/async-serial/</link>
+          <guid>https://tinkering.xyz/async-serial/</guid>
+          <description xml:base="https://tinkering.xyz/async-serial/">&lt;p&gt;I&#x27;m an experimental physicist, so part of my job entails writing software that orchestrates equipment in my experiment. Most of the code that runs my experiment is written in a proprietary scripting language that I guarantee none of you have ever heard of. The old code is brittle, difficult to debug, and generally makes it too much of a pain to add features unless absolutely necessary. Lately I&#x27;ve been thinking about how I would do a modernized rewrite in Python.
 &lt;a name=&quot;continue-reading&quot;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;If you&#x27;re working in an industrial, IoT, or scientific setting you might find yourself communicating with various devices via serial protocols. In my experience, ASCII-over-serial is the JSON of the scientific world in the sense that just about any piece of equipment you buy will have some sort of ASCII&#x2F;serial support. For example, every single piece of equipment in my experiment uses ASCII-over-serial.&lt;&#x2F;p&gt;
 &lt;p&gt;Lots of serial devices still default to a baud rate (bitrate) of 9600, or ~830us per character (byte). Your processor is running at several GHz. Furthermore, a read operation that times out will block the whole time it&#x27;s waiting. Have some empathy for the machine. Give it permission to do something interesting when it would otherwise be dying of boredom.&lt;&#x2F;p&gt;
@@ -3140,14 +3334,15 @@ $$&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;code&gt;open_serial_connection&lt;&#x2F;code&gt; calls &lt;code&gt;create_serial_connection&lt;&#x2F;code&gt;, which calls &lt;code&gt;serial.serial_for_url&lt;&#x2F;code&gt;, which will in most cases just call the &lt;code&gt;Serial&lt;&#x2F;code&gt; constructor with the arguments supplied to &lt;code&gt;serial_for_url&lt;&#x2F;code&gt;. &lt;code&gt;open_serial_connection&lt;&#x2F;code&gt; also requires that you specify all of its arguments as keyword arguments, but most of these arguments just get passed straight to &lt;code&gt;serial_for_url&lt;&#x2F;code&gt;. &lt;code&gt;serial_for_url&lt;&#x2F;code&gt; has a parameter called &lt;code&gt;url&lt;&#x2F;code&gt;, which gets passed to &lt;code&gt;Serial&lt;&#x2F;code&gt; as &lt;code&gt;portname&lt;&#x2F;code&gt; if you haven&#x27;t specified a URL. So, the &lt;code&gt;portname&lt;&#x2F;code&gt; parameter of the &lt;code&gt;Serial&lt;&#x2F;code&gt; constructor comes from &lt;code&gt;serial_for_url&lt;&#x2F;code&gt;&#x27;s &lt;code&gt;url&lt;&#x2F;code&gt; parameter all the way up in &lt;code&gt;open_serial_connection&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;&#x2F;div&gt;
 </description>
-        </item>
-        <item>
-            <title>About</title>
-            <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/about/</link>
-            <guid>https://tinkering.xyz/about/</guid>
-            <description>&lt;p&gt;Hi, I&#x27;m Zach. I &lt;em&gt;love&lt;&#x2F;em&gt; learning how things works and using that knowledge to build new things. When I&#x27;m not reading about software you can find me on a disc golf course, rolling dice with a Dungeons &amp;amp; Dragons group, or playing around with generative art.&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;m currently building developer tools at &lt;a href=&quot;flox.dev&quot;&gt;Flox&lt;&#x2F;a&gt; with Rust and Nix.
+      </item>
+      <item>
+          <title>About</title>
+          <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/about/</link>
+          <guid>https://tinkering.xyz/about/</guid>
+          <description xml:base="https://tinkering.xyz/about/">&lt;p&gt;Hi, I&#x27;m Zach. I &lt;em&gt;love&lt;&#x2F;em&gt; learning how things works and using that knowledge to build new things. When I&#x27;m not reading about software you can find me on a disc golf course, rolling dice with a Dungeons &amp;amp; Dragons group, or playing around with generative art.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m currently building developer tools at &lt;a href=&quot;https:&#x2F;&#x2F;tinkering.xyz&#x2F;about&#x2F;flox.dev&quot;&gt;Flox&lt;&#x2F;a&gt; with Rust and Nix.
 I&#x27;m also one of the organizers for the Boulder Rust Meetup.&lt;&#x2F;p&gt;
 &lt;p&gt;I recently completed a physics PhD at Purdue University where I studied the details of photosynthesis using ultrafast spectroscopy. I built state of the art time resolved laser systems and did computational modeling of quantum-biological systems both on small computers (laptops) and big computers (supercomputing clusters). I also wrote all of the software currently running in the lab ranging from data acquisition and hardware control to numerical analysis.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;contact&quot;&gt;Contact&lt;a class=&quot;zola-anchor&quot; href=&quot;#contact&quot; aria-label=&quot;Anchor link for: contact&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
@@ -3159,13 +3354,14 @@ I&#x27;m also one of the organizers for the Boulder Rust Meetup.&lt;&#x2F;p&gt;
 &lt;li&gt;Email: &lt;a href=&quot;mailto:zmitchell@fastmail.com&quot;&gt;zmitchell@fastmail.com&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 </description>
-        </item>
-        <item>
-            <title>Introduction to Procedural Macros in Rust</title>
-            <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
-            <link>https://tinkering.xyz/introduction-to-proc-macros/</link>
-            <guid>https://tinkering.xyz/introduction-to-proc-macros/</guid>
-            <description>&lt;p&gt;As a newcomer to Rust, I heard the phrase &amp;quot;procedural macro&amp;quot; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I&#x27;m working on the guts of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;antoyo&#x2F;relm&quot;&gt;&lt;code&gt;relm&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, and a large chunk of it is procedural macros. I&#x27;ve learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.&lt;&#x2F;p&gt;
+      </item>
+      <item>
+          <title>Introduction to Procedural Macros in Rust</title>
+          <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/introduction-to-proc-macros/</link>
+          <guid>https://tinkering.xyz/introduction-to-proc-macros/</guid>
+          <description xml:base="https://tinkering.xyz/introduction-to-proc-macros/">&lt;p&gt;As a newcomer to Rust, I heard the phrase &amp;quot;procedural macro&amp;quot; thrown around a lot without really understanding what it meant. I figured that I would learn about them if I ever needed them. Well, I&#x27;m working on the guts of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;antoyo&#x2F;relm&quot;&gt;&lt;code&gt;relm&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, and a large chunk of it is procedural macros. I&#x27;ve learned enough about procedural macros to be dangerous, so I thought I would pass on some knowledge.&lt;&#x2F;p&gt;
 &lt;p&gt;The purpose of this post is to give you an overview of the ins and outs of procedural macros so that you feel confident enough to incorporate them into your own Rust arsenal. I&#x27;ll start off by discussing what makes a declarative macro (&lt;code&gt;macro_rules!&lt;&#x2F;code&gt;) different from a procedural macro, then I&#x27;ll discuss the different types of procedural macros, how to define them, where to define them, and the basics of packaging them. At the end I&#x27;ll walk you through making your very first procedural macro. Here&#x27;s a taste of where we&#x27;re going to end up:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;not-the-bees-editor.jpg&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve included below a list of other resources you might find helpful. Sometimes you need to hear the same information explained multiple ways before it really sinks in.&lt;&#x2F;p&gt;
@@ -3548,6 +3744,6 @@ I&#x27;m also one of the organizers for the Boulder Rust Meetup.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;summary-1&quot;&gt;Summary&lt;a class=&quot;zola-anchor&quot; href=&quot;#summary-1&quot; aria-label=&quot;Anchor link for: summary-1&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;If you&#x27;ve read this far, you&#x27;re a saint. Hopefully you got something out of it. Like some other nightly features of Rust, procedural macros are a bit of a moving target. I&#x27;ve done my best to make sure everything was up to date, but if you find something that&#x27;s out of date be sure to let me know!&lt;&#x2F;p&gt;
 </description>
-        </item>
+      </item>
     </channel>
 </rss>

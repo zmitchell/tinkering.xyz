@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>How I finally installed NixOS &middot; Tinkering</title>
+  <meta name="description" content="...or, how disko-install is what I thought nixos-install would be." />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://tinkering.xyz/rss.xml">
+  <script defer data-domain="tinkering.xyz" src="/js/script.js"></script>
+
+  <style>
+    *,:after,:before{box-sizing:border-box}:root{--color-bg: #f2f2f2;--color-dark: #222222;--color-mid: #ced4da;--color-light: #dee2e6;--color-accent: #089ce7;--text-width: 70ch;--size-base: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);--size-step-0: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);--size-step-1: clamp(1.1875rem, 1.12rem + 0.33vw, 1.375rem);--size-step-2: clamp(1.4375rem, 1.33rem + 0.54vw, 1.75rem);--size-step-3: clamp(1.6875rem, 1.51rem + 0.87vw, 2.1875rem);--size-step-4: clamp(2.0625rem, 1.85rem + 1.09vw, 2.6875rem);--font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", 		"Segoe UI Symbol"}body{background:var(--color-bg);color:var(--color-dark);font-size:var(--size-base);font-family:var(--font-face);line-height:1.6;text-rendering:optimizeSpeed}h1{font-size:var(--size-step-3)}h2{font-size:var(--size-step-2)}h3{font-size:var(--size-step-1);line-height:1.2}main{margin:auto;max-width:var(--text-width);padding:.8rem}@media (max-width: var(--text-width)){.homepage-list a{width:100%}}a{color:currentColor;text-decoration-line:underline;text-decoration-color:var(--color-accent);text-decoration-thickness:.15em;text-underline-offset:.15em;text-decoration-skip-ink:none}a:hover{text-decoration-thickness:.3em;text-underline-offset:.05em}blockquote{border-left-color:var(--color-accent);border-left-width:.25em;border-left-style:solid;margin-left:0em;margin-right:0em;padding:.5em;background-color:var(--color-mid)}td{border:1px solid var(--color-dark);padding:10px}img{margin:auto;height:auto;display:block;max-width:100%}.nav__link{margin-left:0;margin-right:1em}.homepage-list{display:flex;flex-direction:column;list-style:none;padding:0;margin-top:0em}.homepage-list a{text-decoration-thickness:.05em;-webkit-text-decoration-thickness:.05em}.pagination{display:flex;justify-content:space-between}.pagination__onlynext{justify-content:flex-end}.post{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;margin-top:0}.post__title{margin:0;line-height:1.2em;justify-content:flex-start}.post__date{display:block;margin-top:0;margin-bottom:.5em;font-style:italic}.post__description{margin-top:0;margin-bottom:2em}pre{overflow:scroll;padding:1rem}code{font-size:90%}code:not(pre>code){padding:.15em .25em;color:var(--color-dark);background-color:var(--color-light);border-radius:3px}.zola-anchor{padding-left:.25em}.youtube>iframe{aspect-ratio:16/9;height:auto;width:100%}
+  </style>
+
+  <meta property="og:site_name" content="Tinkering">
+  <meta name="author" content="Zach Mitchell" />
+  <meta property="og:title" content="How I finally installed NixOS">
+  <meta property="og:description" content="...or, how disko-install is what I thought nixos-install would be.">
+  <meta property="og:url" content="https://tinkering.xyz/installing-nixos/">
+  <meta property="og:image"
+    content="">
+
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content=" 2024-03-24T00:00:00+00:00" />
+
+  
+  
+<link rel="canonical" href="https://tinkering.xyz/installing-nixos/">
+
+
+</head>
+
+
+<body>
+  <main id="main" role="main">
+
+    
+    <header role="banner">
+      <h3 style="margin-top:0;">
+        <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+        <br /><small>Come for the Foo, stay for the Bar</small>
+      </h3>
+      <nav role="navigation">
+        
+          <a class="nav__link" href="/">Home</a>
+        
+          <a class="nav__link" href="https://github.com/zmitchell">GitHub</a>
+        
+          <a class="nav__link" href="/about/">About</a>
+        
+          <a class="nav__link" href="/talks/">Talks</a>
+        
+      </nav>
+    </header>
+    <hr />
+    
+
+    
+<article>
+  <h1>How I finally installed NixOS</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2024-03-24T00:00:00+00:00">March 24, 2024</time></p>
+  
+
+  
+  <div>
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#the-motivation">The motivation</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#requirements">Requirements</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#attempt-1">Attempt #1</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#attempt-2">Attempt #2</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#attempt-4">Attempt #4</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#scale-21x-and-nixcon-north-america-2024">SCaLE 21x and NixCon North America 2024</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#meet-chungus">Meet chungus</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#what-s-next">What&#x27;s next?</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p>I've been in the <a href="https://nixos.org">Nix</a> world for about a year now,
+I work <a href="https://flox.dev">at a company</a> that uses Nix daily,
+and it was only last week that I finally installed NixOS on the PC that I've
+been meaning to install it on for close to a year.
+Why? 
+What kept me from installing it for so long?
+What was the breakthrough?</p>
+<h1 id="the-motivation">The motivation<a class="zola-anchor" href="#the-motivation" aria-label="Anchor link for: the-motivation"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>Every time I get a new machine there's a feeling of dread that now I have to
+(try) to set it up from scratch.
+I have ADHD and this is the kind of tedious task that makes my brain melt.
+The process typically goes like this:</p>
+<ul>
+<li>Run <code>brew list</code> or something like that in order to get a list of packages I
+have installed.</li>
+<li>Prune that list to remove things that I installed because I needed them for
+one time use and later forgot about.</li>
+<li>Run <code>brew install</code>, <code>apt install</code>, etc to install that list of packages.</li>
+<li>Discover that package names are different across OS, distribution, etc.</li>
+<li>Discover that some packages just don't exist on the new OS, distribution, etc.</li>
+<li>A month later, discover that some application I need wasn't in that original
+list because I installed it through some other mechanism.</li>
+</ul>
+<p>Barf.</p>
+<p>Fast forward and Nix pops up on my radar.
+I can configure the entire operating system declaratively?
+Yes please.</p>
+<h1 id="requirements">Requirements<a class="zola-anchor" href="#requirements" aria-label="Anchor link for: requirements"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>My main machine is an M1 Macbook Pro,
+and it's a personal machine,
+so I've installed all kinds of stuff on it.
+I don't see myself switching to Linux as my work machine any time soon,
+though I've been a Linux user in one form or another for over a decade.</p>
+<p>I have a desktop that's a fire-breathing monster of a machine with 32GB of RAM,
+a 16-core/32-thread CPU,
+an RTX 4090 GPU,
+and a full custom water cooling loop.
+It's pretty nice.
+Right now it's just my gaming PC,
+but there's a second SSD in there that's been empty since I built it because
+I intended to put NixOS on it.</p>
+<p>My one, major requirement was that I should be able to take my NixOS config
+and run one or two commands to set up the entire machine.
+I don't want to be involved in the process, just do it automatically.</p>
+<p>In the spirit of &quot;we can have nice things&quot;,
+I also decided that I wanted this machine to use ZFS as the filesystem.
+But again, I didn't want to manually type out the partitioning commands.
+This is NixOS, everything is supposed to be declarative, right?</p>
+<p>I learned about a Nix project called
+<a href="https://github.com/nix-community/disko">disko</a>
+that allows you to declaratively configure your filesystem.
+The docs were terse and not terribly beginner-to-Nix friendly,
+but there were example configurations that you could copy and modify,
+including one for ZFS.</p>
+<h1 id="attempt-1">Attempt #1<a class="zola-anchor" href="#attempt-1" aria-label="Anchor link for: attempt-1"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>Ok, I lied a little bit,
+I wasn't set on ZFS from the outset,
+so my first attempt was just running the &quot;minimal&quot; installer available from the
+NixOS website.
+I ran into a couple of problems.</p>
+<p>First, the installer at the time didn't include drivers for my WiFi chip.
+I think those drivers have since been added to the Linux kernel,
+so they don't need to be added separately.</p>
+<p>I followed the installation instructions meticulously because I already had the
+Windows side of the machine set up and didn't want to accidentally nuke it.
+Fast forward, I've done the partitioning,
+I've done some minimal configuration so I have a few familiar programs after
+the install,
+and it's finally time to run <code>nixos-install</code>.</p>
+<p>The text scrolls by as the installer runs,
+and...&quot;something something bad sector&quot;.
+The fucking flash drive is corrupted.</p>
+<p>I was a little burnt out at the time
+(working on the Nix Docs Team, speaking at NixCon, speaking at RustConf),
+so finding the time and summoning the energy to spend on this was hard enough.
+This killed that energy, especially since I had a startup cost of running
+an ethernet cable across my house to even attempt it again.</p>
+<p>At that point I resolved to try things in a VM first.</p>
+<h1 id="attempt-2">Attempt #2<a class="zola-anchor" href="#attempt-2" aria-label="Anchor link for: attempt-2"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>After talking with a <a href="https://github.com/bryanhonof">coworker</a>,
+I learned that you can make yourself a custom installer that includes all the
+software specified in your config.
+If I can include the options for my WiFi chip,
+I should be able to run the install without an ethernet cable.
+I used the <a href="https://github.com/nix-community/nixos-generators">nixos-generators</a>
+tool to build an ISO image out of my config so that I could use that instead of
+the official &quot;minimal&quot; installer.</p>
+<p>Time found and energy summoned,
+I took my ISO image and ran the installation in a VM.
+I go to run the <code>disko</code> scripts to apply my filesystem config.
+The scripts aren't there.
+wat?</p>
+<p>Digging through the <code>disko</code> source was a little bit above my pay grade at that
+point because I didn't have any experience with the NixOS module system.
+I ask another <a href="https://github.com/tomberek">coworker</a>,
+he makes some suggestions and points out a couple of bugs in my config.
+Sure, I don't know what I'm doing yet.</p>
+<p>I go to run the install again and I'm still getting these errors.
+At this point I give up on <code>disko</code> for the time being and just install NixOS
+on ext4 using the manual installation instructions.
+This reduces the surface area of what I possibly could have messed up.
+I'd rather get the rest of the config in a known working state,
+and then add on the <code>disko</code> stuff.</p>
+<p>I played around with this VM and got a basic config working.</p>
+<h1 id="attempt-4">Attempt #4<a class="zola-anchor" href="#attempt-4" aria-label="Anchor link for: attempt-4"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>I had been wanting to get back into playing Elden Ring for a while,
+but when I'm constantly getting my ass kicked I'd like to slouch a little bit.
+This is my roundabout way of saying that I wanted to set up game streaming from
+my desktop to a small machine in my living room.</p>
+<p>I bought an Intel NUC and installed my NixOS config on it,
+again using the manual partitioning instructions for ext4.
+Life's too short to let ZFS get in the way of Elden Ring.</p>
+<p>This went off without a hitch,
+so technically this is the first time I successfully install NixOS on hardware.
+However, I'm still running partitioning commands manually and I'm still not
+using ZFS.</p>
+<p>I did buy a new flash drive just for this.</p>
+<h1 id="scale-21x-and-nixcon-north-america-2024">SCaLE 21x and NixCon North America 2024<a class="zola-anchor" href="#scale-21x-and-nixcon-north-america-2024" aria-label="Anchor link for: scale-21x-and-nixcon-north-america-2024"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>I was one of the organizers for
+<a href="https://2024-na.nixcon.org/">NixCon North America 2024</a>,
+mainly in charge of creating the program.
+One of my <a href="https://github.com/djacu">co-organizers</a> submitted a workshop on
+essentially exactly what I was trying to do: NixOS on ZFS using <code>disko</code> for the
+filesystem config.
+We decided it would be better for the wider audience if he did a workshop on the
+NixOS module system instead.</p>
+<p>Fast forward to NixCon NA and we get to talking about the holy grail again:
+NixOS on ZFS without manual partitioning.</p>
+<p>I start looking at the <code>disko</code> docs again and notice that there's a new command:
+<code>disko-install</code>.
+This was <a href="https://github.com/nix-community/disko/pull/548">added on March 1st</a>,
+and it claims to be a combination of <code>disko</code> and <code>nixos-install</code>.
+Could it be?
+The one that was promised?
+The chosen one?</p>
+<p>I ignore responsibilities to find some time, I dig deep to summon my courage,
+dash across the house with the ethernet cable,
+and fumble to get the flash drive plugged into my desktop.
+I run <code>disko-install</code>.</p>
+<p>It works on the first try!
+We did it!</p>
+<h1 id="meet-chungus">Meet <code>chungus</code><a class="zola-anchor" href="#meet-chungus" aria-label="Anchor link for: meet-chungus"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>My laptop is a 16&quot; Macbook Pro M1 Max.
+It's not a small laptop.
+For this reason I named it <code>chonker</code>.</p>
+<p>At <a href="https://flox.dev">Flox</a> we do demo days on Thursday mornings.
+This is a fun way to show your coworkers what you've completed in the last
+sprint,
+or simply show something you've been working on at work or otherwise.</p>
+<p>My demos have become somewhat notorious for two reasons:</p>
+<ul>
+<li>Given a captive audience I will talk indefinitely.</li>
+<li>Every demo starts with <code>chonker $</code>.</li>
+</ul>
+<p>We have an internal chat bot called Goldiflox that,
+among other things,
+keeps &quot;karma&quot; scores and &quot;facts&quot;.
+<code>chonker</code> and my demos have left their mark even in the company chat bot.</p>
+<p><img src="/images/installing-nixos/chonker-demo-order.png" alt="Demo day order showing chonker instead of my name" /></p>
+<p><img src="/images/installing-nixos/chonker-karma.png" alt="Slack chat showing someone increasing chonker's karma, and the chat bot telling someone else that a &quot;Zach demo&quot; is 20 minutes long" /></p>
+<p>So, when it came time to name my desktop,
+I needed a name that invoked something even bigger than a chonk.</p>
+<p>Meet <code>chungus</code>.</p>
+<p><img src="/images/installing-nixos/chungus-neofetch.png" alt="neofetch run on chungus" />
+<img src="/images/installing-nixos/chungus.jpeg" alt="A photo of chungus's hardware" /></p>
+<h1 id="what-s-next">What's next?<a class="zola-anchor" href="#what-s-next" aria-label="Anchor link for: what-s-next"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>You'll notice I didn't post any screenshots of <code>chungus</code>'s desktop.
+That's because I've decided I'm going to roll my own desktop environment using
+Hyprland and a variety of other Wayland applications.
+I did get a basic Gnome desktop set up just to make sure everything was working
+properly,
+but now that I have a NixOS machine I can tinker on,
+I'm going to <em>tinker</em>.</p>
+
+</article>
+
+
+    
+<hr/>
+<small>
+  <p>P.S. - You can follow me on Mastodon at <a href="https://hachyderm.io/@zmitchell">@zmitchell</a> for Rust, Nix, and lukewarm takes.</p>
+  <p>P.P.S. - If you notice that something could be more accessible, please reach out and I'll do my best to fix it!</p>
+</small>
+
+
+  </main>
+  
+  
+</body>
+
+</html>
