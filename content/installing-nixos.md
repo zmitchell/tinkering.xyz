@@ -170,8 +170,8 @@ The one that was promised?
 The chosen one?
 
 I ignore responsibilities to find some time, I dig deep to summon my courage,
-dash across the house with the ethernet cable,
-and fumble to get the flash drive plugged into my desktop.
+I dash across the house with the ethernet cable,
+and I fumble to get the flash drive plugged into my desktop.
 I run `disko-install`.
 
 It works on the first try!
