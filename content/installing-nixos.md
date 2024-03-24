@@ -1,7 +1,7 @@
 +++
 title = "How I finally installed NixOS"
 date = 2024-03-24
-description = "...or, how disko-install is what I thought nixos-install would be."
+description = "...or, how `disko-install` is what I thought `nixos-install` would be. I've been in the Nix world for about a year now, I work at a company that uses Nix daily, and it was only last week that I finally installed NixOS on the PC that I've been meaning to install it on for close to a year. Why? What kept me from installing it for so long? What was the breakthrough?"
 +++
 
 I've been in the [Nix](https://nixos.org) world for about a year now,
