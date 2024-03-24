@@ -206,7 +206,7 @@ keeps "karma" scores and "facts".
 ![Slack chat showing someone increasing chonker's karma, and the chat bot telling someone else that a "Zach demo" is 20 minutes long](/images/installing-nixos/chonker-karma.png)
 
 So, when it came time to name my desktop,
-I needed a name that invoked something even bigger than a chonk.
+I needed a name that evoked something even bigger than a chonk.
 
 Meet `chungus`.
 
