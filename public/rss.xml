@@ -118,7 +118,7 @@ This reduces the surface area of what I possibly could have messed up.
 I&#x27;d rather get the rest of the config in a known working state,
 and then add on the &lt;code&gt;disko&lt;&#x2F;code&gt; stuff.&lt;&#x2F;p&gt;
 &lt;p&gt;I played around with this VM and got a basic config working.&lt;&#x2F;p&gt;
-&lt;h1 id=&quot;attempt-4&quot;&gt;Attempt #4&lt;a class=&quot;zola-anchor&quot; href=&quot;#attempt-4&quot; aria-label=&quot;Anchor link for: attempt-4&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;attempt-3&quot;&gt;Attempt #3&lt;a class=&quot;zola-anchor&quot; href=&quot;#attempt-3&quot; aria-label=&quot;Anchor link for: attempt-3&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
 &lt;p&gt;I had been wanting to get back into playing Elden Ring for a while,
 but when I&#x27;m constantly getting my ass kicked I&#x27;d like to slouch a little bit.
 This is my roundabout way of saying that I wanted to set up game streaming from
@@ -142,7 +142,10 @@ We decided it would be better for the wider audience if he did a workshop on the
 NixOS module system instead.&lt;&#x2F;p&gt;
 &lt;p&gt;Fast forward to NixCon NA and we get to talking about the holy grail again:
 NixOS on ZFS without manual partitioning.&lt;&#x2F;p&gt;
-&lt;p&gt;I start looking at the &lt;code&gt;disko&lt;&#x2F;code&gt; docs again and notice that there&#x27;s a new command:
+&lt;h1 id=&quot;attempt-4&quot;&gt;Attempt #4&lt;a class=&quot;zola-anchor&quot; href=&quot;#attempt-4&quot; aria-label=&quot;Anchor link for: attempt-4&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;I took a couple of days off work after NixCon NA and SCaLE.
+Motived by conversations at those conferences,
+I start looking at the &lt;code&gt;disko&lt;&#x2F;code&gt; docs again and notice that there&#x27;s a new command:
 &lt;code&gt;disko-install&lt;&#x2F;code&gt;.
 This was &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nix-community&#x2F;disko&#x2F;pull&#x2F;548&quot;&gt;added on March 1st&lt;&#x2F;a&gt;,
 and it claims to be a combination of &lt;code&gt;disko&lt;&#x2F;code&gt; and &lt;code&gt;nixos-install&lt;&#x2F;code&gt;.

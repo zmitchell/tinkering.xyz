@@ -129,7 +129,7 @@ and then add on the `disko` stuff.
 
 I played around with this VM and got a basic config working.
 
-# Attempt #4
+# Attempt #3
 
 I had been wanting to get back into playing Elden Ring for a while,
 but when I'm constantly getting my ass kicked I'd like to slouch a little bit.
@@ -161,6 +161,10 @@ NixOS module system instead.
 Fast forward to NixCon NA and we get to talking about the holy grail again:
 NixOS on ZFS without manual partitioning.
 
+# Attempt #4
+
+I took a couple of days off work after NixCon NA and SCaLE.
+Motived by conversations at those conferences,
 I start looking at the `disko` docs again and notice that there's a new command:
 `disko-install`.
 This was [added on March 1st](https://github.com/nix-community/disko/pull/548),

@@ -99,12 +99,17 @@
       </li>
       
       <li>
-        <a href="https://tinkering.xyz/installing-nixos/#attempt-4">Attempt #4</a>
+        <a href="https://tinkering.xyz/installing-nixos/#attempt-3">Attempt #3</a>
         
       </li>
       
       <li>
         <a href="https://tinkering.xyz/installing-nixos/#scale-21x-and-nixcon-north-america-2024">SCaLE 21x and NixCon North America 2024</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/installing-nixos/#attempt-4">Attempt #4</a>
         
       </li>
       
@@ -226,7 +231,7 @@ This reduces the surface area of what I possibly could have messed up.
 I'd rather get the rest of the config in a known working state,
 and then add on the <code>disko</code> stuff.</p>
 <p>I played around with this VM and got a basic config working.</p>
-<h1 id="attempt-4">Attempt #4<a class="zola-anchor" href="#attempt-4" aria-label="Anchor link for: attempt-4"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<h1 id="attempt-3">Attempt #3<a class="zola-anchor" href="#attempt-3" aria-label="Anchor link for: attempt-3"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
 <p>I had been wanting to get back into playing Elden Ring for a while,
 but when I'm constantly getting my ass kicked I'd like to slouch a little bit.
 This is my roundabout way of saying that I wanted to set up game streaming from
@@ -250,7 +255,10 @@ We decided it would be better for the wider audience if he did a workshop on the
 NixOS module system instead.</p>
 <p>Fast forward to NixCon NA and we get to talking about the holy grail again:
 NixOS on ZFS without manual partitioning.</p>
-<p>I start looking at the <code>disko</code> docs again and notice that there's a new command:
+<h1 id="attempt-4">Attempt #4<a class="zola-anchor" href="#attempt-4" aria-label="Anchor link for: attempt-4"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>I took a couple of days off work after NixCon NA and SCaLE.
+Motived by conversations at those conferences,
+I start looking at the <code>disko</code> docs again and notice that there's a new command:
 <code>disko-install</code>.
 This was <a href="https://github.com/nix-community/disko/pull/548">added on March 1st</a>,
 and it claims to be a combination of <code>disko</code> and <code>nixos-install</code>.
