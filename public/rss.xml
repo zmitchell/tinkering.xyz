@@ -7,7 +7,113 @@
       <generator>Zola</generator>
       <language>en</language>
       <atom:link href="https://tinkering.xyz/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Sun, 24 Mar 2024 00:00:00 +0000</lastBuildDate>
+      <lastBuildDate>Mon, 01 Apr 2024 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Whiskey Library</title>
+          <pubDate>Mon, 01 Apr 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/whiskey-library/</link>
+          <guid>https://tinkering.xyz/whiskey-library/</guid>
+          <description xml:base="https://tinkering.xyz/whiskey-library/">&lt;p&gt;This is the list of everything that I currently own.
+Do not tell me what the total cost is.
+I will consider that an act of violence.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;1792 Small Batch&lt;&#x2F;li&gt;
+&lt;li&gt;2xO Phoenix Blend&lt;&#x2F;li&gt;
+&lt;li&gt;2xO Gem of Kentucky - Barrel #33&lt;&#x2F;li&gt;
+&lt;li&gt;Akashi Japanese whiskey&lt;&#x2F;li&gt;
+&lt;li&gt;Angel’s Envy - Hazel’s pick&lt;&#x2F;li&gt;
+&lt;li&gt;Ardbeg 10 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Ardbeg Uigeadail&lt;&#x2F;li&gt;
+&lt;li&gt;Ardnamurchan AD&lt;&#x2F;li&gt;
+&lt;li&gt;Arran 10 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Balcones Cask Strength Single Malt - DaveCo pick&lt;&#x2F;li&gt;
+&lt;li&gt;Baker’s 7 Single Barrel&lt;&#x2F;li&gt;
+&lt;li&gt;Bardstown Discovery 6&lt;&#x2F;li&gt;
+&lt;li&gt;Bardstown Distillery Collection&lt;&#x2F;li&gt;
+&lt;li&gt;Bardstown Fusion 5&lt;&#x2F;li&gt;
+&lt;li&gt;Bardstown Origin Series - Bottled in Bond Wheated Bourbon&lt;&#x2F;li&gt;
+&lt;li&gt;Bardstown Origin Series - Rye Finished in Infrared Toasted Cherry Barrels&lt;&#x2F;li&gt;
+&lt;li&gt;Barrel King - Knighted Bourbon Vanilla Toasted Stagg&lt;&#x2F;li&gt;
+&lt;li&gt;Barrel King - Knighted Bourbon Batch 77&lt;&#x2F;li&gt;
+&lt;li&gt;Barrel King - Chocolate Cherry Stagg&lt;&#x2F;li&gt;
+&lt;li&gt;Barrel Seagrass&lt;&#x2F;li&gt;
+&lt;li&gt;Ben Holladay Bourbon Rickhouse Proof&lt;&#x2F;li&gt;
+&lt;li&gt;Blade and Bow&lt;&#x2F;li&gt;
+&lt;li&gt;Blue Spot&lt;&#x2F;li&gt;
+&lt;li&gt;Booker’s Batch 2023-01&lt;&#x2F;li&gt;
+&lt;li&gt;Boulder Spirits Cask Strength Bourbon 67.6% 6 Years Old&lt;&#x2F;li&gt;
+&lt;li&gt;Bruichladdich Classic Laddie&lt;&#x2F;li&gt;
+&lt;li&gt;Buffalo Trace&lt;&#x2F;li&gt;
+&lt;li&gt;Bunnahabhain 12 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Bunnahabhain Feis Ile 2023 Canasta Cask Matured&lt;&#x2F;li&gt;
+&lt;li&gt;Calumet Farms 16 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Clynelish 14 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Crowded Barrel Eleanor&lt;&#x2F;li&gt;
+&lt;li&gt;Deanston 12 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Edradour 10 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Elijah Craig 18 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Elijah Craig Barrel Proof C922&lt;&#x2F;li&gt;
+&lt;li&gt;Elijah Craig Private Barrel - Hazel’s Pick - 10 Year 67.80%&lt;&#x2F;li&gt;
+&lt;li&gt;Elijah Craig Private Barrel - All Things Whiskey Podcast Pick - 9 Years&lt;&#x2F;li&gt;
+&lt;li&gt;Elijah Craig Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Four Gate - Seelbach’s Single Barrel 7 Year Bourbon - Oloroso and Dark Rum Finish&lt;&#x2F;li&gt;
+&lt;li&gt;Glen Grant - 24yr Berry Bros. &amp;amp; Rudd&lt;&#x2F;li&gt;
+&lt;li&gt;Glen Scotia 10 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Glenallachie 15 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Green Spot&lt;&#x2F;li&gt;
+&lt;li&gt;Hardin&#x27;s Creek - Jacob&#x27;s Well - 211 Months&lt;&#x2F;li&gt;
+&lt;li&gt;Henry McKenna 10 Year BiB&lt;&#x2F;li&gt;
+&lt;li&gt;Hibiki Harmony&lt;&#x2F;li&gt;
+&lt;li&gt;Hidden Barn Batch 2&lt;&#x2F;li&gt;
+&lt;li&gt;Hidden Barn Batch 2 - Madeira Finish&lt;&#x2F;li&gt;
+&lt;li&gt;High Coast Hav&lt;&#x2F;li&gt;
+&lt;li&gt;Holland’s Milkman&lt;&#x2F;li&gt;
+&lt;li&gt;Hughes Belle of Bedford 10 Year Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Jack Daniel’s Single Barrel Barrel Proof Tennessee Whiskey&lt;&#x2F;li&gt;
+&lt;li&gt;Jameson&lt;&#x2F;li&gt;
+&lt;li&gt;Kilchoman Machir Bay&lt;&#x2F;li&gt;
+&lt;li&gt;Knob Creek Single Barrel Select - Woodman’s Market&lt;&#x2F;li&gt;
+&lt;li&gt;Laphroaig 10 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Laws 4 Grain Bourbon BiB -  Origins 1 - 11 Year &lt;&#x2F;li&gt;
+&lt;li&gt;Leopold Bros Three Chamber Rye 2022, 5 year&lt;&#x2F;li&gt;
+&lt;li&gt;Longmorn - 23yr Single Cask Nation&lt;&#x2F;li&gt;
+&lt;li&gt;Lot 40&lt;&#x2F;li&gt;
+&lt;li&gt;Magnificent Beast Phoenix Blend&lt;&#x2F;li&gt;
+&lt;li&gt;Maker’s Mark FAE-01&lt;&#x2F;li&gt;
+&lt;li&gt;McCarthy’s Single Malt 6 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Middle West Port Finished Pumpernickel Rye&lt;&#x2F;li&gt;
+&lt;li&gt;New Riff Malted Rye 6 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Nulu Bourbon - Toasted French Oak Stave Finish - 4.5yr&lt;&#x2F;li&gt;
+&lt;li&gt;Nulu Bourbon - Vanilla Cognac Finish - 7yrs&lt;&#x2F;li&gt;
+&lt;li&gt;Old Forester 1910&lt;&#x2F;li&gt;
+&lt;li&gt;Peerless Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Pursuit United Bourbon - Batch 7CC&lt;&#x2F;li&gt;
+&lt;li&gt;Wild Turkey Rare Breed&lt;&#x2F;li&gt;
+&lt;li&gt;Redwood Empire Lost Monarch&lt;&#x2F;li&gt;
+&lt;li&gt;Russel’s Reserve Private Barrel - Hazel’s 8 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Sagamore PX Sherry Finish Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Sagamore 8 Year Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Seelbach&#x27;s Private Reserve - 6 Year - Amburana Finish&lt;&#x2F;li&gt;
+&lt;li&gt;The Senator 6 Year Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Sexton Single Malt&lt;&#x2F;li&gt;
+&lt;li&gt;Shieldaig 12 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Signatory Mortlach 14 Year - Binny’s Pick&lt;&#x2F;li&gt;
+&lt;li&gt;Smoke Wagon Private Barrel Rye - Atlas Valley Purveyors - 5 years - 57.82%&lt;&#x2F;li&gt;
+&lt;li&gt;Springbank 15 Year&lt;&#x2F;li&gt;
+&lt;li&gt;Starlight PX Sherry Finish Bourbon&lt;&#x2F;li&gt;
+&lt;li&gt;Stellum Single Barrel Rye - Rigel - Colorado Select&lt;&#x2F;li&gt;
+&lt;li&gt;Talnua Black Dog Batch - Cask Strength Continuum&lt;&#x2F;li&gt;
+&lt;li&gt;Westland Single Cask No. 6143 Pineau Finish&lt;&#x2F;li&gt;
+&lt;li&gt;Westland Single Malt&lt;&#x2F;li&gt;
+&lt;li&gt;Wild Turkey 101&lt;&#x2F;li&gt;
+&lt;li&gt;Willet 4 Year Rye&lt;&#x2F;li&gt;
+&lt;li&gt;Woodford Reserve Master’s Collection 124.7&lt;&#x2F;li&gt;
+&lt;li&gt;Yellow Spot&lt;&#x2F;li&gt;
+&lt;li&gt;Yoichi Single Malt&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</description>
+      </item>
       <item>
           <title>How I finally installed NixOS</title>
           <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
