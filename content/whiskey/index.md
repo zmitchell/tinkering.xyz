@@ -6,6 +6,8 @@ date = 2024-04-01
 hidden = true
 +++
 
+I wasn't kidding when I said "Come for Foo, stay for the Bar."
+
 This is the list of everything that I currently own.
 Do not tell me what the total cost is.
 I will consider that an act of violence.
