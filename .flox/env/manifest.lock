@@ -1,0 +1,144 @@
+{
+  "lockfile-version": 1,
+  "manifest": {
+    "version": 1,
+    "install": {
+      "zola": {
+        "pkg-path": "zola"
+      }
+    },
+    "vars": {},
+    "hook": {},
+    "profile": {},
+    "options": {
+      "systems": [
+        "aarch64-darwin",
+        "aarch64-linux",
+        "x86_64-darwin",
+        "x86_64-linux"
+      ],
+      "allow": {
+        "licenses": []
+      },
+      "semver": {}
+    }
+  },
+  "packages": [
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/wzcw73qw7bw267cqavfgc23vdlcx7mfy-zola-0.19.2.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "name": "zola-0.19.2",
+      "pname": "zola",
+      "rev": "d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "rev_count": 671089,
+      "rev_date": "2024-08-24T06:09:45Z",
+      "scrape_date": "2024-08-27T03:15:44Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.19.2",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/p99f7c23sa0r6a5d4ks9af6baqqqxp0s-zola-0.19.2"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/86fqhi2yrw35635sp4nm49s7rn37x42a-zola-0.19.2.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "name": "zola-0.19.2",
+      "pname": "zola",
+      "rev": "d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "rev_count": 671089,
+      "rev_date": "2024-08-24T06:09:45Z",
+      "scrape_date": "2024-08-27T03:15:44Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.19.2",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/0ipsacg93f46sjm73p6wfqkm94cq04rk-zola-0.19.2"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/7n8jg01s3gr7laif3a6z4gz2jmhnm07d-zola-0.19.2.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "name": "zola-0.19.2",
+      "pname": "zola",
+      "rev": "d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "rev_count": 671089,
+      "rev_date": "2024-08-24T06:09:45Z",
+      "scrape_date": "2024-08-27T03:15:44Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.19.2",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/138liipsb8lsxlnbkrfz3a8czy2g3a3h-zola-0.19.2"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/v4721vlih49fb8771dd4hip58kg7lrcs-zola-0.19.2.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "name": "zola-0.19.2",
+      "pname": "zola",
+      "rev": "d0e1602ddde669d5beb01aec49d71a51937ed7be",
+      "rev_count": 671089,
+      "rev_date": "2024-08-24T06:09:45Z",
+      "scrape_date": "2024-08-27T03:15:44Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.19.2",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/769wl0mqk4hv23yg9mz5hnyb22viakss-zola-0.19.2"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    }
+  ]
+}
