@@ -60,8 +60,6 @@
         
           <a class="nav__link" href="/talks/">Talks</a>
         
-          <a class="nav__link" href="/whiskey-library/">Whiskey Library</a>
-        
       </nav>
     </header>
     <hr />
@@ -105,7 +103,7 @@ pulses that were 5ns long.
 A photodiode would pick up when a pulse was emitted,
 and we'd use that as the trigger for the oscilloscope.
 The oscilloscope would then record signals from our two other detectors.
-One of these is called &quot;probe&quot; and the other is called &quot;reference&quot;.</p>
+One of these is called "probe" and the other is called "reference".</p>
 <p>Here's a block diagram of the system:
 <img src="/images/april-cools-2024/ns-system.png" alt="block diagram of the laser system" /></p>
 <p>Only the beam hitting the probe detector actually passes through the sample.
@@ -114,7 +112,7 @@ so any variations in intensity must come from noise in the laser,
 vibrations in the table,
 etc.
 All of these variations should be seen in both the probe and reference beams
-since they were produced by splitting a &quot;parent&quot; beam.</p>
+since they were produced by splitting a "parent" beam.</p>
 <p>We do this so that if you divide the probe signal by the reference signal you
 cancel out any part of the signal that doesn't come from the physics happening
 inside the sample.
@@ -152,7 +150,7 @@ chargers, take from that what you will).
 Electrical interference is always floating through the air,
 like it or not,
 but electrical engineers and physicists (mostly) know about this.
-To protect our equipment from interference we &quot;shield&quot; it,
+To protect our equipment from interference we "shield" it,
 which really just means we wrap it in metal.</p>
 <p>Guess what,
 the photodiode we were using to pick up the laser pulse wasn't shielded very
@@ -186,12 +184,12 @@ This will become relevant.</p>
 <li>Yes, I am insane.</li>
 <li>Yes, I'm one of the only people to ask about <a href="https://tex.stackexchange.com/questions/204266/drawing-an-off-axis-parabolic-mirror-in-pst-optexp-and-pst-optic">how to draw an off-axis parabolic mirror</a> in LaTeX.</li>
 <li>This diagram is meant for physicists, the only thing you need to see is that
-there's a 950kHz &quot;AOM&quot; and a 50kHZ &quot;PEM&quot;.</li>
+there's a 950kHz "AOM" and a 50kHZ "PEM".</li>
 </ul>
 <p>The way this experiment works is that you have two laser beams that intersect
 in the sample.
-One of them is called the &quot;probe&quot;,
-and one of them is called the &quot;pump&quot;.
+One of them is called the "probe",
+and one of them is called the "pump".
 In short, the pump excites the sample,
 and the probe comes by some time later to see how things have evolved after some
 period of time.</p>
@@ -202,7 +200,7 @@ Why?
 Well, when these beams interact in the sample,
 the physics we're trying to observe happens at the sum of these two frequencies,
 which in this case is 1MHz.</p>
-<p>We use a special instrument called a &quot;lock-in amplifier&quot; to only detect a signal
+<p>We use a special instrument called a "lock-in amplifier" to only detect a signal
 at 1MHz,
 which eleminates all the noise present at other frequencies.
 It's incredibly effective...when you don't have other sources noise at 1MHz.</p>
@@ -211,7 +209,7 @@ It's incredibly effective...when you don't have other sources noise at 1MHz.</p>
 never got mixed together except for the exact place that I wanted them mixed.
 You can see that box here:
 <img src="/images/april-cools-2024/mhz-modulator.jpeg" alt="a bunch of ugly electronics" /></p>
-<p>Note the &quot;LOL&quot; spelled out in gaffer tape.
+<p>Note the "LOL" spelled out in gaffer tape.
 I put that there for whoever the next student was because I intended to never
 open this box again,
 and good luck to whoever had to open this box and play with it.
@@ -224,13 +222,13 @@ My lasers are modulated extremely well.
 There's no 1MHz electrical interference in the lab.
 What the hell is going on?</p>
 <p>I mentioned above that we used two devices,
-an &quot;AOM&quot; and a &quot;PEM&quot;,
+an "AOM" and a "PEM",
 to modulate each beam.
-An &quot;AOM&quot; is an &quot;acousto-optic modulator&quot;,
+An "AOM" is an "acousto-optic modulator",
 and it modulates the intensity of a laser passing through it.
 It takes an incoming electric signal (my 950kHz signal, in this case)
 and uses it to essentially vibrate a piece of glass in a special way.
-A &quot;PEM&quot; is a &quot;photo-elastic modulator&quot;,
+A "PEM" is a "photo-elastic modulator",
 and it modulates the polarizating of a laser passing through it.
 It also takes an incoming electrical signal (my 50kHz signal, in this case)
 and uses it to essentially vibrate a piece of glass in different but also
@@ -247,8 +245,8 @@ Normally when you work with lasers you don't have to worry about sound.
 Like, ever.
 Lasers are light, they don't typically care about sound.
 Everyone who has done a PhD has thing kind of moment where you think to yourself,
-&quot;sure, I'll just add this to the pile of bullshit that I didn't know I needed to
-worry about.&quot;</p>
+"sure, I'll just add this to the pile of bullshit that I didn't know I needed to
+worry about."</p>
 <p>The solution was to simply put a glass plate on either side of the PEM in order
 to contain the ultrasonic vibrations it was producing.
 You can see that in this photo, also held together with gaffer tape:
@@ -279,9 +277,9 @@ photodiode against stray light aren't quite working.</p>
 At one point I'm running the system in real time,
 and I'm watching the signals on the oscilloscope so I can see how the system
 responds when I block light in various places.
-Then I notice that this &quot;bad&quot; signal changes depending on where I'm standing.</p>
+Then I notice that this "bad" signal changes depending on where I'm standing.</p>
 <p>What. the. fuck.</p>
-<p>I start to have PTSD flashbacks to the &quot;lasers vs. sound&quot; incident.
+<p>I start to have PTSD flashbacks to the "lasers vs. sound" incident.
 I question my life choices.
 How can this be possible?
 Is there some kind of radio frequency interference that's blocked when I stand

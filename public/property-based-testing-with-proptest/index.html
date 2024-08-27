@@ -60,8 +60,6 @@
         
           <a class="nav__link" href="/talks/">Talks</a>
         
-          <a class="nav__link" href="/whiskey-library/">Whiskey Library</a>
-        
       </nav>
     </header>
     <hr />
@@ -179,7 +177,7 @@
 <p>A more efficient way to test <code>maybe_works</code> against <code>definitely_works</code> would be to run the test several times with a variety of randomly generated inputs. With these randomly generated inputs you don’t know the precise value being supplied to <code>maybe_works</code> or <code>definitely_works</code>, but you can often make a general statement such as “the outputs of <code>maybe_works</code> and <code>definitely_works</code> should be the same given the same input.” In practice the “randomly generated inputs” are rarely truly random. You typically constrain the inputs somehow so that you can target a certain piece of code and avoid false positives or negatives.</p>
 <p>It’s common, however, not to have a reference implementation such as <code>definitely_works</code>. In this case you need to think harder and more abstractly about the properties of your code (hence property-based testing) and how you can verify them. Yet another way to use PBT is as a guide in the design of a piece of code. In this article we’re going to use PBT to help us write a parser.</p>
 <h2 id="getting-started">Getting started<a class="zola-anchor" href="#getting-started" aria-label="Anchor link for: getting-started"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
-<p>Create a new <code>cargo</code> project called <code>sentence-parser</code>. </p>
+<p>Create a new <code>cargo</code> project called <code>sentence-parser</code>.</p>
 <pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cargo new --lib sentence-parser
 </span></code></pre>
 <p>You’ll use the <code>pest</code> crate to write the parser, so add <code>pest</code> to your <code>Cargo.toml</code>.</p>
@@ -201,7 +199,7 @@
 </span><span>#[</span><span style="color:#bf616a;">grammar </span><span>= &quot;</span><span style="color:#a3be8c;">sentence.pest</span><span>&quot;]
 </span><span style="color:#b48ead;">pub struct </span><span>SentenceParser;
 </span></code></pre>
-<p>The <code>#[derive(Parser)]</code> and <code>#[grammar =</code> <code>&quot;``sentence.pest``&quot;``]</code> attributes will read the grammar file and generate a parser based on that grammar. This will also generate an enum called <code>Rule</code> which has a variant for each of the rules in the grammar file. When you want to parse the contents of a string, you pass one of the <code>Rule</code> variants to <code>SentenceParser::parse</code> along with the string. We will use this feature to test individual rules in the grammar rather than testing the whole thing at once.</p>
+<p>The <code>#[derive(Parser)]</code> and <code>#[grammar =</code> <code>"``sentence.pest``"``]</code> attributes will read the grammar file and generate a parser based on that grammar. This will also generate an enum called <code>Rule</code> which has a variant for each of the rules in the grammar file. When you want to parse the contents of a string, you pass one of the <code>Rule</code> variants to <code>SentenceParser::parse</code> along with the string. We will use this feature to test individual rules in the grammar rather than testing the whole thing at once.</p>
 <p>Finally, add <code>proptest</code> to your <code>Cargo.toml</code>.</p>
 <pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[dev-dependencies]
 </span><span style="color:#bf616a;">proptest </span><span>= &quot;</span><span style="color:#a3be8c;">~0.9</span><span>&quot;
@@ -228,7 +226,7 @@
 </span><span>}
 </span></code></pre>
 <p>The first thing to note is that you can mix PBT with normal unit tests; PBT isn’t all or nothing. Next, note that your property-based tests must be wrapped in the <code>proptest!</code> macro. Another point of note is that <code>prop_assert!</code> is used in place of <code>assert!</code>. The <code>proptest</code> test runner will attempt to find a minimal failing input by causing the test to fail with simpler and simpler inputs. Using the <code>prop_assert!</code> and <code>prop_assert_eq!</code> macros will cause the test failure message (panic message) to be printed only for the minimal failing input rather than multiple times for a single test. Finally, notice that the function arguments to the property-based test are of the form <code>argname in strategy</code>.</p>
-<p>Conceptually, a “strategy” is a way of generating instances of a type, possibly with some constraints. More concretely, a strategy is a type that implements the <code>Strategy</code> trait. In addition, implementing the <code>Arbitrary</code> trait defines the default or main strategy for a type. This <code>Arbitrary</code> implementation will typically be the strategy that generates the widest range of values for the type. The <code>any&lt;T&gt;()</code> function provided by <code>proptest</code> uses this <code>Arbitrary</code> implementation to generate truly arbitrary instances of the type <code>T</code>. If you would like to generate instances that are subject to some constraints, you need to define functions that return <code>impl Strategy</code>. </p>
+<p>Conceptually, a “strategy” is a way of generating instances of a type, possibly with some constraints. More concretely, a strategy is a type that implements the <code>Strategy</code> trait. In addition, implementing the <code>Arbitrary</code> trait defines the default or main strategy for a type. This <code>Arbitrary</code> implementation will typically be the strategy that generates the widest range of values for the type. The <code>any&lt;T&gt;()</code> function provided by <code>proptest</code> uses this <code>Arbitrary</code> implementation to generate truly arbitrary instances of the type <code>T</code>. If you would like to generate instances that are subject to some constraints, you need to define functions that return <code>impl Strategy</code>.</p>
 <p>The <code>proptest</code> crate provides implementations of <code>Arbitrary</code> for a wide variety of Rust primitives and collections. Implementing <code>Arbitrary</code> for your own type is straightforward. The example below is mostly boilerplate.</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Arbitrary </span><span style="color:#b48ead;">for </span><span>T {
 </span><span>    </span><span style="color:#b48ead;">type </span><span>Parameters = ();
@@ -240,7 +238,7 @@
 </span><span>}
 </span></code></pre>
 <p>The only piece that really requires thought on your part is the <code>…</code>, which defines how to generate the values. You may parameterize how the strategy generates values using the <code>Parameters</code> type definition. In most cases this isn’t necessary, so define it as <code>()</code>. The concrete type of the strategy returned by <code>arbitrary_with</code> is defined by the <code>Strategy</code> type definition. You may declare a specific type, or you may choose the simplest route and return a trait object via the <code>BoxedStrategy</code> type.</p>
-<p>The strategy defined by the <code>Arbitrary</code> trait may generate values that are too general for some scenario, or you may simply want to define more than one strategy for a given type. In either case you will want to write a function that returns a strategy. </p>
+<p>The strategy defined by the <code>Arbitrary</code> trait may generate values that are too general for some scenario, or you may simply want to define more than one strategy for a given type. In either case you will want to write a function that returns a strategy.</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">my_strategy</span><span>() -&gt; impl Strategy&lt;Value = T&gt; {
 </span><span>    ...
 </span><span>}
@@ -321,7 +319,7 @@
 </span><span>    }
 </span><span>}
 </span></code></pre>
-<p>The <code>proptest::string::string_regex</code> function returns a strategy that produces strings that match the provided regular expression. In this case that’s a sequence of one or more ASCII letters. You could have used the shorthand <code>w in</code> <code>&quot;``[a-zA-Z]+``&quot;</code> to accomplish the same thing, but I find that writing the strategy as a function allows you to give a descriptive name to the regular expression. Note that in <code>_ in valid_word()</code> the <code>_</code> defines the name of the value produced by the strategy so that you can use it in the body of your test.</p>
+<p>The <code>proptest::string::string_regex</code> function returns a strategy that produces strings that match the provided regular expression. In this case that’s a sequence of one or more ASCII letters. You could have used the shorthand <code>w in</code> <code>"``[a-zA-Z]+``"</code> to accomplish the same thing, but I find that writing the strategy as a function allows you to give a descriptive name to the regular expression. Note that in <code>_ in valid_word()</code> the <code>_</code> defines the name of the value produced by the strategy so that you can use it in the body of your test.</p>
 <p>The test attempts to parse the generated word using the rule <code>Rule::word</code>. If you run <code>cargo test</code> you should see that your test passes (along with other compilation statements).</p>
 <p>Tests that pass when fed valid inputs are important, but tests that detect errors when your code is fed invalid inputs are equally important. This time you’ll create a test that feeds non-letter characters to the parser as well as strings of length zero. Create another test that looks like this.</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">invalid_word</span><span>() -&gt; impl Strategy&lt;Value = String&gt; {
@@ -358,7 +356,7 @@
 </span><span>    assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span>());
 </span><span>}
 </span></code></pre>
-<p>What’s left is to test what happens when we have characters other than just a space between <code>word</code>s such as <code>\t</code>, <code>\r</code>, and <code>\n</code>. Unfortunately, supplying an input string like this and expecting parsing to fail doesn’t work. Consider the string <code>&quot;``a\tb``&quot;</code>. The issue is that <code>\t</code> isn’t a valid character that can appear in a <code>word</code>, so the parser stops consuming characters at <code>\t</code>, having only consumed the <code>a</code>. However, <code>a</code> matches the <code>word</code>, which matches <code>words</code> (“at least one <code>word</code>&quot;). So, our string that contains invalid word separators still successfully matches the <code>words</code> rule because <code>words</code> is only matching part of the input. We can rectify this by changing our rule to parse until the end of the input rather than finishing on some minimal prefix of the input that parses successfully.</p>
+<p>What’s left is to test what happens when we have characters other than just a space between <code>word</code>s such as <code>\t</code>, <code>\r</code>, and <code>\n</code>. Unfortunately, supplying an input string like this and expecting parsing to fail doesn’t work. Consider the string <code>"``a\tb``"</code>. The issue is that <code>\t</code> isn’t a valid character that can appear in a <code>word</code>, so the parser stops consuming characters at <code>\t</code>, having only consumed the <code>a</code>. However, <code>a</code> matches the <code>word</code>, which matches <code>words</code> (“at least one <code>word</code>"). So, our string that contains invalid word separators still successfully matches the <code>words</code> rule because <code>words</code> is only matching part of the input. We can rectify this by changing our rule to parse until the end of the input rather than finishing on some minimal prefix of the input that parses successfully.</p>
 <pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>words = { word+ ~ EOI }
 </span></code></pre>
 <p>The <code>EOI</code> rule is provided by <code>pest</code> and represents “end of input.” This solves our problem for now, but it will break things later when we try to parse entire sentences. For now we’ll leave the <code>words</code> rule as is and forego feeding it this kind of invalid input.</p>
@@ -486,7 +484,7 @@
 </span><span>    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_err</span><span>());
 </span><span>}
 </span></code></pre>
-<p>We can make another test that simply leaves off the closing delimiter. </p>
+<p>We can make another test that simply leaves off the closing delimiter.</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">missing_closing_delimiter</span><span>() -&gt; impl Strategy&lt;Value = String&gt; {
 </span><span>    (any::&lt;EnclosedDelimiter&gt;(), </span><span style="color:#96b5b4;">words</span><span>()).</span><span style="color:#96b5b4;">prop_map</span><span>(|(</span><span style="color:#bf616a;">open</span><span>, </span><span style="color:#bf616a;">ws</span><span>)| {
 </span><span>        </span><span style="color:#b48ead;">let mut</span><span> enc = String::new();
@@ -592,10 +590,10 @@
 </span><span>    prop_assert!(parsed.</span><span style="color:#96b5b4;">is_ok</span><span>());
 </span><span>}
 </span></code></pre>
-<p>Run the test to make sure it…wait a minute, this test fails! Notice that the minimal failing input, <code>&quot;(a) a.&quot;</code>, is a valid sentence (by our definition). This means that we must have misinformed the parser how to parse a sentence. After a little bit of investigation you’ll remember that our <code>sentence</code> rule is atomic (it starts with <code>$</code>).</p>
+<p>Run the test to make sure it…wait a minute, this test fails! Notice that the minimal failing input, <code>"(a) a."</code>, is a valid sentence (by our definition). This means that we must have misinformed the parser how to parse a sentence. After a little bit of investigation you’ll remember that our <code>sentence</code> rule is atomic (it starts with <code>$</code>).</p>
 <pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>sentence = ${ SOI ~ chunk+ ~ punctuation ~ EOI }
 </span></code></pre>
-<p>As a reminder, this means that whitespace between rules is not consumed. When our parser tries to parse <code>&quot;(a) a.&quot;</code> what it really sees is <code>&lt;chunk&gt;&lt;whitespace&gt;&lt;chunk&gt;&lt;punctuation&gt;</code>. That <code>&lt;whitespace&gt;</code> doesn’t match the <code>chunk+</code> piece of the <code>sentence</code> rule, so parsing fails. To fix this we’ll need to handle whitespace manually where there’s repetition.</p>
+<p>As a reminder, this means that whitespace between rules is not consumed. When our parser tries to parse <code>"(a) a."</code> what it really sees is <code>&lt;chunk&gt;&lt;whitespace&gt;&lt;chunk&gt;&lt;punctuation&gt;</code>. That <code>&lt;whitespace&gt;</code> doesn’t match the <code>chunk+</code> piece of the <code>sentence</code> rule, so parsing fails. To fix this we’ll need to handle whitespace manually where there’s repetition.</p>
 <pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>words = ${ word ~ (&quot; &quot; ~ word)* }
 </span><span>sentence = ${ SOI ~ chunk ~ (&quot; &quot; ~ chunk)* ~ punctuation ~ EOI }
 </span></code></pre>

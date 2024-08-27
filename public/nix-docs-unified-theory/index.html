@@ -60,8 +60,6 @@
         
           <a class="nav__link" href="/talks/">Talks</a>
         
-          <a class="nav__link" href="/whiskey-library/">Whiskey Library</a>
-        
       </nav>
     </header>
     <hr />
@@ -162,7 +160,7 @@
 </li>
 <li>How-to guides
 <ul>
-<li>Task oriented, &quot;follow these steps to achieve XYZ&quot;</li>
+<li>Task oriented, "follow these steps to achieve XYZ"</li>
 </ul>
 </li>
 <li>Explanation
@@ -177,19 +175,19 @@
 </li>
 </ul>
 <p>I'm not the one who came up with this idea, it's mentioned on the Documentation Team's site as well. I'm simply adding my support for moving in this direction.</p>
-<p>In my ideal documentation world each of these sections would link to each other i.e. pages would cite their sources. Maybe this is the former academic in me, but I think it's a good thing if a tutorial mentioning a particular topic can say &quot;learn more about how this works at this other page&quot; or when it asks a reader to run a particular command it then says &quot;you can see all of the command line options for this tool at this other page.&quot; I think this serves a few purposes:</p>
+<p>In my ideal documentation world each of these sections would link to each other i.e. pages would cite their sources. Maybe this is the former academic in me, but I think it's a good thing if a tutorial mentioning a particular topic can say "learn more about how this works at this other page" or when it asks a reader to run a particular command it then says "you can see all of the command line options for this tool at this other page." I think this serves a few purposes:</p>
 <ul>
 <li>It deduplicates knowledge across the documentation, no need to repeat yourself when you can link to an explanation or reference page</li>
-<li>It provides a more cohesive learning experience i.e. &quot;you don't need to visit another site to learn about XYZ, we've got a page on that over here&quot;</li>
-<li>It backs up claims made in the documentation so there's less dogma and folk knowledge (e.g. &quot;do XYZ because this reference pages states that it's required in ABC context&quot; rather than &quot;do this because more experienced people in the community say this is how you should do it&quot;)</li>
+<li>It provides a more cohesive learning experience i.e. "you don't need to visit another site to learn about XYZ, we've got a page on that over here"</li>
+<li>It backs up claims made in the documentation so there's less dogma and folk knowledge (e.g. "do XYZ because this reference pages states that it's required in ABC context" rather than "do this because more experienced people in the community say this is how you should do it")</li>
 </ul>
 <h2 id="site-structure">Site structure<a class="zola-anchor" href="#site-structure" aria-label="Anchor link for: site-structure"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
 <p>I think all of the documentation should be under one site. This deduplicates the work to make site-wide changes to page templates, styles, names, etc. I think a single static-site generator can meet the needs of the entire documentation site with maybe one exception which I'll mention later. Another benefit of having all of the documentation under a single site is that you can give the reader a visual indicator of which section they're in, providing context to what they're reading and where they are in the Nix documentation landscape. I'm imagining a sidebar with accordians/expandable links for the different major sections (tutorials, how-to guides, explanation, and reference) with the current section being expanded.</p>
 <p>Some of the documentation is built with <code>mdBook</code>, which is generally a good fit for reference materials (like the Nix Reference Manual), but I think it's less of a good fit when trying to integrate it into a larger site. The main benefit of <code>mdBook</code> is that it's very little effort to go from a directory of markdown files to some HTML with a navigable sidebar and everything. If you're already using a static-site generator for other things, you already have that ability.</p>
 <p>There are other practicalities that certain static-site generators provide. I use Zola and it's super fast and has a built-in link checker that checks both internal and external links (<code>zola check</code>). I just ran the link checker for the first time and (1) holy shit I have 108 external links and (2) 4 of them are broken so I guess I have homework. With something like <code>zola check</code> congrats you now have tests for your website.</p>
 <h2 id="seo-and-analytics">SEO and analytics<a class="zola-anchor" href="#seo-and-analytics" aria-label="Anchor link for: seo-and-analytics"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
-<p>I know someone is already shitting their pants in anger at the word &quot;analytics&quot;, but I really, truly just want some data on which pages people find useful and which pages need work. People working on the documentation need to know where to focus their very limited (and mostly volunteered) time and effort. There are privacy-preserving options out there that collect so little information they don't even need a GDPR or cookie banner. We can have nice things, nuance being one of them.</p>
-<p>One of the problems I see with the current documentation is SEO. Information that people can't find might as well not exist. For example, let's say I vaguely remember that the documentation for <code>mkShell</code> was in a section about &quot;builders&quot; (<a href="https://nixos.org/manual/nixpkgs/stable/#chap-special">Special Builders</a>) and I do a search for &quot;nix builders&quot;. My default search engine is DuckDuckGo, and the first page of search results (in order) are:</p>
+<p>I know someone is already shitting their pants in anger at the word "analytics", but I really, truly just want some data on which pages people find useful and which pages need work. People working on the documentation need to know where to focus their very limited (and mostly volunteered) time and effort. There are privacy-preserving options out there that collect so little information they don't even need a GDPR or cookie banner. We can have nice things, nuance being one of them.</p>
+<p>One of the problems I see with the current documentation is SEO. Information that people can't find might as well not exist. For example, let's say I vaguely remember that the documentation for <code>mkShell</code> was in a section about "builders" (<a href="https://nixos.org/manual/nixpkgs/stable/#chap-special">Special Builders</a>) and I do a search for "nix builders". My default search engine is DuckDuckGo, and the first page of search results (in order) are:</p>
 <ul>
 <li>A construction company</li>
 <li>A different construction company</li>
@@ -255,7 +253,7 @@
 <li>Packaging idioms
 <ul>
 <li><code>callPackage</code> vs alternatives</li>
-<li>&quot;import from derivation&quot;, &quot;fixed output derivation&quot;, and other terms I don't understand</li>
+<li>"import from derivation", "fixed output derivation", and other terms I don't understand</li>
 </ul>
 </li>
 </ul>
@@ -276,7 +274,7 @@
 </li>
 </ul>
 <h3 id="reference">Reference<a class="zola-anchor" href="#reference" aria-label="Anchor link for: reference"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
-<p>This section is supposed to be very light on prose and heavy on detailed description of rules, specifications, requirements, and options. Basically this section is filled with facts that can be backed up by pointing at the implementation e.g. &quot;this command has these options&quot;. I think much of what's in the Nix Reference Manual should go here. Some of the materials I think should go here:</p>
+<p>This section is supposed to be very light on prose and heavy on detailed description of rules, specifications, requirements, and options. Basically this section is filled with facts that can be backed up by pointing at the implementation e.g. "this command has these options". I think much of what's in the Nix Reference Manual should go here. Some of the materials I think should go here:</p>
 <ul>
 <li>Nix language reference</li>
 <li>How derivations work
@@ -306,9 +304,9 @@
 </li>
 <li>Nixpkgs</li>
 </ul>
-<p>You might be saying &quot;you can already search Nixpkgs&quot;. Yes, you can, but I think we can take this further in how we present the results. When search results are presented to you there can be a short description and some metadata, but I think each result should get its own page. Right now you can't link to a particular package. The dedicates package page could show more detailed information like the history of changes to this particular package. It should be quick and easy to determine which Nixpkgs revision I want to get a particular version e.g. the current version of package X is v1.5, what is the latest Nixpkgs that has v1.2.3. Maybe this is a weird way to go about this or it's showing my lack of Nix knowledge since I'm still pretty new, but this is just one example of the kind of information we could surface in individual package pages. This is also the one area where I think server-side computation would need to happen.</p>
+<p>You might be saying "you can already search Nixpkgs". Yes, you can, but I think we can take this further in how we present the results. When search results are presented to you there can be a short description and some metadata, but I think each result should get its own page. Right now you can't link to a particular package. The dedicates package page could show more detailed information like the history of changes to this particular package. It should be quick and easy to determine which Nixpkgs revision I want to get a particular version e.g. the current version of package X is v1.5, what is the latest Nixpkgs that has v1.2.3. Maybe this is a weird way to go about this or it's showing my lack of Nix knowledge since I'm still pretty new, but this is just one example of the kind of information we could surface in individual package pages. This is also the one area where I think server-side computation would need to happen.</p>
 <h3 id="explanation">Explanation<a class="zola-anchor" href="#explanation" aria-label="Anchor link for: explanation"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
-<p>This section explains the how and why of Nix. Since this is most likely to be low-level details of how Nix works I envison calling this section &quot;Nitty Gritty Nix&quot;. I think much of what's in Nix Pills would go here. I have less of an idea what should go here simply because I don't know many of the details of how Nix works, but here are some of the materials I think should go here:</p>
+<p>This section explains the how and why of Nix. Since this is most likely to be low-level details of how Nix works I envison calling this section "Nitty Gritty Nix". I think much of what's in Nix Pills would go here. I have less of an idea what should go here simply because I don't know many of the details of how Nix works, but here are some of the materials I think should go here:</p>
 <ul>
 <li>When and how are things added to the Nix store?</li>
 <li>We know everything is based on hashes, but how are the hashes computed? What are the inputs?</li>

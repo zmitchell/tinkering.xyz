@@ -60,8 +60,6 @@
         
           <a class="nav__link" href="/talks/">Talks</a>
         
-          <a class="nav__link" href="/whiskey-library/">Whiskey Library</a>
-        
       </nav>
     </header>
     <hr />
@@ -133,7 +131,7 @@
 I work <a href="https://flox.dev">at a company</a> that uses Nix daily,
 and it was only last week that I finally installed NixOS on the PC that I've
 been meaning to install it on for close to a year.
-Why? 
+Why?
 What kept me from installing it for so long?
 What was the breakthrough?</p>
 <h1 id="the-motivation">The motivation<a class="zola-anchor" href="#the-motivation" aria-label="Anchor link for: the-motivation"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
@@ -173,7 +171,7 @@ I intended to put NixOS on it.</p>
 <p>My one, major requirement was that I should be able to take my NixOS config
 and run one or two commands to set up the entire machine.
 I don't want to be involved in the process, just do it automatically.</p>
-<p>In the spirit of &quot;we can have nice things&quot;,
+<p>In the spirit of "we can have nice things",
 I also decided that I wanted this machine to use ZFS as the filesystem.
 But again, I didn't want to manually type out the partitioning commands.
 This is NixOS, everything is supposed to be declarative, right?</p>
@@ -186,7 +184,7 @@ including one for ZFS.</p>
 <h1 id="attempt-1">Attempt #1<a class="zola-anchor" href="#attempt-1" aria-label="Anchor link for: attempt-1"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
 <p>Ok, I lied a little bit,
 I wasn't set on ZFS from the outset,
-so my first attempt was just running the &quot;minimal&quot; installer available from the
+so my first attempt was just running the "minimal" installer available from the
 NixOS website.
 I ran into a couple of problems.</p>
 <p>First, the installer at the time didn't include drivers for my WiFi chip.
@@ -199,7 +197,7 @@ I've done some minimal configuration so I have a few familiar programs after
 the install,
 and it's finally time to run <code>nixos-install</code>.</p>
 <p>The text scrolls by as the installer runs,
-and...&quot;something something bad sector&quot;.
+and..."something something bad sector".
 The fucking flash drive is corrupted.</p>
 <p>I was a little burnt out at the time
 (working on the Nix Docs Team, speaking at NixCon, speaking at RustConf),
@@ -215,7 +213,7 @@ If I can include the options for my WiFi chip,
 I should be able to run the install without an ethernet cable.
 I used the <a href="https://github.com/nix-community/nixos-generators">nixos-generators</a>
 tool to build an ISO image out of my config so that I could use that instead of
-the official &quot;minimal&quot; installer.</p>
+the official "minimal" installer.</p>
 <p>Time found and energy summoned,
 I took my ISO image and ran the installation in a VM.
 I go to run the <code>disko</code> scripts to apply my filesystem config.
@@ -274,7 +272,7 @@ I run <code>disko-install</code>.</p>
 <p>It works on the first try!
 We did it!</p>
 <h1 id="meet-chungus">Meet <code>chungus</code><a class="zola-anchor" href="#meet-chungus" aria-label="Anchor link for: meet-chungus"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
-<p>My laptop is a 16&quot; Macbook Pro M1 Max.
+<p>My laptop is a 16" Macbook Pro M1 Max.
 It's not a small laptop.
 For this reason I named it <code>chonker</code>.</p>
 <p>At <a href="https://flox.dev">Flox</a> we do demo days on Thursday mornings.
@@ -288,15 +286,15 @@ or simply show something you've been working on at work or otherwise.</p>
 </ul>
 <p>We have an internal chat bot called Goldiflox that,
 among other things,
-keeps &quot;karma&quot; scores and &quot;facts&quot;.
+keeps "karma" scores and "facts".
 <code>chonker</code> and my demos have left their mark even in the company chat bot.</p>
 <p><img src="/images/installing-nixos/chonker-demo-order.png" alt="Demo day order showing chonker instead of my name" /></p>
-<p><img src="/images/installing-nixos/chonker-karma.png" alt="Slack chat showing someone increasing chonker's karma, and the chat bot telling someone else that a &quot;Zach demo&quot; is 20 minutes long" /></p>
+<p><img src="/images/installing-nixos/chonker-karma.png" alt="Slack chat showing someone increasing chonker&#39;s karma, and the chat bot telling someone else that a &quot;Zach demo&quot; is 20 minutes long" /></p>
 <p>So, when it came time to name my desktop,
 I needed a name that evoked something even bigger than a chonk.</p>
 <p>Meet <code>chungus</code>.</p>
 <p><img src="/images/installing-nixos/chungus-neofetch.png" alt="neofetch run on chungus" />
-<img src="/images/installing-nixos/chungus.jpeg" alt="A photo of chungus's hardware" /></p>
+<img src="/images/installing-nixos/chungus.jpeg" alt="A photo of chungus&#39;s hardware" /></p>
 <h1 id="what-s-next">What's next?<a class="zola-anchor" href="#what-s-next" aria-label="Anchor link for: what-s-next"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
 <p>You'll notice I didn't post any screenshots of <code>chungus</code>'s desktop.
 That's because I've decided I'm going to roll my own desktop environment using

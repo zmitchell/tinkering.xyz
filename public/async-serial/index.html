@@ -60,8 +60,6 @@
         
           <a class="nav__link" href="/talks/">Talks</a>
         
-          <a class="nav__link" href="/whiskey-library/">Whiskey Library</a>
-        
       </nav>
     </header>
     <hr />
@@ -143,7 +141,7 @@
 <p>If you're working in an industrial, IoT, or scientific setting you might find yourself communicating with various devices via serial protocols. In my experience, ASCII-over-serial is the JSON of the scientific world in the sense that just about any piece of equipment you buy will have some sort of ASCII/serial support. For example, every single piece of equipment in my experiment uses ASCII-over-serial.</p>
 <p>Lots of serial devices still default to a baud rate (bitrate) of 9600, or ~830us per character (byte). Your processor is running at several GHz. Furthermore, a read operation that times out will block the whole time it's waiting. Have some empathy for the machine. Give it permission to do something interesting when it would otherwise be dying of boredom.</p>
 <p>I've written this article because despite <code>asyncio</code> blowing up the Python world, and despite <a href="https://pyserial.readthedocs.io/en/latest/pyserial.html"><code>pyserial</code></a> (the de-facto serial library) providing an <code>asyncio</code>-compatible module, there is basically nothing written about how to actually <em>use</em> these two things together. Let's fix that.</p>
-<p>A quick note before I get your hopes up: async serial doesn't yet work on Windows. Furthermore, the async serial functionality is listed as &quot;experimental,&quot; so maybe don't bet your entire business on it.</p>
+<p>A quick note before I get your hopes up: async serial doesn't yet work on Windows. Furthermore, the async serial functionality is listed as "experimental," so maybe don't bet your entire business on it.</p>
 <p>Alright, enough hedging, let's get down to business.</p>
 <h1 id="virtual-serial-ports-with-socat">Virtual serial ports with <code>socat</code><a class="zola-anchor" href="#virtual-serial-ports-with-socat" aria-label="Anchor link for: virtual-serial-ports-with-socat"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
 <p>It would be a real shame if you needed a real serial device to even try this out. Luckily, some smart people made a tool called <a href="http://www.dest-unreach.org/socat/"><code>socat</code></a> which lets you create virtual serial ports. Not only is this great for just tooling around, but it also means that you can test your serial-facing code in a CI environment as opposed to using a hardware loopback adapter or sticking a wire into the TX/RX pins of a serial cable (experimental physicists are half Einstein, half MacGyver).</p>
