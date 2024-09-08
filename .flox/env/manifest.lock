@@ -20,8 +20,18 @@
       "allow": {
         "licenses": []
       },
-      "semver": {}
-    }
+      "semver": {},
+      "cuda-detection": false
+    },
+    "services": {
+      "preview": {
+        "command": "zola serve",
+        "vars": null,
+        "is-daemon": null,
+        "shutdown": null
+      }
+    },
+    "build": {}
   },
   "packages": [
     {
