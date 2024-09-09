@@ -7,7 +7,526 @@
       <generator>Zola</generator>
       <language>en</language>
       <atom:link href="https://tinkering.xyz/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Tue, 27 Aug 2024 00:00:00 +0000</lastBuildDate>
+      <lastBuildDate>Mon, 09 Sep 2024 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>proctrace - a high level profiler for process lifecycle events</title>
+          <pubDate>Mon, 09 Sep 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/proctrace/</link>
+          <guid>https://tinkering.xyz/proctrace/</guid>
+          <description xml:base="https://tinkering.xyz/proctrace/">&lt;p&gt;&lt;code&gt;proctrace&lt;&#x2F;code&gt; is a profiler that runs on top of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;bpftrace&#x2F;bpftrace&quot;&gt;bpftrace&lt;&#x2F;a&gt; (for now) and traces
+the execution of a process tree rooted at a user-provided command.
+Right now it records the following events and the time between them:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;fork&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;exec&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;exit&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;setsid&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;setpgid&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;In the future I&#x27;d like to extend that to opening&#x2F;closing&#x2F;inheriting file
+descriptors and reads&#x2F;writes.&lt;&#x2F;p&gt;
+&lt;p&gt;You can find the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;proctrace&quot;&gt;repository on GitHub&lt;&#x2F;a&gt; and usage instructions
+on the &lt;a href=&quot;https:&#x2F;&#x2F;proctrace.xyz&quot;&gt;documentation site&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;details&gt;
+    &lt;summary&gt;RustConf 2024&lt;&#x2F;summary&gt;
+    &lt;p&gt;I&#x27;ll be at RustConf 2024 in Montreal in just a few days.
+If you&#x27;d like to get together and chat about &lt;code&gt;proctrace&lt;&#x2F;code&gt; or &lt;a href=&quot;https:&#x2F;&#x2F;flox.dev&quot;&gt;Flox&lt;&#x2F;a&gt;,
+feel free to hit me up on &lt;a href=&quot;https:&#x2F;&#x2F;hachyderm.io&#x2F;@zmitchell&quot;&gt;Mastodon&lt;&#x2F;a&gt; or &lt;a href=&quot;mailto:zmitchell@fastmail.com&quot;&gt;email&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+
+&lt;&#x2F;details&gt;
+&lt;hr &#x2F;&gt;
+&lt;p&gt;The output can be rendered in a few different ways,
+but the most interesting one is as a Mermaid Gantt diagram
+(inspired by &lt;a href=&quot;https:&#x2F;&#x2F;brycemecum.com&#x2F;2023&#x2F;03&#x2F;31&#x2F;til-mermaid-tracing&#x2F;&quot;&gt;this article&lt;&#x2F;a&gt;).
+If you were to clone the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;proctrace&quot;&gt;proctrace repo&lt;&#x2F;a&gt; on Linux and do the following:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;$ flox activate # provides dev dependencies
+&lt;&#x2F;span&gt;&lt;span&gt;$ cargo build
+&lt;&#x2F;span&gt;&lt;span&gt;$ proctrace record -o demo.log -b $(which bpftrace) -- .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;$ proctrace render -i demo.log -d mermaid
+&lt;&#x2F;span&gt;&lt;span&gt;gantt
+&lt;&#x2F;span&gt;&lt;span&gt;    title Process Trace
+&lt;&#x2F;span&gt;&lt;span&gt;    dateFormat x
+&lt;&#x2F;span&gt;&lt;span&gt;    axisFormat %S.%L
+&lt;&#x2F;span&gt;&lt;span&gt;    todayMarker off
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    section 310331 execs
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] &#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh :active, 0, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] &#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] &#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] bash .&#x2F;demo_script.sh :active, 1, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310331] bash .&#x2F;demo_script.sh :active, 1, 327ms
+&lt;&#x2F;span&gt;&lt;span&gt;    section other
+&lt;&#x2F;span&gt;&lt;span&gt;    [310332] &amp;lt;fork&amp;gt; :active, 2, 1ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310333] sleep 0.25 :active, 3, 251ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310334] curl -s -X GET example.com -o &#x2F;dev&#x2F;null -w %{http_code} :active, 255, 72ms
+&lt;&#x2F;span&gt;&lt;span&gt;    [310336] &amp;lt;fork&amp;gt; :active, 328, 1ms
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;then copy the output of the final command into the &lt;a href=&quot;https:&#x2F;&#x2F;mermaid.live&quot;&gt;Mermaid Live Editor&lt;&#x2F;a&gt;,
+you would see something like this:
+&lt;img src=&quot;&#x2F;images&#x2F;demo-process-trace.webp&quot; alt=&quot;A Gantt chart showing the execution of a Bash script&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;You can probably already spot some of the known bugs in &lt;code&gt;proctrace&lt;&#x2F;code&gt; from looking
+at that image,
+but we&#x27;ll get into that later.
+First, let&#x27;s discuss why I wrote &lt;code&gt;proctrace&lt;&#x2F;code&gt; and what problems it&#x27;s intended to solve (for me at least).&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-problem&quot;&gt;The problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problem&quot; aria-label=&quot;Anchor link for: the-problem&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;I work at &lt;a href=&quot;https:&#x2F;&#x2F;flox.dev&quot;&gt;Flox&lt;&#x2F;a&gt;,
+which is a new tool for setting up reproducible developer environments using
+carefully configured subshells and Nix under the hood.
+The idea is that you get the best of both worlds:
+everything &quot;just works&quot; from machine to machine and developer to developer,
+but you also don&#x27;t have to mount in your home directory just to keep your
+dotfiles like you would inside of a container.
+I actually used Flox to develop &lt;code&gt;proctrace&lt;&#x2F;code&gt;,
+and if you&#x27;re interested in reading about what that looks like,
+you can read about that &lt;a href=&quot;https:&#x2F;&#x2F;flox.dev&#x2F;blog&#x2F;rust&quot;&gt;here&lt;&#x2F;a&gt;.
+That&#x27;s the end of the product pitch, I promise.&lt;&#x2F;p&gt;
+&lt;p&gt;We &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;flox&#x2F;flox&#x2F;releases&#x2F;tag&#x2F;v1.3.0&quot;&gt;recently released&lt;&#x2F;a&gt; a feature called
+&lt;a href=&quot;https:&#x2F;&#x2F;flox.dev&#x2F;docs&#x2F;concepts&#x2F;services&#x2F;&quot;&gt;&quot;service management&quot;&lt;&#x2F;a&gt;,
+which is our take on providing long-running programs (e.g. a web server, database, etc)
+to your development environment like you would with Docker Compose or
+&lt;code&gt;overmind&lt;&#x2F;code&gt;&#x2F;&lt;code&gt;hivemind&lt;&#x2F;code&gt;.
+The difference is that we automatically clean up those processes when you leave
+your development environment (e.g. close your shell).&lt;&#x2F;p&gt;
+&lt;p&gt;Getting all of that working was a bit of a hassle due to the wealth of race
+conditions involved,
+the various ways in which an error could cause processes to be leaked, etc.
+The race conditions caused &lt;em&gt;several&lt;&#x2F;em&gt; flaky tests that would regularly cause
+issues for the entire test suite.&lt;&#x2F;p&gt;
+&lt;p&gt;For example, since we do a lot of gymnastics to configure your shell properly
+we want to ensure that we have good test coverage for that.
+We make extensive use of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;bats-core&#x2F;bats-core&quot;&gt;bats&lt;&#x2F;a&gt;,
+the Bash Automated Test Suite,
+for writing certain tests as shell scripts since trying to test how a shell behaves
+turns out to be a bit of a nightmare from something other than a shell.&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;details&gt;
+    &lt;summary&gt;matklad had helpful ideas&lt;&#x2F;summary&gt;
+    &lt;p&gt;I&#x27;m a bit of a testing nerd and the state of our test suite really bugs me.
+I&#x27;ve been reading &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;&quot;&gt;Alex Kladov&#x27;s blog&lt;&#x2F;a&gt; for a while,
+and one of the things they write about extensively is testing.
+At one point I reached out for advice and they were very helpful with their
+suggestions,
+but we haven&#x27;t found the time to actually implement them :)
+That&#x27;s startup life for you.&lt;&#x2F;p&gt;
+
+&lt;&#x2F;details&gt;
+&lt;hr &#x2F;&gt;
+&lt;p&gt;Since &lt;code&gt;bats&lt;&#x2F;code&gt; is aimed at things happening in your shell,
+it captures &lt;code&gt;stdout&lt;&#x2F;code&gt; and &lt;code&gt;stderr&lt;&#x2F;code&gt; so that you can make assertions about their
+contents.
+This means that if you want to debug by printing&#x2F;&lt;code&gt;echo&lt;&#x2F;code&gt;ing,
+that output would get mixed in with the output of the program under test.
+&lt;code&gt;bats&lt;&#x2F;code&gt; gets around this by opening a new file descriptor (3).
+When you write to fd 3,
+the output is shown without being captured.&lt;&#x2F;p&gt;
+&lt;p&gt;Unfortunately, it also waits for this file descriptor to
+be closed before the test suite will conclude.
+If a process inherits this file descriptor and is later backgrounded,
+you have a perfect storm for a deadlock.
+&lt;code&gt;bats&lt;&#x2F;code&gt; will happily wait forever for that file descriptor to close
+while the background process happily waits for someone to clean it up.
+This is a &lt;a href=&quot;https:&#x2F;&#x2F;bats-core.readthedocs.io&#x2F;en&#x2F;stable&#x2F;writing-tests.html#file-descriptor-3-read-this-if-bats-hangs&quot;&gt;known issue&lt;&#x2F;a&gt;
+that &lt;code&gt;bats&lt;&#x2F;code&gt; warns you about (if you read the documentation),
+but sometimes you make mistakes.&lt;&#x2F;p&gt;
+&lt;p&gt;This issue rocked our world for a little bit when we were getting service
+management off the ground.
+We didn&#x27;t have great visibility into which tests were even causing the failures
+(the tests all passed),
+much less which processes were holding on to fd 3.&lt;&#x2F;p&gt;
+&lt;p&gt;I wanted to be able to quickly and easily identify which test leaked the
+background process,
+what the background process &lt;em&gt;was&lt;&#x2F;em&gt;,
+etc.
+There weren&#x27;t really any tools I found that would let me do this out of the box,
+so I wrote &lt;code&gt;proctrace&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;design-phase&quot;&gt;Design phase&lt;a class=&quot;zola-anchor&quot; href=&quot;#design-phase&quot; aria-label=&quot;Anchor link for: design-phase&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;h3 id=&quot;requirements&quot;&gt;Requirements&lt;a class=&quot;zola-anchor&quot; href=&quot;#requirements&quot; aria-label=&quot;Anchor link for: requirements&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;Given a PID, I need to be able to track:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;When it creates a new process via &lt;code&gt;fork&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;When it executes a new program via &lt;code&gt;exec&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;When it terminates via &lt;code&gt;exit&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;When it changes its relationship to other processes via &lt;code&gt;setpgid&lt;&#x2F;code&gt; and &lt;code&gt;setsid&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;When any descendent process of this PID does any of the above&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Once I have that process tree and events associated with each PID,
+I need to be able to render that information in a &quot;useful&quot; way.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;interface&quot;&gt;Interface&lt;a class=&quot;zola-anchor&quot; href=&quot;#interface&quot; aria-label=&quot;Anchor link for: interface&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;I saw two interfaces to choose from:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;User turns on recording and events are recorded from all processes, user runs their command, user stops recording, user tells &lt;code&gt;proctrace&lt;&#x2F;code&gt; to post-process and return the clean output.&lt;&#x2F;li&gt;
+&lt;li&gt;User supplies a command, we run it for them and filter irrelevant events, then give them the clean output.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Both have their tradeoffs.&lt;&#x2F;p&gt;
+&lt;p&gt;The &quot;record everything&quot; approach puts control flow in the user&#x27;s hands,
+leaves them with a recording that contains more information than is necessary,
+and requires that they know how to do the post-processing that they need
+e.g. which PID is the root of the process tree.
+It also lets the user do multiple rounds of post-processing without the need to
+collect another recording.&lt;&#x2F;p&gt;
+&lt;p&gt;The &quot;do it for the user&quot; approach requires less of the user,
+but doesn&#x27;t allow for different types of post-processing without another recording.&lt;&#x2F;p&gt;
+&lt;p&gt;As you&#x27;ll see later,
+we&#x27;re actually able to meet both of these needs,
+but I decided the default mode would be the &quot;do it for the user&quot; mode.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;event-source&quot;&gt;Event source&lt;a class=&quot;zola-anchor&quot; href=&quot;#event-source&quot; aria-label=&quot;Anchor link for: event-source&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;I knew that I had a few tools at my disposal for collecting the kinds of events
+that I was looking for,
+namely &lt;code&gt;strace&lt;&#x2F;code&gt;, &lt;code&gt;DTrace&lt;&#x2F;code&gt;, and &lt;code&gt;bpftrace&lt;&#x2F;code&gt;
+(you know, all of the &lt;code&gt;*trace&lt;&#x2F;code&gt;s).
+&lt;code&gt;DTrace&lt;&#x2F;code&gt; and &lt;code&gt;bpftrace&lt;&#x2F;code&gt; have the advantage that they&#x27;re scriptable and use
+similar scripting languages,
+so I immediately gravitated towards those tools.&lt;&#x2F;p&gt;
+&lt;p&gt;One benefit of starting the command for the user is that you get to know which
+PID is at the root of the process tree while you&#x27;re recording.
+The downside is that you&#x27;re also responsible for starting recording before that
+command runs (so you don&#x27;t miss the beginning of its execution),
+so you have to start the recorder before you know the PID.
+At that point it&#x27;s also too late to somehow embed the PID
+in the execution of the tool (e.g. through templating a script or something).
+You could do something like issue a sentinel system call containing the
+PID,
+but that would be cursed.&lt;&#x2F;p&gt;
+&lt;p&gt;Given that constraint,
+the recorder will know nothing about which PIDs it&#x27;s interested in and just
+report events for all PIDs.
+An external tool (&lt;code&gt;proctrace&lt;&#x2F;code&gt;) will consume those events and do the book keeping.&lt;&#x2F;p&gt;
+&lt;p&gt;For now &lt;code&gt;proctrace&lt;&#x2F;code&gt; only supports &lt;code&gt;bpftrace&lt;&#x2F;code&gt; because there is a &lt;a href=&quot;https:&#x2F;&#x2F;forums.developer.apple.com&#x2F;forums&#x2F;thread&#x2F;735939&quot;&gt;macOS bug&lt;&#x2F;a&gt;
+that causes your machine to hang if you run DTrace and your machine has ever
+been to sleep since boot.
+Putting your machine to sleep seems like an edge case to me though,
+so I get it.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;termination&quot;&gt;Termination&lt;a class=&quot;zola-anchor&quot; href=&quot;#termination&quot; aria-label=&quot;Anchor link for: termination&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;When do we stop recording?
+To me the most reasonable answer is &quot;when all of the processes in the tree have exited.&quot;
+In the case that a process doesn&#x27;t exit,
+the user will need to &lt;code&gt;Ctrl-C&lt;&#x2F;code&gt; and kill the recording,
+at which point &lt;code&gt;proctrace&lt;&#x2F;code&gt; should persist any data that was still in flight
+and exit.
+If &lt;code&gt;proctrace&lt;&#x2F;code&gt; detects that all of the processes in the tree have exited,
+it will shutdown automatically.&lt;&#x2F;p&gt;
+&lt;p&gt;Right now &lt;code&gt;proctrace&lt;&#x2F;code&gt; doesn&#x27;t kill the process that was still running,
+but there&#x27;s an open issue to do this in the future.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;usage&quot;&gt;Usage&lt;a class=&quot;zola-anchor&quot; href=&quot;#usage&quot; aria-label=&quot;Anchor link for: usage&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Before we get into implementation challenges, let&#x27;s talk about how you use
+&lt;code&gt;proctrace&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;First you create a recording:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;$ proctrace record -o &amp;lt;file&amp;gt; -- &amp;lt;cmd&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;This will call &lt;code&gt;bpftrace&lt;&#x2F;code&gt; under the hood, so it will prompt for your password.
+If you&#x27;ve installed &lt;code&gt;bpftrace&lt;&#x2F;code&gt; in a location that&#x27;s only in your user&#x27;s
+&lt;code&gt;PATH&lt;&#x2F;code&gt;
+(this is the case if you&#x27;ve installed via Flox or &lt;code&gt;nix profile install&lt;&#x2F;code&gt;),
+then you&#x27;ll need to pass in the path of the &lt;code&gt;bpftrace&lt;&#x2F;code&gt; execuable with the
+&lt;code&gt;-b&lt;&#x2F;code&gt; flag.&lt;&#x2F;p&gt;
+&lt;p&gt;This command will record events in newline-delimited JSON format to the
+specified file.
+It looks like this:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:874106944,&amp;quot;parent_pid&amp;quot;:566940,&amp;quot;child_pid&amp;quot;:566954,&amp;quot;parent_pgid&amp;quot;:566939}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:874201623,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:null}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;ExecArgs&amp;quot;:{&amp;quot;timestamp&amp;quot;:874201623,&amp;quot;pid&amp;quot;:566954,&amp;quot;args&amp;quot;:&amp;quot;&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;ExecArgs&amp;quot;:{&amp;quot;timestamp&amp;quot;:874201623,&amp;quot;pid&amp;quot;:566954,&amp;quot;args&amp;quot;:&amp;quot;.&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Once you have that recording you can render it in a few ways.
+I&#x27;ve already showed you the Mermaid output above, so I&#x27;ll skip that.&lt;&#x2F;p&gt;
+&lt;p&gt;The default render method (&lt;code&gt;sequential&lt;&#x2F;code&gt;) is to just display the events in the order that they
+occurred.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:874106944,&amp;quot;parent_pid&amp;quot;:566940,&amp;quot;child_pid&amp;quot;:566954,&amp;quot;parent_pgid&amp;quot;:566939}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:874201623,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875457447,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Notice that the &lt;code&gt;ExecArgs&lt;&#x2F;code&gt; events have been removed.
+That&#x27;s part of the post-processing that&#x27;s done when rendering, but we&#x27;ll get
+into that later.&lt;&#x2F;p&gt;
+&lt;p&gt;The other render method (&lt;code&gt;by-process&lt;&#x2F;code&gt;) does a similar thing except it groups
+events by process and reports processes in the order that they were forked.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;PID 566954: &#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:874106944,&amp;quot;parent_pid&amp;quot;:566940,&amp;quot;child_pid&amp;quot;:566954,&amp;quot;parent_pgid&amp;quot;:566939}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:874201623,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875296339,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875354678,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875404667,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875457447,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875489336,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875526926,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875571015,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875602105,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875633734,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875674564,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:875707274,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954,&amp;quot;cmdline&amp;quot;:&amp;quot;bash .&#x2F;demo_script.sh&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exit&amp;quot;:{&amp;quot;timestamp&amp;quot;:1204543692,&amp;quot;pid&amp;quot;:566954,&amp;quot;ppid&amp;quot;:566940,&amp;quot;pgid&amp;quot;:566954}}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;PID 566955, forked from 566954
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:877599490,&amp;quot;parent_pid&amp;quot;:566954,&amp;quot;child_pid&amp;quot;:566955,&amp;quot;parent_pgid&amp;quot;:566940}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exit&amp;quot;:{&amp;quot;timestamp&amp;quot;:877995285,&amp;quot;pid&amp;quot;:566955,&amp;quot;ppid&amp;quot;:566954,&amp;quot;pgid&amp;quot;:566955}}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;PID 566956: sleep 0.25
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:878221082,&amp;quot;parent_pid&amp;quot;:566954,&amp;quot;child_pid&amp;quot;:566956,&amp;quot;parent_pgid&amp;quot;:566940}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:878429699,&amp;quot;pid&amp;quot;:566956,&amp;quot;ppid&amp;quot;:566954,&amp;quot;pgid&amp;quot;:566956,&amp;quot;cmdline&amp;quot;:&amp;quot;sleep 0.25&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exit&amp;quot;:{&amp;quot;timestamp&amp;quot;:1129839058,&amp;quot;pid&amp;quot;:566956,&amp;quot;ppid&amp;quot;:566954,&amp;quot;pgid&amp;quot;:566956}}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;PID 566957: curl -s -X GET example.com -o &#x2F;dev&#x2F;null -w %{http_code}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:1130015346,&amp;quot;parent_pid&amp;quot;:566954,&amp;quot;child_pid&amp;quot;:566957,&amp;quot;parent_pgid&amp;quot;:566940}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exec&amp;quot;:{&amp;quot;timestamp&amp;quot;:1130503480,&amp;quot;pid&amp;quot;:566957,&amp;quot;ppid&amp;quot;:566954,&amp;quot;pgid&amp;quot;:566957,&amp;quot;cmdline&amp;quot;:&amp;quot;curl -s -X GET example.com -o &#x2F;dev&#x2F;null -w %{http_code}&amp;quot;}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exit&amp;quot;:{&amp;quot;timestamp&amp;quot;:1203740882,&amp;quot;pid&amp;quot;:566957,&amp;quot;ppid&amp;quot;:566954,&amp;quot;pgid&amp;quot;:566957}}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;PID 566959, forked from 566954
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Fork&amp;quot;:{&amp;quot;timestamp&amp;quot;:1203848581,&amp;quot;parent_pid&amp;quot;:566954,&amp;quot;child_pid&amp;quot;:566959,&amp;quot;parent_pgid&amp;quot;:566940}}
+&lt;&#x2F;span&gt;&lt;span&gt;{&amp;quot;Exit&amp;quot;:{&amp;quot;timestamp&amp;quot;:1204271226,&amp;quot;pid&amp;quot;:566959,&amp;quot;ppid&amp;quot;:566954,&amp;quot;pgid&amp;quot;:566959}}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;In a Mermaid rendering I also do some quality of life tweaks to the labels:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Nix store paths (&lt;code&gt;&#x2F;nix&#x2F;store&#x2F;&amp;lt;hash&amp;gt;-&amp;lt;name&amp;gt;&lt;&#x2F;code&gt;) get shortened to &lt;code&gt;&amp;lt;store&amp;gt;&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;Processes that were forked without later &lt;code&gt;exec&lt;&#x2F;code&gt;ing are displayed as &lt;code&gt;&amp;lt;fork&amp;gt;&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;raw-recordings&quot;&gt;Raw recordings&lt;a class=&quot;zola-anchor&quot; href=&quot;#raw-recordings&quot; aria-label=&quot;Anchor link for: raw-recordings&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;I mentioned earlier that we&#x27;re able to meet both sets of needs:
+&quot;do it for me&quot; and &quot;put me in the driver&#x27;s seat&quot;.
+That&#x27;s accomplished by taking &quot;raw&quot; recordings.&lt;&#x2F;p&gt;
+&lt;p&gt;A raw recording is simply the recorded output of the &lt;code&gt;bpftrace&lt;&#x2F;code&gt; script.
+You can do this one of two ways.
+Since the script is stored in the repository and we quite literally just
+write its output,
+you could just run the script yourself whenever and however you want.&lt;&#x2F;p&gt;
+&lt;p&gt;That output looks like this:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;EXEC: ts=874201623,pid=566954,ppid=566940,pgid=566954
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC_ARGS: ts=874201623,pid=566954,&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC_ARGS: ts=874201623,pid=566954,.&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;FORK: ts=874106944,parent_pid=566940,child_pid=566954,parent_pgid=566939
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC: ts=875296339,pid=566954,ppid=566940,pgid=566954
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC_ARGS: ts=875296339,pid=566954,&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC_ARGS: ts=875296339,pid=566954,bash .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC: ts=875354678,pid=566954,ppid=566940,pgid=566954
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC_ARGS: ts=875354678,pid=566954,&#x2F;usr&#x2F;bin&#x2F;env bash .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;EXEC_ARGS: ts=875354678,pid=566954,bash .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The other way is to run &lt;code&gt;proctrace record&lt;&#x2F;code&gt; with the &lt;code&gt;--raw&lt;&#x2F;code&gt; flag,
+in which case it will also tell you the PID of your command,
+which you&#x27;ll need for the next step:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;$ proctrace record -r -o demo_raw.log -- .&#x2F;demo_script.sh
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;Process tree root was PID 305101
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;One of the benefits of a raw recording is that you can ingest and render a
+process tree from a root other than the command that you actually ran.
+For instance, say I recorded the entire shell test suite for Flox,
+then only wanted to render the process tree starting at a particular test.
+I would need to track down that PID, but that&#x27;s not terribly difficult.&lt;&#x2F;p&gt;
+&lt;p&gt;To turn the raw recording into something renderable,
+you use the &lt;code&gt;proctrace ingest&lt;&#x2F;code&gt; command:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;$ proctrace ingest -i demo_raw.log -o demo_ingested.log --root-pid 12345
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Then you would render the &lt;code&gt;demo_ingested.log&lt;&#x2F;code&gt; file as you would a normal
+(non-raw? cooked?) recording.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;implementation-challenges&quot;&gt;Implementation challenges&lt;a class=&quot;zola-anchor&quot; href=&quot;#implementation-challenges&quot; aria-label=&quot;Anchor link for: implementation-challenges&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;h3 id=&quot;recording-processes-vs-threads&quot;&gt;Recording processes vs. threads&lt;a class=&quot;zola-anchor&quot; href=&quot;#recording-processes-vs-threads&quot; aria-label=&quot;Anchor link for: recording-processes-vs-threads&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;In order to start recording we launch &lt;code&gt;bpftrace&lt;&#x2F;code&gt; with a &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;proctrace&#x2F;blob&#x2F;main&#x2F;proctrace&#x2F;assets&#x2F;proctrace.bt&quot;&gt;script&lt;&#x2F;a&gt;
+that&#x27;s stored in the repository.
+This script enables probes for certain events in the Linux kernel and then
+prints formatted output that &lt;code&gt;proctrace&lt;&#x2F;code&gt; can parse.
+An example of one of these probes is shown below:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;tracepoint:sched:sched_process_exit
+&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  $task = (struct task_struct *)curtask;
+&lt;&#x2F;span&gt;&lt;span&gt;  &#x2F;&#x2F; Ensures that we don&amp;#39;t record threads exiting
+&lt;&#x2F;span&gt;&lt;span&gt;  if ($task-&amp;gt;pid == $task-&amp;gt;tgid) {
+&lt;&#x2F;span&gt;&lt;span&gt;    $ts = elapsed;
+&lt;&#x2F;span&gt;&lt;span&gt;  	printf(&amp;quot;EXIT: ts=%u,pid=%d,ppid=%d,pgid=%d\n&amp;quot;, $ts, $task-&amp;gt;tgid, $task-&amp;gt;real_parent-&amp;gt;tgid, $task-&amp;gt;group_leader-&amp;gt;tgid);
+&lt;&#x2F;span&gt;&lt;span&gt;  }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;If you aren&#x27;t familiar with the inner workings of the Linux kernel,
+playing around with &lt;code&gt;bpftrace&lt;&#x2F;code&gt; is actually a great way to learn.
+For example,
+you may not have known that threads and processes are actually represented with
+the same data structure (&lt;code&gt;struct task_struct&lt;&#x2F;code&gt;).&lt;&#x2F;p&gt;
+&lt;p&gt;This means that if you&#x27;re only interested in process-level events,
+then you need to ensure that your probes filter out events from threads.
+Confusingly, each task has a &lt;code&gt;pid&lt;&#x2F;code&gt; field which is not actually the user-space
+PID,
+but I guess more of a generic ID for the task.
+A user-space process is referred to as a &quot;thread group&quot;.
+If you want to record an event once per process you can check whether the
+task that triggered the probe is the main thread of the process.
+That&#x27;s what the &lt;code&gt;$task-&amp;gt;pid == $task-&amp;gt;tgid&lt;&#x2F;code&gt; check is doing in the probe above.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;duplicate-forks&quot;&gt;Duplicate &lt;code&gt;fork&lt;&#x2F;code&gt;s&lt;a class=&quot;zola-anchor&quot; href=&quot;#duplicate-forks&quot; aria-label=&quot;Anchor link for: duplicate-forks&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;Early on when I was testing &lt;code&gt;proctrace&lt;&#x2F;code&gt; on Flox I would often see a flurry
+of &lt;code&gt;fork&lt;&#x2F;code&gt;s when Flox started.
+I knew it wasn&#x27;t &lt;em&gt;actually&lt;&#x2F;em&gt; forking,
+and after some investigation I determined that it was this
+&quot;thread vs. process&quot; distinction that was missing.&lt;&#x2F;p&gt;
+&lt;p&gt;It turns out that on Linux both creating new threads and creating new processes
+go through the &lt;code&gt;clone&lt;&#x2F;code&gt; system call,
+and silly me I guess I expected the &lt;code&gt;tracepoint:sched:sched_process_fork&lt;&#x2F;code&gt; probe
+to only fire when processes fork given that...it&#x27;s what the name says.
+So instead of using that probe I switched to instrumenting &lt;code&gt;clone&lt;&#x2F;code&gt; directly and
+inspecting the flags passed to &lt;code&gt;clone&lt;&#x2F;code&gt; that determine whether a thread or a process
+gets created.&lt;&#x2F;p&gt;
+&lt;p&gt;This is also an interesting system call to instrument because it returns more
+than once!
+It returns once in the parent (the caller), and once in the child
+(the new thread or process).
+In order to only capture one of these I actually have &lt;em&gt;two&lt;&#x2F;em&gt; probes for &lt;code&gt;clone&lt;&#x2F;code&gt;,
+one that fires upon entry, and one that fires on exit.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;tracepoint:syscalls:sys_enter_clone
+&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  $task = (struct task_struct *)curtask;
+&lt;&#x2F;span&gt;&lt;span&gt;  &#x2F;&#x2F; Ensures that we don&amp;#39;t process forks of threads
+&lt;&#x2F;span&gt;&lt;span&gt;  if ((args.clone_flags &amp;amp; 0x00010000) == 0) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &#x2F;&#x2F; Store the elapsed time:
+&lt;&#x2F;span&gt;&lt;span&gt;    &#x2F;&#x2F; - So we have a nonzero sentinel value
+&lt;&#x2F;span&gt;&lt;span&gt;    &#x2F;&#x2F; - So we can properly record the start of the fork,
+&lt;&#x2F;span&gt;&lt;span&gt;    &#x2F;&#x2F;   otherwise sometimes the exec shows up first.
+&lt;&#x2F;span&gt;&lt;span&gt;    $ts = elapsed;
+&lt;&#x2F;span&gt;&lt;span&gt;    @clones[tid] = $ts;
+&lt;&#x2F;span&gt;&lt;span&gt;  }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;tracepoint:syscalls:sys_exit_clone
+&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  $task = (struct task_struct *)curtask;
+&lt;&#x2F;span&gt;&lt;span&gt;  &#x2F;&#x2F; Ensures that we don&amp;#39;t record threads exiting
+&lt;&#x2F;span&gt;&lt;span&gt;  if ($task-&amp;gt;pid == $task-&amp;gt;tgid) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &#x2F;&#x2F; Don&amp;#39;t process this clone unless we&amp;#39;ve recorded the `enter` side of it
+&lt;&#x2F;span&gt;&lt;span&gt;    if (@clones[tid] != 0) {
+&lt;&#x2F;span&gt;&lt;span&gt;      $ts = @clones[tid];
+&lt;&#x2F;span&gt;&lt;span&gt;      @clones[tid] = 0;
+&lt;&#x2F;span&gt;&lt;span&gt;      $child_pid = args.ret;
+&lt;&#x2F;span&gt;&lt;span&gt;      printf(&amp;quot;FORK: ts=%u,parent_pid=%d,child_pid=%d,parent_pgid=%d\n&amp;quot;, $ts, $task-&amp;gt;tgid, $child_pid, $task-&amp;gt;real_parent-&amp;gt;tgid);
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;  }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;On every &lt;code&gt;sys_enter_clone&lt;&#x2F;code&gt; we check whether we&#x27;re about to create a thread,
+skip it if we are,
+then record both the thread ID and the timestamp.
+We record the thread ID since multiple threads within a process could be calling
+&lt;code&gt;fork&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Then, on &lt;code&gt;sys_exit_clone&lt;&#x2F;code&gt; I check whether the task returning from the system
+call has been recorded.
+If it has, that means it&#x27;s the thread that called &lt;code&gt;fork&lt;&#x2F;code&gt; in the parent process.
+If it hasn&#x27;t, that means it&#x27;s a thread in the child process.
+I record the result from the parent process because the return value tells us
+the PID of the newly created child process.&lt;&#x2F;p&gt;
+&lt;p&gt;I record the timestamp because I noticed that the &lt;code&gt;fork&lt;&#x2F;code&gt; and &lt;code&gt;exec&lt;&#x2F;code&gt; were appearing
+out of order.
+I don&#x27;t actually know why this was happening,
+but recording the &lt;code&gt;enter&lt;&#x2F;code&gt; timestamp allows us to put things back in the correct order
+during post-processing.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;buffering&quot;&gt;Buffering&lt;a class=&quot;zola-anchor&quot; href=&quot;#buffering&quot; aria-label=&quot;Anchor link for: buffering&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;When &lt;code&gt;proctrace&lt;&#x2F;code&gt; is ingesting events from &lt;code&gt;bpftrace&lt;&#x2F;code&gt; it stores events in two
+different event stores:
+one for &quot;tracked&quot; events and one for &quot;buffered&quot; events.
+The stores are identical in terms of their functionality,
+they&#x27;re each just a &lt;code&gt;BTreeMap&amp;lt;i32, VecDeque&amp;lt;Event&amp;gt;&amp;gt;&lt;&#x2F;code&gt; in Rust parlance.&lt;&#x2F;p&gt;
+&lt;p&gt;While ingesting events if we see a &lt;code&gt;fork&lt;&#x2F;code&gt; whose parent PID is one we&#x27;re already
+tracking then we add the child PID to the &quot;tracked&quot; store.
+From that point forward any events from that PID will be added to the tracked
+store.&lt;&#x2F;p&gt;
+&lt;p&gt;The buffered store is a response to this &quot;fork and exec can appear out of order&quot;
+problem.
+Say PID 1 forks into PID 2.
+If an &lt;code&gt;exec&lt;&#x2F;code&gt; from PID 2 appears before we&#x27;ve seen the &lt;code&gt;fork&lt;&#x2F;code&gt;,
+we will not yet have added PID 2 to the tracked event store,
+and we&#x27;ll discard this &lt;code&gt;exec&lt;&#x2F;code&gt; event.
+Instead, we buffer this &lt;code&gt;exec&lt;&#x2F;code&gt; and when we see the &lt;code&gt;fork&lt;&#x2F;code&gt; we unbuffer all events
+from the process.
+We also iterate over the buffered store to ensure that any other events from
+descendants of PID 2 would be unbuffered as well.
+In practice I don&#x27;t think the &lt;code&gt;fork&lt;&#x2F;code&gt; ever appears quite that late,
+but it seemed like a good idea to be safe anyway.&lt;&#x2F;p&gt;
+&lt;p&gt;Right now that buffer never gets emptied, so it just grows over time,
+but there&#x27;s an open issue to do garbage collection.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;exec-arguments&quot;&gt;&lt;code&gt;exec&lt;&#x2F;code&gt; arguments&lt;a class=&quot;zola-anchor&quot; href=&quot;#exec-arguments&quot; aria-label=&quot;Anchor link for: exec-arguments&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;There are multiple issues here.
+First is that there appears to be a &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;bpftrace&#x2F;bpftrace&#x2F;issues&#x2F;3384&quot;&gt;bug&lt;&#x2F;a&gt; that causes &lt;code&gt;bpftrace&lt;&#x2F;code&gt;
+to just fail to print the arguments.
+I&#x27;m not sure what the actual limitation is,
+but &lt;code&gt;bpftrace&lt;&#x2F;code&gt; doesn&#x27;t seem to be able to join an array of strings and return
+that as a new string to be used in a format string.
+The &lt;code&gt;join()&lt;&#x2F;code&gt; function simply takes an array of strings and prints it with a
+newline at the end,
+so I actually have to print a single &lt;code&gt;exec&lt;&#x2F;code&gt; event as two different lines:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;tracepoint:syscalls:sys_enter_execve
+&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  $task = (struct task_struct *)curtask;
+&lt;&#x2F;span&gt;&lt;span&gt;  $ts = elapsed;
+&lt;&#x2F;span&gt;&lt;span&gt;  printf(&amp;quot;EXEC: ts=%u,pid=%d,ppid=%d,pgid=%d\n&amp;quot;, $ts, $task-&amp;gt;tgid, $task-&amp;gt;real_parent-&amp;gt;tgid, $task-&amp;gt;group_leader-&amp;gt;tgid);
+&lt;&#x2F;span&gt;&lt;span&gt;  printf(&amp;quot;EXEC_ARGS: ts=%u,pid=%d,&amp;quot;, $ts, $task-&amp;gt;tgid);
+&lt;&#x2F;span&gt;&lt;span&gt;  join(args.argv);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Even then that second event (&lt;code&gt;EXEC_ARGS&lt;&#x2F;code&gt;) just might not have any arguments
+for me.
+To mitigate this I also query &lt;code&gt;&#x2F;proc&lt;&#x2F;code&gt; at runtime for each &lt;code&gt;exec&lt;&#x2F;code&gt; tracked in
+a recording.&lt;&#x2F;p&gt;
+&lt;p&gt;Again, there&#x27;s multiple issues here.
+The process may have done another &lt;code&gt;exec&lt;&#x2F;code&gt; before I query &lt;code&gt;&#x2F;proc&lt;&#x2F;code&gt; and I may get
+the wrong set of arguments.
+The process may have exited before I query &lt;code&gt;&#x2F;proc&lt;&#x2F;code&gt; and it may not have anything
+for me.
+I may get different arguments compared to what &lt;code&gt;bpftrace&lt;&#x2F;code&gt; reports,
+and now I have to choose which arguments to show.&lt;&#x2F;p&gt;
+&lt;p&gt;I haven&#x27;t had time to look into why the arguments would be different,
+so at the moment I&#x27;m just using the longer (by joined string length) of the two
+sets of arguments under the assumption that the longer set has more information.
+I went that direction because I noticed that in most cases the arguments were
+the same or otherwise a subset of one another (or something like that).&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;duplicate-execs&quot;&gt;Duplicate &lt;code&gt;exec&lt;&#x2F;code&gt;s&lt;a class=&quot;zola-anchor&quot; href=&quot;#duplicate-execs&quot; aria-label=&quot;Anchor link for: duplicate-execs&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;Finally,
+the bug I mentioned at the very beginning of the article.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;demo-process-trace.webp&quot; alt=&quot;A Gantt chart showing the execution of a Bash script&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Sometimes I just get duplicate &lt;code&gt;exec&lt;&#x2F;code&gt;s and I have no idea why.
+I suspect there&#x27;s an issue with the &lt;code&gt;bpftrace&lt;&#x2F;code&gt; script such that it&#x27;s not filtering out
+threads again e.g. &lt;code&gt;sys_enter_execve&lt;&#x2F;code&gt; is actually shorthand for
+&lt;code&gt;sys_enter_execve_just_kidding_this_also_fires_on_threads_too&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;If you look closely, there are two &lt;code&gt;&amp;lt;fork&amp;gt;&lt;&#x2F;code&gt; events,
+one before the &lt;code&gt;sleep&lt;&#x2F;code&gt; and one after the &lt;code&gt;curl&lt;&#x2F;code&gt;.
+I think those are actually &lt;code&gt;printf&lt;&#x2F;code&gt; calls,
+which I suppose means that we&#x27;re entirely missing the &lt;code&gt;exec&lt;&#x2F;code&gt; calls for those
+two events.
+I&#x27;ve noticed this kind of behavior around things that are shell builtins,
+but in that hastily thrown together demo script I specifically call
+&lt;code&gt;command -v printf&lt;&#x2F;code&gt; to avoid running the builtin.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;mermaid-limitations&quot;&gt;Mermaid limitations&lt;a class=&quot;zola-anchor&quot; href=&quot;#mermaid-limitations&quot; aria-label=&quot;Anchor link for: mermaid-limitations&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;If you have a command that contains a colon character,
+Mermaid just won&#x27;t render the diagram.
+I&#x27;ve run into this with scripts that use &lt;code&gt;getopt&lt;&#x2F;code&gt;.
+All it takes to get it working again is to manually go delete those colons
+and Mermaid will be happy again.&lt;&#x2F;p&gt;
+&lt;p&gt;Mermaid also doesn&#x27;t seem to let you use arbitrary timescales,
+so we&#x27;re stuck using milliseconds at the moment.
+For that reason I round up the execution time of each span
+(e.g. time between a &lt;code&gt;fork&lt;&#x2F;code&gt; and &lt;code&gt;exit&lt;&#x2F;code&gt;, between two successive &lt;code&gt;exec&lt;&#x2F;code&gt;s, etc)
+to 1ms if it would otherwise be less than that.
+Mermaid also seems to really enjoy stretching diagrams out horizontally
+more than is necessary.
+Oh well, it clearly wasn&#x27;t designed for what I&#x27;m using it for.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;going-forward&quot;&gt;Going forward&lt;a class=&quot;zola-anchor&quot; href=&quot;#going-forward&quot; aria-label=&quot;Anchor link for: going-forward&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;It&#x27;s early days for &lt;code&gt;proctrace&lt;&#x2F;code&gt; and there&#x27;s a lot of low-hanging fruit if you&#x27;d
+like to pitch in.
+Check out the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zmitchell&#x2F;proctrace&#x2F;issues&quot;&gt;Github Issues page&lt;&#x2F;a&gt; and see what interests you.&lt;&#x2F;p&gt;
+&lt;p&gt;Ultimately I&#x27;d like to generate HTML reports similar to how Cargo generates
+&lt;a href=&quot;https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;cargo&#x2F;reference&#x2F;timings.html&quot;&gt;build timings reports&lt;&#x2F;a&gt;.
+That would allow us to more accurately and more flexibly display the information
+that we already have,
+but would also allow us to display other information as well.
+For example, we already have information about process groups,
+so you could color each span according to the process group that it belongs to.&lt;&#x2F;p&gt;
+&lt;p&gt;If you have thoughts about how to make &lt;code&gt;proctrace&lt;&#x2F;code&gt; more correct or more
+ergonomic,
+I&#x27;d love to hear them.&lt;&#x2F;p&gt;
+</description>
+      </item>
       <item>
           <title>Evaluating a process manager</title>
           <pubDate>Tue, 27 Aug 2024 00:00:00 +0000</pubDate>
