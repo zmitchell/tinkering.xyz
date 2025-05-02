@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>The feature I&#x27;ve wanted in Flox since I joined the company &middot; Tinkering</title>
+  <meta name="description" content="From the moment I joined Flox, I knew that there was one feature I wanted: composition. This is the ability to build an environment out of other environments. Two years later we finally built out this feature, and I was the project lead. Let&#x27;s talk about why it&#x27;s so exciting." />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://tinkering.xyz/rss.xml">
+  <script defer data-domain="tinkering.xyz" src="/js/script.js"></script>
+
+  <style>
+    *,:after,:before{box-sizing:border-box}:root{--color-bg: #f2f2f2;--color-dark: #222222;--color-mid: #ced4da;--color-light: #dee2e6;--color-accent: #089ce7;--text-width: 70ch;--size-base: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);--size-step-0: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);--size-step-1: clamp(1.1875rem, 1.12rem + 0.33vw, 1.375rem);--size-step-2: clamp(1.4375rem, 1.33rem + 0.54vw, 1.75rem);--size-step-3: clamp(1.6875rem, 1.51rem + 0.87vw, 2.1875rem);--size-step-4: clamp(2.0625rem, 1.85rem + 1.09vw, 2.6875rem);--font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", 		"Segoe UI Symbol"}body{background:var(--color-bg);color:var(--color-dark);font-size:var(--size-base);font-family:var(--font-face);line-height:1.6;text-rendering:optimizeSpeed}h1{font-size:var(--size-step-3)}h2{font-size:var(--size-step-2)}h3{font-size:var(--size-step-1);line-height:1.2}main{margin:auto;max-width:var(--text-width);padding:.8rem}@media (max-width: var(--text-width)){.homepage-list a{width:100%}}a{color:currentColor;text-decoration-line:underline;text-decoration-color:var(--color-accent);text-decoration-thickness:.15em;text-underline-offset:.15em;text-decoration-skip-ink:none}a:hover{text-decoration-thickness:.3em;text-underline-offset:.05em}blockquote{border-left-color:var(--color-accent);border-left-width:.25em;border-left-style:solid;margin-left:0em;margin-right:0em;padding:.5em;background-color:var(--color-mid)}td{border:1px solid var(--color-dark);padding:10px}img{margin:auto;height:auto;display:block;max-width:100%}.nav__link{margin-left:0;margin-right:1em}.homepage-list{display:flex;flex-direction:column;list-style:none;padding:0;margin-top:0em}.homepage-list a{text-decoration-thickness:.05em;-webkit-text-decoration-thickness:.05em}.pagination{display:flex;justify-content:space-between}.pagination__onlynext{justify-content:flex-end}.post{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;margin-top:0}.post__title{margin:0;line-height:1.2em;justify-content:flex-start}.post__date{display:block;margin-top:0;margin-bottom:.5em;font-style:italic}.post__description{margin-top:0;margin-bottom:2em}pre{overflow:scroll;padding:1rem}code{font-size:90%}code:not(pre>code){padding:.15em .25em;color:var(--color-dark);background-color:var(--color-light);border-radius:3px}.zola-anchor{padding-left:.25em}.youtube>iframe{aspect-ratio:16/9;height:auto;width:100%}
+  </style>
+
+  <meta property="og:site_name" content="Tinkering">
+  <meta name="author" content="Zach Mitchell" />
+  <meta property="og:title" content="The feature I&#x27;ve wanted in Flox since I joined the company">
+  <meta property="og:description" content="From the moment I joined Flox, I knew that there was one feature I wanted: composition. This is the ability to build an environment out of other environments. Two years later we finally built out this feature, and I was the project lead. Let&#x27;s talk about why it&#x27;s so exciting.">
+  <meta property="og:url" content="https://tinkering.xyz/flox-composition/">
+  <meta property="og:image"
+    content="">
+
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content=" 2025-05-02T00:00:00+00:00" />
+
+  
+  
+<link rel="canonical" href="https://tinkering.xyz/flox-composition/">
+
+
+</head>
+
+
+<body>
+  <main id="main" role="main">
+
+    
+    <header role="banner">
+      <h3 style="margin-top:0;">
+        <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+        <br /><small>Come for the Foo, stay for the Bar</small>
+      </h3>
+      <nav role="navigation">
+        
+          <a class="nav__link" href="/">Home</a>
+        
+          <a class="nav__link" href="https://github.com/zmitchell">GitHub</a>
+        
+          <a class="nav__link" href="/about/">About</a>
+        
+          <a class="nav__link" href="/talks/">Talks</a>
+        
+      </nav>
+    </header>
+    <hr />
+    
+
+    
+<article>
+  <h1>The feature I&#x27;ve wanted in Flox since I joined the company</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2025-05-02T00:00:00+00:00">May 02, 2025</time></p>
+  
+
+  
+  <div>
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/flox-composition/#the-feature">The feature</a>
+        
+        <ul>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#flox-environments">Flox environments</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#combining-environments">Combining environments</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#composition">Composition</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#my-new-workflow">My new workflow</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#why-this-matters">Why this matters</a>
+          </li>
+          
+        </ul>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/flox-composition/#what-it-was-like-to-work-on-it">What it was like to work on it</a>
+        
+        <ul>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#work-plan">Work plan</a>
+          </li>
+          
+          <li>
+            <a href="https://tinkering.xyz/flox-composition/#design-decisions">Design decisions</a>
+          </li>
+          
+        </ul>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/flox-composition/#conclusion">Conclusion</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p>Yes, this post is going to be about <a href="https://flox.dev">Flox</a>, my employer, but this isn't an advertisement.
+This is me, both an engineer and a user, describing why I think a new feature I worked on is interesting, how it can change the way you develop your software, and what it was like to take point on the feature.</p>
+<h1 id="the-feature">The feature<a class="zola-anchor" href="#the-feature" aria-label="Anchor link for: the-feature"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<h2 id="flox-environments">Flox environments<a class="zola-anchor" href="#flox-environments" aria-label="Anchor link for: flox-environments"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>The central abstraction in Flox is the "environment", which is a generalization of the "developer environment" since Flox environments are useful for more than just local development.
+For example, you can use a Flox environment situated in your home directory (we treat this specially and call it the <code>default</code> environment) to use Flox as a system-wide package manager, replacing <code>brew</code> or whatever your package manager of choice is.</p>
+<p>There are no containers or VMs involved.
+When you "activate" an environment you're placed into a new subshell (by default) whose environment is configured very carefully.
+Once you're inside the environment, you have access to the packages, environment variables, services, etc that you've defined as part of your environment.
+Environments also have configurable startup scripts that run when activating the environment.</p>
+<p>If you want to stay in your current shell rather than entering a new subshell, there are ways to make Flox spit out shell code that you can then <code>eval</code>.
+In fact, this is how you configure your shell to activate your <code>default</code> environment for every new shell:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#96b5b4;">eval </span><span>&quot;$</span><span style="color:#a3be8c;">(</span><span style="color:#bf616a;">flox</span><span style="color:#a3be8c;"> activate</span><span style="color:#bf616a;"> -d ~ -m</span><span style="color:#a3be8c;"> run)</span><span>&quot;
+</span></code></pre>
+<p>Flox uses Nix under the hood for reproducibility (no, we aren't just calling <code>nix develop</code> or <code>nix shell</code> under the hood<sup class="footnote-reference"><a href="#1">1</a></sup>), which means that we can enumerate and lock all of the packages, environment variables, scripts, etc that go into an environment, store that in a lockfile, and reproducibly build it on another machine.</p>
+<h2 id="combining-environments">Combining environments<a class="zola-anchor" href="#combining-environments" aria-label="Anchor link for: combining-environments"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>Since Flox environments are just shells, you can nest them.
+This allows you to "layer" environments.
+This also that means your developer environment can context switch <em>with you</em>.</p>
+<p>Say you work on a web service and you have an environment stored in <code>git</code> along with your source code.
+When you start work you <code>cd myrepo</code> followed by <code>flox activate</code>.
+Now you're ready to work.
+You discover a networking bug, and want to investigate further, so you <code>flox activate --remote your_user/net_tools</code>, an environment you've pushed to FloxHub that contains some extra network debugging tools.
+You're now in a nested subshell with access to both your <em>development</em> tools, and your <em>debugging</em> tools.
+Once you're done debugging, you <code>exit</code> and you're back to the shell that just has your development tools.</p>
+<p>The first time you do that and see how easy it is, it's a "hell yeah" moment.
+This makes context switching pretty painless, and it makes it possible to build up a tech stack from building blocks.
+In this case you're combining environments by layering them in succession.</p>
+<p>Let's say you have separate environments for your development tools (<code>dev</code>), running a Postgres server (<code>postgres</code>), and running a Caddy server as a remote proxy (<code>caddy</code>).
+In order to get access to all of these at the same time, you need to <code>flox activate dev</code>, <code>flox activate postgres</code>, and <code>flox activate caddy</code> every time you want to do work.
+There are some other drawbacks here, like a tool provided by the <code>caddy</code> environment shadowing one from the <code>dev</code> environment because it appears earlier in <code>PATH</code> (it was activated later).</p>
+<p>This makes layering suitable for ad-hoc tasks, but less well suited for building up a developer environment from building-block environments.
+That's where composition comes in, and it's so cool that it gives me nerd-glee that it exists.</p>
+<h2 id="composition">Composition<a class="zola-anchor" href="#composition" aria-label="Anchor link for: composition"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>The idea behind the composition feature is that you can <em>merge</em> environments rather than <em>layering</em> them.
+A <a href="https://flox.dev/docs/concepts/composition/">high-level documentation page</a> and a <a href="https://flox.dev/docs/tutorials/composition/">tutorial</a> are available in the official documentation (both written by me, feedback welcome).</p>
+<p>Composing environments is trivially easy.
+You add the following section to your <code>manifest.toml</code> (our config file), listing the environments you want to merge:</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[include]
+</span><span style="color:#65737e;"># Later entries are given higher priority during the merge
+</span><span style="color:#bf616a;">environments </span><span>= [
+</span><span>  </span><span style="color:#65737e;"># An environment present at a relative path
+</span><span>  { </span><span style="color:#bf616a;">dir </span><span>= &quot;</span><span style="color:#a3be8c;">path/to/env</span><span>&quot; },
+</span><span>  </span><span style="color:#65737e;"># An environment on FloxHub containing a Rust toolchain
+</span><span>  { </span><span style="color:#bf616a;">remote </span><span>= &quot;</span><span style="color:#a3be8c;">zmitchell/rust</span><span>&quot; }
+</span><span>]
+</span></code></pre>
+<p>This is <em>so cool</em>.
+You can now prepare independent developer environments for different contexts, and piece them together to cover the majority of your needs for new projects.
+Installing Python and your Python package manager of choice isn't the interesting part of working on a project, it's the stuff that makes the project unique.
+Define a Python environment that contains the interpreter, package manager, etc that you can bring to every new Python project, then focus on unique parts.</p>
+<p>Consider this scenario: you're working on a web service that depends on a database and a Rust toolchain to develop the service itself.
+Here's what all of that looks like:</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[include]
+</span><span style="color:#bf616a;">environments </span><span>= [
+</span><span>  { </span><span style="color:#bf616a;">remote </span><span>= &quot;</span><span style="color:#a3be8c;">zmitchell/rust</span><span>&quot; },
+</span><span>  { </span><span style="color:#bf616a;">remote </span><span>= &quot;</span><span style="color:#a3be8c;">zmitchell/postgres</span><span>&quot; }
+</span><span>]
+</span></code></pre>
+<p>The other day one of my coworkers put together a Kafka environment and a Karapace environment (it's a Kafka schema registry thing, idk, I'm not a Kafka person), which you can then configure with environment variables:</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span style="color:#bf616a;">version </span><span>= </span><span style="color:#d08770;">1
+</span><span>
+</span><span>[vars]
+</span><span style="color:#bf616a;">KAFKA_MODE </span><span>= &quot;</span><span style="color:#a3be8c;">kraft-combined</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_NODE_ID </span><span>= &quot;</span><span style="color:#a3be8c;">1</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_HOST </span><span>= &quot;</span><span style="color:#a3be8c;">172.30.38.117</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_PORT </span><span>= &quot;</span><span style="color:#a3be8c;">9092</span><span>&quot;
+</span><span style="color:#bf616a;">KRAFT_CONTROLLER_PORT </span><span>= &quot;</span><span style="color:#a3be8c;">9093</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_CLUSTER_ID </span><span>= &quot;</span><span style="color:#a3be8c;">EBzt0KoZR5ynZ9hTiJQuFA</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_REPLICATION_FACTOR </span><span>= &quot;</span><span style="color:#a3be8c;">1</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_NUM_PARTITIONS </span><span>= &quot;</span><span style="color:#a3be8c;">1</span><span>&quot;
+</span><span style="color:#bf616a;">KAFKA_HEAP_OPTS </span><span>= &quot;</span><span style="color:#a3be8c;">-Xmx512M -Xms512M</span><span>&quot;
+</span><span style="color:#bf616a;">REGISTRY_HOST </span><span>= &quot;</span><span style="color:#a3be8c;">172.30.38.117</span><span>&quot;
+</span><span style="color:#bf616a;">REGISTRY_PORT </span><span>= &quot;</span><span style="color:#a3be8c;">8081</span><span>&quot;
+</span><span style="color:#bf616a;">REST_HOST </span><span>= &quot;</span><span style="color:#a3be8c;">172.30.38.117</span><span>&quot;
+</span><span style="color:#bf616a;">REST_PORT </span><span>= &quot;</span><span style="color:#a3be8c;">8082</span><span>&quot;
+</span><span style="color:#bf616a;">LOG_LEVEL </span><span>= &quot;</span><span style="color:#a3be8c;">INFO</span><span>&quot;
+</span><span>
+</span><span>[include]
+</span><span style="color:#bf616a;">environments </span><span>= [
+</span><span>     { </span><span style="color:#bf616a;">remote </span><span>= &quot;</span><span style="color:#a3be8c;">barstoolbluz/kafka-basic-patch</span><span>&quot; },
+</span><span>     { </span><span style="color:#bf616a;">remote </span><span>= &quot;</span><span style="color:#a3be8c;">barstoolbluz/karapace-basic-patch</span><span>&quot; }
+</span><span>]
+</span></code></pre>
+<h3 id="how-it-works">How it works<a class="zola-anchor" href="#how-it-works" aria-label="Anchor link for: how-it-works"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h3>
+<p>When the environment is built, the manifests of all of the "included" environments will be merged, and then the manifest of the "composing" environment will be merged into that.
+This creates a "merged" manifest from which we lock and build a "composed" environment.
+You don't edit this merged manifest directly, but you can surface it via <code>flox list -c</code> <sup class="footnote-reference"><a href="#2">2</a></sup>, which will print out the merged manifest if one exists, or the normal manifest if a merged manifest doesn't exist.</p>
+<p>In case of conflicts between data contained in different manifests, entries later in the <code>include.environments</code> array are given higher priority, and the composing environment's manifest takes the highest priority.
+This allows you to fix situations like the one mentioned above where one environment shadows a package/variable provided by another: the composing environment can redeclare the package/variable to override and fix the situation.
+As part of the design process we discussed more granular overrides, but we decided to keep things simple for this first pass.</p>
+<p>The included environments will likely see updates over time, so we also provide the <code>flox include upgrade</code> command to pull in the latest manifests, re-merge, and build the environment.</p>
+<p>Ok, nifty, let's talk about how it affects your workflow.</p>
+<h2 id="my-new-workflow">My new workflow<a class="zola-anchor" href="#my-new-workflow" aria-label="Anchor link for: my-new-workflow"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I have ADHD, which means I start new projects more often than most people, which means that I probably feel the pain of setting up developer environments for new projects more often than most people.
+My development workflow has changed over the years, but it has gone through these rough phases: YOLO, Nix, and now Flox.</p>
+<p>The YOLO workflow was basically Rust installed via <code>rustup</code>, Python installed via <code>pyenv</code> installed via <code>brew</code>, and then random other dependencies installed through <code>brew</code> as well.</p>
+<p>I used containers at work, but always found them kind of a pain in the ass for side projects between needing to SSH into them, mount in directories, expose ports, deal with inevitable file permissions issues because I fucked something up, etc.
+So, while I acknowledge that containers exist and work for a lot of people, I skipped that phase for personal projects and went straight to Nix.</p>
+<p>The Nix workflow was basically copying and pasting flake templates from one project to the next.
+That was also kind of a pain in the ass, but it was a one-time upfront pain in the ass when setting up a new project, and then everything tended to just work.</p>
+<p>Then, once Flox got to a point that I was comfortable using it for my local development, I bootstrapped new projects with one command: <code>flox pull --copy zmitchell/rust</code>.
+This gives me a copy of my Rust toolchain environment that I can then extend with project-specific dependencies, disconnected from the copy that's stored on FloxHub.</p>
+<p>That's how I've worked for a while now, and it works well.
+There are no pains in my ass with this workflow, but it does mean that I have a handful of projects using essentially the same tools but with no connection to one another.
+Furthermore, since these projects are disconnected from each other, it's possible that I have multiple copies of very similar toolchains in my Nix store, taking up space.
+This also means that if I add one package to my Rust toolchain (e.g. <code>pkg-config</code>), none of these disconnected projects will get that update.</p>
+<p>With composition I could add <code>pkg-config</code> to <code>zmitchell/rust</code> once, and then I'll get it the next time I <code>flox include upgrade</code> an environment that includes <code>zmitchell/rust</code>.
+This also means that if I go <code>flox include upgrade</code> any environments that use <code>zmitchell/rust</code>, I'll only have one copy of that toolchain on my system rather than <code>N</code>.
+If I want to pull updates to one of the enviroments (e.g. <code>zmitchell/rust</code>), but not the others, I can do that too.</p>
+<p>Currently, with composition, my initial setup is slightly longer, but it's cleaner and let's me retain the connection to and history of the original environment on FloxHub.
+Now I <code>flox init</code>, followed by <code>flox edit</code> to add this:</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[include]
+</span><span style="color:#bf616a;">environments </span><span>= [
+</span><span>  { </span><span style="color:#bf616a;">remote </span><span>= &quot;</span><span style="color:#a3be8c;">zmitchell/rust</span><span>&quot; }
+</span><span>]
+</span></code></pre>
+<p>With composition, my manifest contains the list of environments that I want to build off of, and then only the very specific things I want for this project.
+That keeps the <code>manifest.toml</code> concise, and allows for a separation of concerns not really possible with other tools.</p>
+<p>We have lots of ideas for how to make this workflow better.
+For instance, I have an <a href="https://github.com/flox/flox/issues/3012">open ticket</a> for creating a <code>flox include add</code> command (or something like it) that will let me include <code>zmitchell/rust</code> from the command line rather than editing it in manually.
+We also want to add the ability to pin remote environments, but there's design work to be done before we implement that.</p>
+<h2 id="why-this-matters">Why this matters<a class="zola-anchor" href="#why-this-matters" aria-label="Anchor link for: why-this-matters"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>The reason this is important is that it's now possible and <em>easy</em> to build developer environments out of reusable, composable building blocks.
+Think of how much time and effort that saves!
+If I set up a Rust toolchain, a Python toolchain, etc why should I ever do that same work again?
+Just include it and add in your project specifics.</p>
+<p>This isn't the main use case for me, but we've also already used this feature to provide support to some of our users e.g. they want a feature that doesn't exist yet, but we give them an environment to include whose setup script does the thing they're asking for.</p>
+<p>My coworkers and I all had the same experience using this for the first time.
+We all tried it out, and it just worked, and we said "hell yeah."</p>
+<h1 id="what-it-was-like-to-work-on-it">What it was like to work on it<a class="zola-anchor" href="#what-it-was-like-to-work-on-it" aria-label="Anchor link for: what-it-was-like-to-work-on-it"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>So, with all of that out of the way, let's get a little bit meta and reflect on what it was like to work on it.</p>
+<h2 id="work-plan">Work plan<a class="zola-anchor" href="#work-plan" aria-label="Anchor link for: work-plan"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>I've often wished that projects had something like a directed graph of what the work looks like so that I can see how much there is in total, how much has been completed, how much is remaining, where decisions will block implementation, etc.
+Since I was the lead for this feature, I decided to make one in Figma.</p>
+<p><img src="/images/composition_work_graph.png" alt="alt text" /></p>
+<p>I tried to color code "sticky notes" by their completion status and whether they were implementation work or decisions.
+No one else used this (it was mainly for me), but it did help defer certain decisions in favor of getting started on the engineering work, which was helpful for getting it out the door faster.
+To be clear, the actual work was split out into workable GitHub issues, but the graph helped keep an eye on the high level progress and direction.</p>
+<h2 id="design-decisions">Design decisions<a class="zola-anchor" href="#design-decisions" aria-label="Anchor link for: design-decisions"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h2>
+<p>For this first pass the user experience isn't perfect, but I think it laid the ground work well.
+The main design choice was whether to lock and record the manifests of the included environments at merge-time.
+If you lock and record the manifests you can re-merge at any time without needing to fetch those manifests again, allowing you to decouple "install a new package" from "get me the latest manifests".
+If you <em>don't</em> lock and record the manifests, you're <em>required</em> to fetch the latest manifests any time you build the environment, which gives you an auto-fetch-and-upgrade mechanism out of the box.</p>
+<p>I argued for the lock-and-record case because the other case allows you to get in weird situations (I'll omit the details for the sake of time), but it does mean that some things you wish were automatic are currently manual (e.g. you need to run <code>flox include upgrade</code> to get updates to included environment manifests).
+That said, the ground work is laid for an <em>intentional</em> auto-upgrade mechanism.</p>
+<p>The next big design question was how to implement merging the manifests.
+We considered two main options.</p>
+<p>Our manifest is currently represented with a strongly-typed <code>Manifest</code> struct (the CLI is written in Rust), so one option was to manually write out the traversal of the manifest struct, with all the friction that entails due to the nested structure and strong typing.
+The other option was to treat the TOML like JSON, and merge <code>serde_json::Value</code> structs (this is a generic JSON object, for you non-Rust people).</p>
+<p>Eventually we landed on the manual, strongly-typed option because some of the manifest fields make more sense to overwrite during the merge rather than strictly merging.
+One example of this is the list of command line arguments to use as the <code>Cmd</code> when you bundle up a Flox environment into a container (merging <code>["bash", "foo"]</code> with <code>["bash", "bar"]</code> to create <code>["bash", "foo", "bash", "bar"]</code> is probably not what a user expects).</p>
+<p>Looking ahead to some future work where we want to provide structured information about the diff between two manifests, it may be worth creating a procedural macro that can automatically generate a visitor pattern trait for comparing two manifests.
+That would look something like this:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">trait </span><span>ManifestCompareVisitor {
+</span><span>  </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">compare_install</span><span>(&amp;</span><span style="color:#b48ead;">mut </span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">install_left</span><span>: &amp;Install, </span><span style="color:#bf616a;">install_right</span><span>: &amp;Install);
+</span><span>  </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">compare_vars</span><span>(&amp;</span><span style="color:#b48ead;">mut </span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">vars_left</span><span>: &amp;Vars, </span><span style="color:#bf616a;">vars_right</span><span>: &amp;Vars);
+</span><span>  ...
+</span><span>} 
+</span></code></pre>
+<p>This would allow us to have one interface that can be used for both merging <em>and</em> diffing.</p>
+<h1 id="conclusion">Conclusion<a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>If you've made it this far, thanks for reading, no one has ever accused me of having too little to say.
+Give Flox a try, let me know what you think about this composition feature, etc.
+Is it interesting to hear about what the work process is like?
+I've never really written about that before, but found it kind of cathartic.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>We basically wrote our shell-handling code from scratch, and I have the scars to prove it. If you use Flox with Zsh, you owe me and my team a collective drink. I think 10 different lifecycle files (<code>{~, /etc/}.{zshenv, zlogin, zlogout, zprofile, zshrc}</code>) is a bit much.</p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p>It's one of my pet peeves that <code>flox list --config</code> (1) doesn't <em>list</em> anything, it prints <em>one</em> thing, (2) the thing we're printing is the "manifest", not the "config", and (3) we have a separate thing called "config" that this command doesn't print. Humbug.</p>
+</div>
+
+</article>
+
+
+    
+<hr/>
+<small>
+  <p>P.S. - You can follow me on BlueSky at <a href="https://bsky.app/profile/z-mitchell.bsky.social">@z-mitchell.bsky.social</a> for Rust, Nix, and lukewarm takes.</p>
+  <p>P.P.S. - If you notice that something could be more accessible, please reach out and I'll do my best to fix it!</p>
+</small>
+
+
+  </main>
+  
+  
+</body>
+
+</html>
