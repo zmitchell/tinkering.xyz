@@ -1,0 +1,14 @@
+2025-05-02T20:33:57.687346Z DEBUG flox::config: reading raw config (initialized: false, reload: false)
+2025-05-02T20:33:57.687410Z DEBUG flox::config: `$FLOX_CONFIG_DIR` set: /Users/zmitchell/.config/flox
+2025-05-02T20:33:57.687626Z DEBUG flox: set _FLOX_PKGDB_VERBOSITY=2
+2025-05-02T20:33:57.688218Z DEBUG flox::config: reading raw config (initialized: true, reload: false)
+2025-05-02T20:33:57.688856Z DEBUG flox::commands: Skipping update check in development mode
+2025-05-02T20:33:57.688977Z DEBUG flox::commands: Metrics collection disabled
+2025-05-02T20:33:57.689043Z DEBUG flox::utils::init::catalog_client: using catalog client with url: https://api.flox.dev
+2025-05-02T20:33:57.690909Z DEBUG flox::utils::init::metrics: Attempting to read own UUID from file
+2025-05-02T20:33:57.690956Z DEBUG flox::commands: features enabled, build=true, publish=true, upload=false
+2025-05-02T20:33:57.691005Z DEBUG check-upgrade: flox::utils::metrics: No metrics client setup, skipping record
+2025-05-02T20:33:57.691050Z DEBUG check-upgrade: flox_rust_sdk::models::environment: detected concrete environment type: path
+2025-05-02T20:33:57.691530Z DEBUG check-upgrade: flox_rust_sdk::providers::upgrade_checks: created unlocked upgrade information guard upgrade_information_path="/Users/zmitchell/src/tinkering.xyz/.flox/cache/upgrade-checks.json"
+2025-05-02T20:33:57.691670Z DEBUG check-upgrade: flox::commands::check_for_upgrades: Recently checked for upgrades. Skipping.
+2025-05-02T20:33:57.691703Z DEBUG flox::utils::metrics: No metrics client setup, skipping flush

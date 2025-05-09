@@ -1,0 +1,15 @@
+2025-05-08T03:11:05.654676Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T04:30:15.210556Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T05:45:47.999474Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T07:21:19.223522Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T13:04:48.901272Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T14:46:44.588429Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T15:46:44.600525Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T16:46:44.631539Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T17:46:44.632045Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T19:35:50.364322Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T20:35:50.388016Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T21:35:50.421577Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T22:39:27.642403Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T23:39:27.633873Z DEBUG flox_watchdog::logger: still watching, woof woof
+2025-05-08T23:39:27.806260Z DEBUG flox_watchdog::logger: deleted log path=/Users/zmitchell/src/tinkering.xyz/.flox/log/watchdog.09b3d311.log.2025-05-05
