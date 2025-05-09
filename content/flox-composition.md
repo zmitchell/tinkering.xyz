@@ -7,6 +7,7 @@ description = "From the moment I joined Flox, I knew that there was one feature 
 Yes, this post is going to be about [Flox][flox-website], my employer, but this isn't an advertisement.
 This is me, both an engineer and a user, describing why I think a new feature I worked on is interesting, how it can change the way you develop your software, and what it was like to take point on the feature.
 We called this feature "composition", and it allows you to build developer environments in a modular way out of other developer environments.
+It was initially released in Flox [1.4.0][release-140], and rounded out in [1.4.1][release-141].
 It's _really_ cool.
 
 # The feature
@@ -246,6 +247,8 @@ I've never really written about that before, but found it kind of cathartic.
 [curling]: https://www.linkedin.com/posts/floxdev_for-immediate-release-flox-named-exclusive-activity-7319001166070075392-LxXd
 [composition-concept]: https://flox.dev/docs/concepts/composition/
 [composition-tutorial]: https://flox.dev/docs/tutorials/composition/
+[release-140]: https://github.com/flox/flox/releases/tag/v1.4.0
+[release-141]: https://github.com/flox/flox/releases/tag/v1.4.1
 
 [^1]: We basically wrote our shell-handling code from scratch, and I have the scars to prove it. If you use Flox with Zsh, you owe me and my team a collective drink. I think 10 different lifecycle files (`{~, /etc/}.{zshenv, zlogin, zlogout, zprofile, zshrc}`) is a bit much.
 [^2]: It's one of my pet peeves that `flox list --config` (1) doesn't _list_ anything, it prints _one_ thing, (2) the thing we're printing is the "manifest", not the "config", and (3) we have a separate thing called "config" that this command doesn't print. Humbug.
