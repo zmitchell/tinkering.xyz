@@ -1,11 +1,13 @@
 +++
-title = "The feature I've wanted in Flox since I joined the company"
+title = "Composition: the feature I've wanted in Flox since I joined the company"
 date = 2025-05-02
 description = "From the moment I joined Flox, I knew that there was one feature I wanted: composition. This is the ability to build an environment out of other environments. Two years later we finally built out this feature, and I was the project lead. Let's talk about why it's so exciting."
 +++
 
 Yes, this post is going to be about [Flox][flox-website], my employer, but this isn't an advertisement.
 This is me, both an engineer and a user, describing why I think a new feature I worked on is interesting, how it can change the way you develop your software, and what it was like to take point on the feature.
+We called this feature "composition", and it allows you to build developer environments in a modular way out of other developer environments.
+It's _really_ cool.
 
 # The feature
 
