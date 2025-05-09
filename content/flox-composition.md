@@ -1,6 +1,6 @@
 +++
 title = "Composition: the feature I've wanted in Flox since I joined the company"
-date = 2025-05-02
+date = 2025-05-09
 description = "From the moment I joined Flox, I knew that there was one feature I wanted: composition. This is the ability to build an environment out of other environments. Two years later we finally built out this feature, and I was the project lead. Let's talk about why it's so exciting."
 +++
 
