@@ -225,7 +225,7 @@ Here's what all of that looks like:</p>
 This creates a "merged" manifest from which we lock and build a "composed" environment.
 You don't edit this merged manifest directly, but you can surface it via <code>flox list -c</code> <sup class="footnote-reference"><a href="#2">2</a></sup>, which will print out the merged manifest if one exists, or the normal manifest if a merged manifest doesn't exist.</p>
 <p>In case of conflicts between data contained in different manifests, entries later in the <code>include.environments</code> array are given higher priority, and the composing environment's manifest takes the highest priority.
-This allows you to fix situations like the one mentioned above where one environment shadows a package/variable provided by another: the composing environment can redeclare the package/variable to override and fix the situation.
+This allows you to fix situations where one environment shadows a package/variable provided by another: the composing environment can redeclare the package/variable to override and fix the situation.
 As part of the design process we discussed more granular overrides, but we decided to keep things simple for this first pass.</p>
 <p>The included environments will likely see updates over time, so we also provide the <code>flox include upgrade</code> command to pull in the latest manifests, re-merge, and build the environment.</p>
 <p>Ok, nifty, let's talk about how it affects your workflow.</p>
