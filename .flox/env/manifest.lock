@@ -29,19 +29,18 @@
     {
       "attr_path": "marksman",
       "broken": false,
-      "derivation": "/nix/store/zca50scxh7l7bnf4zq7jxqazx059ji69-marksman-2024-12-18.drv",
+      "derivation": "/nix/store/8g2a6m6hz4m9symps0mb5w6mhiagi3yb-marksman-2024-12-18.drv",
       "description": "Language Server for Markdown",
       "install_id": "marksman",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
       "name": "marksman-2024-12-18",
       "pname": "marksman",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T04:19:31.002569Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T02:08:34.965376Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -50,7 +49,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/dd5bb0462srhhkz14732hbkln8vx1gd3-marksman-2024-12-18"
+        "out": "/nix/store/maxrpcgb1lxqv5df7q7kc7k4v4rz67i1-marksman-2024-12-18"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -59,19 +58,18 @@
     {
       "attr_path": "marksman",
       "broken": false,
-      "derivation": "/nix/store/39ldzjdd53k4690wkgg1ix3w55sxv4np-marksman-2024-12-18.drv",
+      "derivation": "/nix/store/zx1f0qv2mjnxq3j37aj4czjd7a48zj9n-marksman-2024-12-18.drv",
       "description": "Language Server for Markdown",
       "install_id": "marksman",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
       "name": "marksman-2024-12-18",
       "pname": "marksman",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T04:37:28.861162Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T02:18:57.897857Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -80,7 +78,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/l5h043x9mh6r07j01dh0wcpaczj9xp9r-marksman-2024-12-18"
+        "out": "/nix/store/a2cnbnc08lnqvl70zvm9yljx6rdd7w3b-marksman-2024-12-18"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -89,19 +87,18 @@
     {
       "attr_path": "marksman",
       "broken": false,
-      "derivation": "/nix/store/zzzbfri6sjnk4qp1jam9g4yj7wjridc6-marksman-2024-12-18.drv",
+      "derivation": "/nix/store/q7pb73bspmzrhrs4dm7c451c0g51g35f-marksman-2024-12-18.drv",
       "description": "Language Server for Markdown",
       "install_id": "marksman",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
       "name": "marksman-2024-12-18",
       "pname": "marksman",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T04:54:31.698872Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T02:29:40.823431Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -110,7 +107,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/szppdn0j4301w0ggalazy2fd7p89bmk1-marksman-2024-12-18"
+        "out": "/nix/store/14szjjk70fq8kkks3ivj4hvbb1n9alwy-marksman-2024-12-18"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -119,19 +116,18 @@
     {
       "attr_path": "marksman",
       "broken": false,
-      "derivation": "/nix/store/gwsxwbc1wksbck8pm7qc22cgqnqr670y-marksman-2024-12-18.drv",
+      "derivation": "/nix/store/cwwvkbd85j956d4jscxkm3ahi9qyips5-marksman-2024-12-18.drv",
       "description": "Language Server for Markdown",
       "install_id": "marksman",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
       "name": "marksman-2024-12-18",
       "pname": "marksman",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T05:16:05.386179Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T03:01:29.708575Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -140,7 +136,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/qah2g3nvipyx8ljl58bm6y3dj10h7hfs-marksman-2024-12-18"
+        "out": "/nix/store/dwxsdfvpbcy4xndvrmg9xi8sk8cnbam4-marksman-2024-12-18"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -149,28 +145,27 @@
     {
       "attr_path": "zola",
       "broken": false,
-      "derivation": "/nix/store/vizav6ja78nk21flig16jbzglydbyxr5-zola-0.20.0.drv",
+      "derivation": "/nix/store/bq2qk2m2fnd06hns26yiwkbhcaz3wj05-zola-0.21.0.drv",
       "description": "Fast static site generator with everything built-in",
       "install_id": "zola",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "name": "zola-0.20.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "name": "zola-0.21.0",
       "pname": "zola",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T04:20:33.310415Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T02:10:50.549918Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
-      "version": "0.20.0",
+      "version": "0.21.0",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/7g9rnbz2f10mf8z3bk0mnii50z48n8bq-zola-0.20.0"
+        "out": "/nix/store/m3l07mcwqn95zg81kgj0l2mvvgkmwmds-zola-0.21.0"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -179,28 +174,27 @@
     {
       "attr_path": "zola",
       "broken": false,
-      "derivation": "/nix/store/28y4c32cjh4a4649pj21zrlp3gpdm357-zola-0.20.0.drv",
+      "derivation": "/nix/store/y0qx5d771g015mi1ld6xnqmx10jd4s9l-zola-0.21.0.drv",
       "description": "Fast static site generator with everything built-in",
       "install_id": "zola",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "name": "zola-0.20.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "name": "zola-0.21.0",
       "pname": "zola",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T04:39:04.175666Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T02:22:01.132270Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
-      "version": "0.20.0",
+      "version": "0.21.0",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/alnp5ccvhirkhbpfc74fcfd6hy4ljkpd-zola-0.20.0"
+        "out": "/nix/store/d6gl1z51d8f0g6xqk7iyr6h6jb2jq8gy-zola-0.21.0"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -209,28 +203,27 @@
     {
       "attr_path": "zola",
       "broken": false,
-      "derivation": "/nix/store/ccahdkfqzqkxvl635sw779vh3z60j3nk-zola-0.20.0.drv",
+      "derivation": "/nix/store/zrjjf3vk8w4lpjbapfkvas1hanf1wv3h-zola-0.21.0.drv",
       "description": "Fast static site generator with everything built-in",
       "install_id": "zola",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "name": "zola-0.20.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "name": "zola-0.21.0",
       "pname": "zola",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T04:55:33.855049Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T02:31:50.568212Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
-      "version": "0.20.0",
+      "version": "0.21.0",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/slsanam8b928svv7kx088b16bjnrjsql-zola-0.20.0"
+        "out": "/nix/store/w3x23ssz4nqwcralf9cv33jl7mchy0ky-zola-0.21.0"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -239,28 +232,27 @@
     {
       "attr_path": "zola",
       "broken": false,
-      "derivation": "/nix/store/r17s45rxz89sx7xcvkn1cv5nsg4lwnj3-zola-0.20.0.drv",
+      "derivation": "/nix/store/1lr49rd4pd5zc2gzj19052vzw2ziga3z-zola-0.21.0.drv",
       "description": "Fast static site generator with everything built-in",
       "install_id": "zola",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "name": "zola-0.20.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "name": "zola-0.21.0",
       "pname": "zola",
-      "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
-      "rev_count": 793735,
-      "rev_date": "2025-05-04T03:14:55Z",
-      "scrape_date": "2025-05-05T05:17:46.446436Z",
+      "rev": "6a08e6bb4e46ff7fcbb53d409b253f6bad8a28ce",
+      "rev_count": 883951,
+      "rev_date": "2025-10-25T06:24:58Z",
+      "scrape_date": "2025-10-27T03:04:36.642379Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
-      "version": "0.20.0",
+      "version": "0.21.0",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/jrrbz5dnv6hk2bswmdbxwz03v51cfzkn-zola-0.20.0"
+        "out": "/nix/store/a5ijbky35jb71p2agd3bc8c3mwbxwlch-zola-0.21.0"
       },
       "system": "x86_64-linux",
       "group": "toplevel",

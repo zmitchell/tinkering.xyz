@@ -6,7 +6,47 @@ date = 2023-11-19
 hidden = true
 +++
 
-## RustConf 2023 - Async Building Blocks: A Streaming Data Drama in Three Acts
+## The Highlights
+
+These are the talks I'm most proud of:
+
+- [NixCon 2025 - You can't spell "devshell" without "hell"](#nixcon-2025)
+- [RustConf 2023 - Async Building Blocks: A Streaming Data Drama in Three Acts](#rustconf-2023)
+
+## NixCon 2025 - You can't spell "devshell" without "hell" {#nixcon-2025}
+
+This talk is a deep dive into how "development shells" work, like those provided by `nix develop` and `flox activate`.
+
+It begins with a discussion about how `nix develop` works under the hood to collect the variables and functions that need to be set in the shell, then materializes the developer shell be generating an RC script for Bash to source.
+
+The next portion of the talk discusses how `flox activate` works to provide the following benefits:
+- Near instantaneous startup
+- Support for shells other than Bash (Zsh, tcsh, and my beloved Fish)
+- Support for background services like you'd get with `docker-compose`
+- Automatic cleanup of those services when you exit your shell
+- Explicit support for activating more than one environment at a time
+
+Sprinkled in are some moments poking fun at the hoops you have to jump through in order to make this all work.
+
+[Slides](https://github.com/zmitchell/talks/blob/master/2025-09-06%20-%20nixcon%20zurich/presentation.pdf)
+
+[Video](https://media.ccc.de/v/nixcon2025-56410-you-cant-spell-devshell)
+
+## LambdaConf 2025 - The Next Generation of Developer Environments
+
+This talk is a whirlwind tour of Flox, and how I truly believe that it represents the next generation of developer environments. Why?
+
+- The reproducibility of Nix, with the familiar user experience of a package manager.
+- Much faster startup time compared to `nix develop`.
+- Easy composition so you can build a developer environment out of other developer environments.
+- Much lighter weight to create, edit, and modify than containers (no need to rebuild the whole thing after an edit).
+- Painless context switching via layering activations of Flox environments.
+
+[Slides](https://github.com/zmitchell/talks/blob/master/2025-05-12%20-%20lambdaconf/lambdaconf.key)
+
+{{youtube(id="ent_gtptqkc")}}
+
+## RustConf 2023 - Async Building Blocks: A Streaming Data Drama in Three Acts {#rustconf-2023}
 
 This talk is an intermediate level tour of some features of the async Rust ecosystem. 
 
