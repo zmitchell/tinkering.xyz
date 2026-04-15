@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>I don&#x27;t care that it&#x27;s X times faster &middot; Tinkering</title>
+  <meta name="description" content="Many new project announcements these days come with a tagline of &#x27;X times faster than ...&#x27; and I need to rant about it." />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#aa0000">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://tinkering.xyz/rss.xml">
+  <script defer data-domain="tinkering.xyz" src="/js/script.js"></script>
+
+  <style>
+    *,:after,:before{box-sizing:border-box}:root{--color-bg: #f2f2f2;--color-dark: #222222;--color-mid: #ced4da;--color-light: #dee2e6;--color-accent: #089ce7;--text-width: 70ch;--size-base: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);--size-step-0: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);--size-step-1: clamp(1.1875rem, 1.12rem + 0.33vw, 1.375rem);--size-step-2: clamp(1.4375rem, 1.33rem + 0.54vw, 1.75rem);--size-step-3: clamp(1.6875rem, 1.51rem + 0.87vw, 2.1875rem);--size-step-4: clamp(2.0625rem, 1.85rem + 1.09vw, 2.6875rem);--font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 		Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", 		"Segoe UI Symbol"}body{background:var(--color-bg);color:var(--color-dark);font-size:var(--size-base);font-family:var(--font-face);line-height:1.6;text-rendering:optimizeSpeed}h1{font-size:var(--size-step-3)}h2{font-size:var(--size-step-2)}h3{font-size:var(--size-step-1);line-height:1.2}main{margin:auto;max-width:var(--text-width);padding:.8rem}@media (max-width: var(--text-width)){.homepage-list a{width:100%}}a{color:currentColor;text-decoration-line:underline;text-decoration-color:var(--color-accent);text-decoration-thickness:.15em;text-underline-offset:.15em;text-decoration-skip-ink:none}a:hover{text-decoration-thickness:.3em;text-underline-offset:.05em}blockquote{border-left-color:var(--color-accent);border-left-width:.25em;border-left-style:solid;margin-left:0em;margin-right:0em;padding:.5em;background-color:var(--color-mid)}td{border:1px solid var(--color-dark);padding:10px}img{margin:auto;height:auto;display:block;max-width:100%}.nav__link{margin-left:0;margin-right:1em}.homepage-list{display:flex;flex-direction:column;list-style:none;padding:0;margin-top:0em}.homepage-list a{text-decoration-thickness:.05em;-webkit-text-decoration-thickness:.05em}.pagination{display:flex;justify-content:space-between}.pagination__onlynext{justify-content:flex-end}.post{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;margin-top:0}.post__title{margin:0;line-height:1.2em;justify-content:flex-start}.post__date{display:block;margin-top:0;margin-bottom:.5em;font-style:italic}.post__description{margin-top:0;margin-bottom:2em}pre{overflow:scroll;padding:1rem}code{font-size:90%}code:not(pre>code){padding:.15em .25em;color:var(--color-dark);background-color:var(--color-light);border-radius:3px}.zola-anchor{padding-left:.25em}.youtube>iframe{aspect-ratio:16/9;height:auto;width:100%}
+  </style>
+
+  <meta property="og:site_name" content="Tinkering">
+  <meta name="author" content="Zach Mitchell" />
+  <meta property="og:title" content="I don&#x27;t care that it&#x27;s X times faster">
+  <meta property="og:description" content="Many new project announcements these days come with a tagline of &#x27;X times faster than ...&#x27; and I need to rant about it.">
+  <meta property="og:url" content="https://tinkering.xyz/faster/">
+  <meta property="og:image"
+    content="">
+
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content=" 2026-04-14T00:00:00+00:00" />
+
+  
+  
+<link rel="canonical" href="https://tinkering.xyz/faster/">
+
+
+</head>
+
+
+<body>
+  <main id="main" role="main">
+
+    
+    <header role="banner">
+      <h3 style="margin-top:0;">
+        <a href="https://tinkering.xyz" title="Home">Tinkering</a>
+        <br /><small>Come for the Foo, stay for the Bar</small>
+      </h3>
+      <nav role="navigation">
+        
+          <a class="nav__link" href="/">Home</a>
+        
+          <a class="nav__link" href="https://github.com/zmitchell">GitHub</a>
+        
+          <a class="nav__link" href="/about/">About</a>
+        
+          <a class="nav__link" href="/talks/">Talks</a>
+        
+      </nav>
+    </header>
+    <hr />
+    
+
+    
+<article>
+  <h1>I don&#x27;t care that it&#x27;s X times faster</h1>
+
+  
+  <p style="font-size:90%;">Posted on <time datetime=" 2026-04-14T00:00:00+00:00">April 14, 2026</time></p>
+  
+
+  
+  <div>
+    <p>Table of Contents:</p>
+    <ul>
+      
+      <li>
+        <a href="https://tinkering.xyz/faster/#getting-butthurt">Getting butthurt</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/faster/#is-it-true">Is it true?</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/faster/#is-it-important">Is it important?</a>
+        
+      </li>
+      
+      <li>
+        <a href="https://tinkering.xyz/faster/#done">Done</a>
+        
+      </li>
+      
+    </ul>
+  </div>
+  
+
+  <p>Yeah, this is a rant. I saw a post on <code>r/rust</code> and it triggered me. Rather than putting it in my diary or keeping it between me and my therapist I'm putting it on the internet because I suspect there are some kindred spirits out there. I'm sure this will go well for me.</p>
+<p>Also, yeah, I've written <a href="https://tinkering.xyz/faster/./fmo-optimization-story.md">a post</a> about making things faster, but that was about the incremental improvements I made to (1) something no one knew existed, and (2) something that was legitimately really slow. This isn't what I'm talking about.</p>
+<h1 id="getting-butthurt">Getting butthurt<a class="zola-anchor" href="#getting-butthurt" aria-label="Anchor link for: getting-butthurt"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>I don't know if this is some kind of psychological bias that has caused me to notice this now that I'm thinking about it, but lately it seems like new project announcements take one of the following forms:</p>
+<ul>
+<li>"I built Foo, which is X times faster than Y"</li>
+<li>"X times faster <thing>"</li>
+<li>"Foo is X times faster than Bar"</li>
+</ul>
+<p>First, I'm skeptical that it's even true. Second, even if it is true, is performance the most important metric?</p>
+<h1 id="is-it-true">Is it true?<a class="zola-anchor" href="#is-it-true" aria-label="Anchor link for: is-it-true"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>The order of magnitude of <code>X</code> in these post titles is <em>all</em> over the map. I've seen some posts where X is on the order of 500x. In that case I instantly think one of the following:</p>
+<ul>
+<li>Your benchmark isn't measuring what you think it's measuring
+<ul>
+<li>Charitable interpretation: you're accidentally measuring something that's been optimized away entirely</li>
+</ul>
+</li>
+<li>Your benchmark isn't a fair comparison
+<ul>
+<li>ex.) Project A does some work inline, whereas your project sends the work to a background thread, and you're comparing the time it takes to send data over a channel as opposed to actually doing the rest of the work on the background thread.</li>
+</ul>
+</li>
+</ul>
+<p>If you did legitimately make something significantly faster all things considered, I sincerely congratulate you. That's an achievement and it's really fun to do. Otherwise, I'm giving you stink eye.</p>
+<p>When X is on the order of ~2x faster I'm much more likely to believe that you've discovered a legitimate optimization. Maybe you improved cache locality, reduced the number of system calls, etc. If you write a blog post about that, I'm probably going to read every single word because that's the kind of nerd I am.</p>
+<h1 id="is-it-important">Is it important?<a class="zola-anchor" href="#is-it-important" aria-label="Anchor link for: is-it-important"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>A headline of "I made <code>&lt;popular or just existing tool&gt;</code> MUCH faster" can be read a number of ways, some more charitable than others:</p>
+<ul>
+<li>Existing tool is unreasonably slow</li>
+<li>Existing tool could be better</li>
+<li>Maintainers of <code>&lt;existing tool&gt;</code> are naive/ignorant/bad/wasting their time/...</li>
+<li>I am really good at performance</li>
+<li>I am much better at performance than the maintainers of <code>&lt;existing tool&gt;</code></li>
+<li>Performance matters at all for <code>&lt;existing tool&gt;</code></li>
+<li>Performance is an <em>important</em> feature of <code>&lt;existing tool&gt;</code></li>
+<li>Please hire me
+<ul>
+<li>You are valid, it's rough out there and you deserve to eat</li>
+</ul>
+</li>
+</ul>
+<p>Being totally transparent, I'm autistic, so I'm totally willing to entertain the idea that I read things differently than other people. That said, these headlines often feel like clickbait, meant to catch your eye either because X is a big number, or because the project being compared against is well known. Bad. Don't be clickbait.</p>
+<p>I currently work on and have in the past worked on performance sensitive code. It's often the case that improving the performance of some part of your code makes no <em>real</em> difference to the <em>overall</em> performance. In other words, if you're improving the performance of code that isn't part of the bottleneck, this often makes no practical difference.</p>
+<p>This isn't to say that you shouldn't care about performance, but there's a number of other axes you can optimize along:</p>
+<ul>
+<li>Well tested</li>
+<li>Does something no one has done before</li>
+<li>Covers more edge cases</li>
+<li>Is stable</li>
+<li>Uses cutting edge APIs</li>
+<li>Is easy to use</li>
+<li>Is well documented</li>
+<li>Is friendly to new contributors</li>
+<li>Most embodies the shitposter spirit</li>
+</ul>
+<p>This also isn't to say that it's illegal to write the absolutely most optimal code. I just think that if this is your goal you need to come with receipts and be able to make your case. If your project was entirely vibe coded, benchmarks and all, you're going to get shredded. Not by me (probably, I tend to keep to myself on the internet), but other commenters are probably going to shit on you (for better or worse) if/when they find your claims lacking.</p>
+<h1 id="done">Done<a class="zola-anchor" href="#done" aria-label="Anchor link for: done"><svg viewBox="0 0 24 24" height="20"><path d="M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z"/></svg></a></h1>
+<p>Glad I got that off my chest.</p>
+<p>I want to end by saying you're not a bad person if you make a headline like this. I just think you can do better. That's probably patronizing, but what I'm trying to convey is that you're selling yourself and your achievements short.</p>
+
+</article>
+
+
+    
+<hr/>
+<small>
+  <p>P.S. - You can follow me on BlueSky at <a href="https://bsky.app/profile/z-mitchell.bsky.social">@z-mitchell.bsky.social</a> for Rust, Nix, and lukewarm takes.</p>
+  <p>P.P.S. - If you notice that something could be more accessible, please reach out and I'll do my best to fix it!</p>
+</small>
+
+
+  </main>
+  
+  
+</body>
+
+</html>

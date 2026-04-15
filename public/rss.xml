@@ -7,7 +7,75 @@
       <generator>Zola</generator>
       <language>en</language>
       <atom:link href="https://tinkering.xyz/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Fri, 09 May 2025 00:00:00 +0000</lastBuildDate>
+      <lastBuildDate>Tue, 14 Apr 2026 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>I don&#x27;t care that it&#x27;s X times faster</title>
+          <pubDate>Tue, 14 Apr 2026 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://tinkering.xyz/faster/</link>
+          <guid>https://tinkering.xyz/faster/</guid>
+          <description xml:base="https://tinkering.xyz/faster/">&lt;p&gt;Yeah, this is a rant. I saw a post on &lt;code&gt;r&#x2F;rust&lt;&#x2F;code&gt; and it triggered me. Rather than putting it in my diary or keeping it between me and my therapist I&#x27;m putting it on the internet because I suspect there are some kindred spirits out there. I&#x27;m sure this will go well for me.&lt;&#x2F;p&gt;
+&lt;p&gt;Also, yeah, I&#x27;ve written &lt;a href=&quot;https:&#x2F;&#x2F;tinkering.xyz&#x2F;faster&#x2F;.&#x2F;fmo-optimization-story.md&quot;&gt;a post&lt;&#x2F;a&gt; about making things faster, but that was about the incremental improvements I made to (1) something no one knew existed, and (2) something that was legitimately really slow. This isn&#x27;t what I&#x27;m talking about.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;getting-butthurt&quot;&gt;Getting butthurt&lt;a class=&quot;zola-anchor&quot; href=&quot;#getting-butthurt&quot; aria-label=&quot;Anchor link for: getting-butthurt&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;I don&#x27;t know if this is some kind of psychological bias that has caused me to notice this now that I&#x27;m thinking about it, but lately it seems like new project announcements take one of the following forms:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&quot;I built Foo, which is X times faster than Y&quot;&lt;&#x2F;li&gt;
+&lt;li&gt;&quot;X times faster &lt;thing&gt;&quot;&lt;&#x2F;li&gt;
+&lt;li&gt;&quot;Foo is X times faster than Bar&quot;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;First, I&#x27;m skeptical that it&#x27;s even true. Second, even if it is true, is performance the most important metric?&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;is-it-true&quot;&gt;Is it true?&lt;a class=&quot;zola-anchor&quot; href=&quot;#is-it-true&quot; aria-label=&quot;Anchor link for: is-it-true&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;The order of magnitude of &lt;code&gt;X&lt;&#x2F;code&gt; in these post titles is &lt;em&gt;all&lt;&#x2F;em&gt; over the map. I&#x27;ve seen some posts where X is on the order of 500x. In that case I instantly think one of the following:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Your benchmark isn&#x27;t measuring what you think it&#x27;s measuring
+&lt;ul&gt;
+&lt;li&gt;Charitable interpretation: you&#x27;re accidentally measuring something that&#x27;s been optimized away entirely&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;Your benchmark isn&#x27;t a fair comparison
+&lt;ul&gt;
+&lt;li&gt;ex.) Project A does some work inline, whereas your project sends the work to a background thread, and you&#x27;re comparing the time it takes to send data over a channel as opposed to actually doing the rest of the work on the background thread.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;If you did legitimately make something significantly faster all things considered, I sincerely congratulate you. That&#x27;s an achievement and it&#x27;s really fun to do. Otherwise, I&#x27;m giving you stink eye.&lt;&#x2F;p&gt;
+&lt;p&gt;When X is on the order of ~2x faster I&#x27;m much more likely to believe that you&#x27;ve discovered a legitimate optimization. Maybe you improved cache locality, reduced the number of system calls, etc. If you write a blog post about that, I&#x27;m probably going to read every single word because that&#x27;s the kind of nerd I am.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;is-it-important&quot;&gt;Is it important?&lt;a class=&quot;zola-anchor&quot; href=&quot;#is-it-important&quot; aria-label=&quot;Anchor link for: is-it-important&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;A headline of &quot;I made &lt;code&gt;&amp;lt;popular or just existing tool&amp;gt;&lt;&#x2F;code&gt; MUCH faster&quot; can be read a number of ways, some more charitable than others:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Existing tool is unreasonably slow&lt;&#x2F;li&gt;
+&lt;li&gt;Existing tool could be better&lt;&#x2F;li&gt;
+&lt;li&gt;Maintainers of &lt;code&gt;&amp;lt;existing tool&amp;gt;&lt;&#x2F;code&gt; are naive&#x2F;ignorant&#x2F;bad&#x2F;wasting their time&#x2F;...&lt;&#x2F;li&gt;
+&lt;li&gt;I am really good at performance&lt;&#x2F;li&gt;
+&lt;li&gt;I am much better at performance than the maintainers of &lt;code&gt;&amp;lt;existing tool&amp;gt;&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;Performance matters at all for &lt;code&gt;&amp;lt;existing tool&amp;gt;&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;Performance is an &lt;em&gt;important&lt;&#x2F;em&gt; feature of &lt;code&gt;&amp;lt;existing tool&amp;gt;&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;Please hire me
+&lt;ul&gt;
+&lt;li&gt;You are valid, it&#x27;s rough out there and you deserve to eat&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Being totally transparent, I&#x27;m autistic, so I&#x27;m totally willing to entertain the idea that I read things differently than other people. That said, these headlines often feel like clickbait, meant to catch your eye either because X is a big number, or because the project being compared against is well known. Bad. Don&#x27;t be clickbait.&lt;&#x2F;p&gt;
+&lt;p&gt;I currently work on and have in the past worked on performance sensitive code. It&#x27;s often the case that improving the performance of some part of your code makes no &lt;em&gt;real&lt;&#x2F;em&gt; difference to the &lt;em&gt;overall&lt;&#x2F;em&gt; performance. In other words, if you&#x27;re improving the performance of code that isn&#x27;t part of the bottleneck, this often makes no practical difference.&lt;&#x2F;p&gt;
+&lt;p&gt;This isn&#x27;t to say that you shouldn&#x27;t care about performance, but there&#x27;s a number of other axes you can optimize along:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Well tested&lt;&#x2F;li&gt;
+&lt;li&gt;Does something no one has done before&lt;&#x2F;li&gt;
+&lt;li&gt;Covers more edge cases&lt;&#x2F;li&gt;
+&lt;li&gt;Is stable&lt;&#x2F;li&gt;
+&lt;li&gt;Uses cutting edge APIs&lt;&#x2F;li&gt;
+&lt;li&gt;Is easy to use&lt;&#x2F;li&gt;
+&lt;li&gt;Is well documented&lt;&#x2F;li&gt;
+&lt;li&gt;Is friendly to new contributors&lt;&#x2F;li&gt;
+&lt;li&gt;Most embodies the shitposter spirit&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;This also isn&#x27;t to say that it&#x27;s illegal to write the absolutely most optimal code. I just think that if this is your goal you need to come with receipts and be able to make your case. If your project was entirely vibe coded, benchmarks and all, you&#x27;re going to get shredded. Not by me (probably, I tend to keep to myself on the internet), but other commenters are probably going to shit on you (for better or worse) if&#x2F;when they find your claims lacking.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;done&quot;&gt;Done&lt;a class=&quot;zola-anchor&quot; href=&quot;#done&quot; aria-label=&quot;Anchor link for: done&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; height=&quot;20&quot;&gt;&lt;path d=&quot;M12.11,15.39,8.23,19.27a2.52,2.52,0,0,1-3.5,0,2.47,2.47,0,0,1,0-3.5l3.88-3.88a1,1,0,1,0-1.42-1.42L3.31,14.36a4.48,4.48,0,0,0,6.33,6.33l3.89-3.88a1,1,0,0,0-1.42-1.42ZM20.69,3.31a4.49,4.49,0,0,0-6.33,0L10.47,7.19a1,1,0,1,0,1.42,1.42l3.88-3.88a2.52,2.52,0,0,1,3.5,0,2.47,2.47,0,0,1,0,3.5l-3.88,3.88a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3.88-3.89A4.49,4.49,0,0,0,20.69,3.31ZM8.83,15.17a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l4.92-4.92a1,1,0,1,0-1.42-1.42L8.83,13.75A1,1,0,0,0,8.83,15.17Z&quot;&#x2F;&gt;&lt;&#x2F;svg&gt;&lt;&#x2F;a&gt;&lt;&#x2F;h1&gt;
+&lt;p&gt;Glad I got that off my chest.&lt;&#x2F;p&gt;
+&lt;p&gt;I want to end by saying you&#x27;re not a bad person if you make a headline like this. I just think you can do better. That&#x27;s probably patronizing, but what I&#x27;m trying to convey is that you&#x27;re selling yourself and your achievements short.&lt;&#x2F;p&gt;
+</description>
+      </item>
       <item>
           <title>Composition: the feature I&#x27;ve wanted in Flox since I joined the company</title>
           <pubDate>Fri, 09 May 2025 00:00:00 +0000</pubDate>
