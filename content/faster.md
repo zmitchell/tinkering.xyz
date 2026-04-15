@@ -31,6 +31,8 @@ If you did legitimately make something significantly faster all things considere
 
 When X is on the order of ~2x faster I'm much more likely to believe that you've discovered a legitimate optimization. Maybe you improved cache locality, reduced the number of system calls, etc. If you write a blog post about that, I'm probably going to read every single word because that's the kind of nerd I am.
 
+Another aspect of "is it true" is "does it even do the same thing?". If you ignore 90% of the problem (which may be valid for your use case!) and your program is faster, that's kind of to be expected, but it's not strictly a fair comparison. You can probably slice bread with a chainsaw, and it will probably do it faster than a bread knife, but "chainsaw slices bread faster than bread knife" is only true if bread carnage counts as "sliced".
+
 # Is it important?
 
 A headline of "I made `<popular or just existing tool>` MUCH faster" can be read a number of ways, some more charitable than others:
