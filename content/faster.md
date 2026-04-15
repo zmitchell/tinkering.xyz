@@ -6,7 +6,7 @@ description = "Many new project announcements these days come with a tagline of 
 
 Yeah, this is a rant. I saw a post on `r/rust` and it triggered me. Rather than putting it in my diary or keeping it between me and my therapist I'm putting it on the internet because I suspect there are some kindred spirits out there. I'm sure this will go well for me.
 
-Also, yeah, I've written [a post](./fmo-optimization-story.md) about making things faster, but that was about the incremental improvements I made to (1) something no one knew existed, and (2) something that was legitimately really slow. This isn't what I'm talking about.
+Also, yeah, I've written [a post](../fmo-optimization-story) about making things faster, but that was about the incremental improvements I made to (1) something no one knew existed, and (2) something that was legitimately really slow. This isn't what I'm talking about.
 
 # Getting butthurt
 
