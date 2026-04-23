@@ -1,72 +1,48 @@
 +++
-title = "I don't care that it's X times faster"
-date = 2026-04-14
-description = "Many new project announcements these days come with a tagline of 'X times faster than ...' and I need to rant about it."
+title = "The receipts for 'faster'"
+date = 2026-04-22
+description = "A reply to 'faster'. The thesis is right. The public toolkit doesn't quite enforce it yet. Here's how to close the loop."
 +++
 
-Yeah, this is a rant. I saw a post on `r/rust` and it triggered me. Rather than putting it in my diary or keeping it between me and my therapist I'm putting it on the internet because I suspect there are some kindred spirits out there. I'm sure this will go well for me.
+Read "faster" and nodded along. The 500x numbers really are mostly broken benchmarks. The 2x numbers really are mostly honest. "Your benchmark isn't measuring what you think it's measuring" is the single most useful sentence anyone's written about this.
 
-Also, yeah, I've written [a post](../fmo-optimization-story) about making things faster, but that was about the incremental improvements I made to (1) something no one knew existed, and (2) something that was legitimately really slow. This isn't what I'm talking about.
+But the post argues a stronger position than the public repos currently enforce, and the gap is worth closing. If the thesis is that `faster` deserves skepticism, then the defense should be mechanical, not rhetorical — otherwise you're doing the same thing the post criticizes: asserting something without receipts.
 
-# Getting butthurt
+## What's already there
 
-I don't know if this is some kind of psychological bias that has caused me to notice this now that I'm thinking about it, but lately it seems like new project announcements take one of the following forms:
+Proptest is used in earnest. Polarization has 75 property tests against 60 unit tests and a `proptest-regressions/` directory with six checked-in counterexamples, which is the habit most people skip. There's a metamorphic testing library, written from scratch, with a README that cites Hillel Wayne. Criterion benches in `aoc-2024` wrap their inputs in `black_box` — not a formality, most benches don't. Domain-aware approximate-equality macros for complex numbers, beams, and matrices. That's more rigor than 95% of the ecosystem ships.
 
-- "I built Foo, which is X times faster than Y"
-- "X times faster <thing>"
-- "Foo is X times faster than Bar"
+So this isn't a "you need to test your code" reply. You already test your code.
 
-First, I'm skeptical that it's even true. Second, even if it is true, is performance the most important metric?
+## Where the thesis exceeds the tooling
 
-# Is it true?
+A benchmark that says "500x" is almost always broken. Fine. But a benchmark that says "2x" is only trustworthy if you can demonstrate that:
 
-The order of magnitude of `X` in these post titles is _all_ over the map. I've seen some posts where X is on the order of 500x. In that case I instantly think one of the following:
+1. The thing being measured hasn't been optimized away.
+2. The two sides of the comparison are doing equivalent work.
+3. The measurement itself is reproducible across machines and days.
+4. The test suite that claims the code is correct would actually notice if it wasn't.
 
-- Your benchmark isn't measuring what you think it's measuring
-  - Charitable interpretation: you're accidentally measuring something that's been optimized away entirely
-- Your benchmark isn't a fair comparison
-  - ex.) Project A does some work inline, whereas your project sends the work to a background thread, and you're comparing the time it takes to send data over a channel as opposed to actually doing the rest of the work on the background thread.
+Criterion plus `black_box` gives you (1) and (2). Proptest with regressions gives you part of (4). Nothing in the public repos gives you (3) or the rest of (4). The post treats all four as load-bearing, so the tooling should too.
 
-If you did legitimately make something significantly faster all things considered, I sincerely congratulate you. That's an achievement and it's really fun to do. Otherwise, I'm giving you stink eye.
+## The specific gaps
 
-When X is on the order of ~2x faster I'm much more likely to believe that you've discovered a legitimate optimization. Maybe you improved cache locality, reduced the number of system calls, etc. If you write a blog post about that, I'm probably going to read every single word because that's the kind of nerd I am.
+**iai-callgrind.** Criterion measures wall time, which is noisy, machine-dependent, and wrong to ship in a PR gate. iai-callgrind counts instructions, cache references, and branch misses through Valgrind. It's deterministic across machines and runs in CI without flakes. This is the single change that would let you publish "2x faster" numbers that a skeptic — including yourself — couldn't wave away. Especially relevant for `proctrace`, which is the kind of tool people benchmark themselves.
 
-Another aspect of "is it true" is "does it even do the same thing?". If you ignore 90% of the problem (which may be valid for your use case!) and your program is faster, that's kind of to be expected, but it's not strictly a fair comparison. You can probably slice bread with a chainsaw, and it will probably do it faster than a bread knife, but "chainsaw slices bread faster than bread knife" is only true if bread carnage counts as "sliced".
+**cargo-mutants on polarization.** 75 properties is a lot of properties. Mutation testing flips operators and returns in the code under test and tells you which of those properties actually catches the perturbation. Without it, a property can silently rot into a tautology — the test passes, but only because it's checking something that's always true. This is the "test for your tests" and it's specifically the right tool for code that's mostly property-based.
 
-# Is it important?
+**cargo-fuzz on `ingest.rs`.** The bpftrace output parser is exactly the shape fuzzing was built for: structured text, regex-heavy, adversarial inputs possible if bpftrace ever changes its output format. An `Arbitrary` impl on a synthetic event, a round-trip target, and an afternoon of fuzzing is about a hundred lines of code and makes proctrace robust against the thing that breaks proctrace-class tools in practice.
 
-A headline of "I made `<popular or just existing tool>` MUCH faster" can be read a number of ways, some more charitable than others:
+**dhat-rs.** A tool that traces kernel-level process lifecycle events should probably know its own allocation profile, especially for long recordings. dhat-rs wraps the same DHAT that Nethercote built; instrumenting `proctrace record` for a ten-minute trace and looking at the output would either confirm there's nothing to see or surface a detail that matters.
 
-- Existing tool is unreasonably slow
-- Existing tool could be better
-- Maintainers of `<existing tool>` are naive/ignorant/bad/wasting their time/...
-- I am really good at performance
-- I am much better at performance than the maintainers of `<existing tool>`
-- Performance matters at all for `<existing tool>`
-- Performance is an _important_ feature of `<existing tool>`
-- Please hire me
-  - You are valid, it's rough out there and you deserve to eat
+**trybuild on wickerman.** Procedural macros without compile-fail tests mean the error-path UX drifts and nobody notices until a user files an issue about a confusing diagnostic. Small lift, high payoff.
 
-Being totally transparent, I'm autistic, so I'm totally willing to entertain the idea that I read things differently than other people. That said, these headlines often feel like clickbait, meant to catch your eye either because X is a big number, or because the project being compared against is well known. Bad. Don't be clickbait.
+**divan on the SIMD comparison in aoc-2024.** The `day1` vs `day1_simd_parser` split is already the right shape — same puzzle, same input, two implementations. Divan compares functions in the same bench natively, which is the apples-to-apples framing the post asks for. Criterion can do it but divan says it out loud.
 
-I currently work on and have in the past worked on performance sensitive code. It's often the case that improving the performance of some part of your code makes no _real_ difference to the _overall_ performance. In other words, if you're improving the performance of code that isn't part of the bottleneck, this often makes no practical difference.
+## Why this matters for the thesis
 
-This isn't to say that you shouldn't care about performance, but there's a number of other axes you can optimize along:
+The "faster" post isn't really about benchmarking. It's about epistemics — what does it take to make a performance claim that a skeptic would accept? The honest answer is: instruction-counted benches, mutation-verified properties, fuzzed parsers, heap profiles, snapshot-tested output. Not because any single tool is magic, but because together they make the claim *checkable* rather than *asserted*.
 
-- Well tested
-- Does something no one has done before
-- Covers more edge cases
-- Is stable
-- Uses cutting edge APIs
-- Is easy to use
-- Is well documented
-- Is friendly to new contributors
-- Most embodies the shitposter spirit
+None of the above contradicts the existing work. It fortifies it. The article is good. The gap is that anyone motivated to disagree with you could point at the public repos and say "prove it," and right now the answer would be more careful than it needs to be.
 
-This also isn't to say that it's illegal to write the absolutely most optimal code. I just think that if this is your goal you need to come with receipts and be able to make your case. If your project was entirely vibe coded, benchmarks and all, you're going to get shredded. Not by me (probably, I tend to keep to myself on the internet), but other commenters are probably going to shit on you (for better or worse) if/when they find your claims lacking.
-
-# Done
-
-Glad I got that off my chest.
-
-I want to end by saying you're not a bad person if you make a headline like this. I just think you can do better. That's probably patronizing, but what I'm trying to convey is that you're selling yourself and your achievements short.
+Fill the gaps and the answer becomes: here are the receipts.
